@@ -10,7 +10,7 @@ describe Rika::Parser do
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
   end
 
-  it "should crash if file does not exists" do
+  it "should raise error if file does not exists" do
     lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist")
   end
 
