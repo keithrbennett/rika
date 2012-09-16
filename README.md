@@ -2,6 +2,8 @@
 
 A JRuby wrapper for Apache Tika to extract text and metadata from various file formats.
 
+More information about Apache Tika can be found here: http://tika.apache.org/
+
 ## Installation
 
 Add this line to your application's Gemfile:
