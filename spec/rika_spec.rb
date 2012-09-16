@@ -2,9 +2,7 @@
 
 require 'spec_helper'
 
-describe Rika::Parser do
-  # TODO: add specs for file not found, unknown mimetypes, filestreams and URLs
-  
+describe Rika::Parser do 
   before(:all) do
     @txt_parser = Rika::Parser.new(file_path("text_file.txt"))
     @docx_parser = Rika::Parser.new(file_path("document.docx"))
