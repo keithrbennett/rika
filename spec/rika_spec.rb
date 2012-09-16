@@ -62,6 +62,10 @@ describe Rika::Parser do
     it "should return available metadata fields" do
       @txt_parser.available_metadata.should_not be_empty
     end
+
+    it "should be an array" do
+      @txt_parser.available_metadata.is_a?(Array).should == true
+    end
   end
 
   describe '#metadata_exists?' do

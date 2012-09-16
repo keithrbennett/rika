@@ -38,7 +38,7 @@ module Rika
   	end
 
   	def available_metadata
-  		@metadata.names
+  		@metadata.names.to_a
   	end
 
   	def metadata_exists?(name)
