@@ -33,6 +33,10 @@ module Rika
   		metadata_hash
   	end
 
+  	def available_metadata
+  		@metadata.names
+  	end
+
   	protected
 		
 		def perform

@@ -58,4 +58,11 @@ describe Rika::Parser do
       parser.metadata["Image Width"].should == "72 pixels"
     end
   end
+
+  describe '#available_metadata' do
+    it "should return available metadata fields" do
+      parser = Rika::Parser.new(file_path("text_file.txt"))
+      parser.available_metadata.should_not be_empty
+    end
+  end
 end
