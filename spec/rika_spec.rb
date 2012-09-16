@@ -14,6 +14,11 @@ describe Rika::Parser do
     lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist")
   end
 
+  it "should detect file type without a file extension" do
+    parser = Rika::Parser.new(file_path("text_file_without_extension"))
+    parser.metadata["Content-Type"].should == "text/plain; charset=ISO-8859-1"
+  end
+
   describe '#content' do
     it "should return the content in a text file" do
       @txt_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
