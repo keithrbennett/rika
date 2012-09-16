@@ -22,11 +22,15 @@ Or install it yourself as:
 
 Something like this:
 
-parser = Rika::Parser.new(filename)
+require 'rika'
 
-parser.content # returns all the parsed content
+parser = Rika::Parser.new('document.pdf')
 
-parser.metadata["title"] # returns the title metadata if available. 
+parser.content # Returns the content of the document as text
+
+parser.metadata["title"] if parser.metadata_exists?("title") # Returns the metadata field title if it exists 
+
+parser.available_metadata # Returns all the available metadata keys that can be read from the document
 
 ## Contributing
 
