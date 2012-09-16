@@ -23,17 +23,17 @@ Or install it yourself as:
 ## Usage
 
 Something like this:
+```ruby
+	require 'rika'
 
-require 'rika'
+	parser = Rika::Parser.new('document.pdf')
 
-parser = Rika::Parser.new('document.pdf')
+	parser.content # Returns the content of the document as text
 
-parser.content # Returns the content of the document as text
+	parser.metadata["title"] if parser.metadata_exists?("title") # Returns the metadata field title if it exists 
 
-parser.metadata["title"] if parser.metadata_exists?("title") # Returns the metadata field title if it exists 
-
-parser.available_metadata # Returns all the available metadata keys that can be read from the document
-
+	parser.available_metadata # Returns all the available metadata keys that can be read from the document
+```
 ## Contributing
 
 1. Fork it
