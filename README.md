@@ -1,12 +1,14 @@
 # Rika
 
-TODO: Write a gem description
+A JRuby wrapper for Apache Tika to extract text and metadata from various file formats.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
     gem 'rika'
+
+Remember that this gem only works on JRuby.
 
 And then execute:
 
@@ -18,7 +20,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Something like this:
+
+parser = Rika::Parser.new(filename)
+
+parser.content # returns all the parsed content
+
+parser.metadata["title"] # returns the title metadata if available. 
 
 ## Contributing
 
