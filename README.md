@@ -28,11 +28,14 @@ Something like this:
 
 	parser = Rika::Parser.new('document.pdf')
 
-	parser.content # Returns the content of the document as text
+	# Returns the content of the document as text:
+	parser.content 
 
-	parser.metadata["title"] if parser.metadata_exists?("title") # Returns the metadata field title if it exists 
+	# Returns the metadata field title if it exists:
+	parser.metadata["title"] if parser.metadata_exists?("title") 
 
-	parser.available_metadata # Returns all the available metadata keys that can be read from the document
+	# Returns all the available metadata keys that can be read from the document
+	parser.available_metadata
 ```
 ## Contributing
 
