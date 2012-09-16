@@ -15,8 +15,12 @@ module Rika
   class Parser
   	
   	def initialize(filename)
-  		@filename = filename
-			self.perform
+  		if File.exists?(filename)
+  			@filename = filename
+				self.perform
+			else
+				raise IOError, "File does not exist"
+			end
   	end
 
   	def content

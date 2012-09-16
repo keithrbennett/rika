@@ -12,13 +12,17 @@ describe Rika::Parser do
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
   end
 
+  it "should crash if file does not exists" do
+    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist")
+  end
+
   describe '#content' do
     it "should return the content in a text file" do
-      @txt_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win.\n"
+      @txt_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
     end
 
     it "should return the content in a docx file" do
-      @docx_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win.\n"
+      @docx_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
     end
 
     it "should return the content in a pdf file" do 
