@@ -37,6 +37,14 @@ module Rika
   		@metadata.names
   	end
 
+  	def metadata_exists?(name)
+  		if @metadata.get(name) == nil
+  			false
+  		else
+  			true
+  		end
+  	end
+
   	protected
 		
 		def perform

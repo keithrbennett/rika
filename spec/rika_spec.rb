@@ -27,11 +27,10 @@ describe Rika::Parser do
     end
   end
 
+  # We just test a few of the metadata fields for some common file formats 
+  # to make sure the integration with Apache Tika works. Apache Tika already 
+  # have tests for all file formats it supports so we won't retest that
   describe '#metadata' do
-    # We just test a few of the metadata fields for some common file formats 
-    # to make sure the integration with Apache Tika works.
-    # Apache Tika already have tests for all file formats it supports.
-
     it "should return nil if metadata field does not exists" do
       parser = Rika::Parser.new(file_path("text_file.txt"))
       parser.metadata["nonsense"].should be_nil
@@ -63,6 +62,18 @@ describe Rika::Parser do
     it "should return available metadata fields" do
       parser = Rika::Parser.new(file_path("text_file.txt"))
       parser.available_metadata.should_not be_empty
+    end
+  end
+
+  describe '#metadata_exists?' do
+    it "should return false if metadata does not exists" do
+      parser = Rika::Parser.new(file_path("text_file.txt"))
+      parser.metadata_exists?("title").should == false
+    end
+
+    it "should return true if metadata exists" do
+      parser = Rika::Parser.new(file_path("document.docx"))
+      parser.metadata_exists?("title").should == true
     end
   end
 end
