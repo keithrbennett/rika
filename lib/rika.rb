@@ -52,13 +52,17 @@ module Rika
   	protected
 		
 		def perform
-			input_stream = java.io.FileInputStream.new(java.io.File.new(@filename))
-			@metadata = Metadata.new
-			@metadata.set("filename", File.basename(@filename))
-			@parser = AutoDetectParser.new
-			@content = BodyContentHandler.new
-			@parser.parse(input_stream, @content, @metadata)
-			input_stream.close
+			input_stream = nil
+			begin
+				input_stream = java.io.FileInputStream.new(java.io.File.new(@filename))
+				@metadata = Metadata.new
+				@metadata.set("filename", File.basename(@filename))
+				@parser = AutoDetectParser.new
+				@content = BodyContentHandler.new
+				@parser.parse(input_stream, @content, @metadata)
+			ensure
+				input_stream.close	
+			end
 		end
   end
 end
