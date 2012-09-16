@@ -23,6 +23,16 @@ module Rika
   		@content.to_s
   	end
 
+  	def metadata
+  		metadata_hash = {}
+  		
+  		@metadata.names.each do |name|
+  			metadata_hash[name] = @metadata.get(name) 
+  		end
+
+  		metadata_hash
+  	end
+
   	protected
 		
 		def perform
