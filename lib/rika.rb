@@ -3,7 +3,7 @@ raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
 require "rika/version"
 require 'java' 
 
-Dir[File.join(File.dirname(__FILE__), "*.jar")].each do |jar|
+Dir[File.join(File.dirname(__FILE__), "jars/*.jar")].each do |jar|
   require jar
 end
 
