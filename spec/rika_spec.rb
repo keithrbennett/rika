@@ -25,15 +25,25 @@ describe Rika::Parser do
     end
 
     it "should return the content in a docx file" do
-      @docx_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
+      @docx_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
     end
 
     it "should return the content in a pdf file" do 
-      @pdf_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
+      @pdf_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
     end
 
     it "should return no content for an image" do
       @image_parser.content.should be_empty
+    end
+
+    it "should only return max content length" do
+      parser = Rika::Parser.new(file_path("text_file.txt"), 5)
+      parser.content.should == "First"
+    end
+
+    it "should be possible to read files over 100k by default" do
+      parser = Rika::Parser.new(file_path("over_100k_file.txt"))
+      parser.content.length.should == 101_761
     end
   end
 

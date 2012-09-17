@@ -28,14 +28,18 @@ Something like this:
 
 	parser = Rika::Parser.new('document.pdf')
 
-	# Returns the content of the document as text:
+	# Return the content of the document:
 	parser.content 
 
-	# Returns the metadata field title if it exists:
+	# Return the metadata field title if it exists:
 	parser.metadata["title"] if parser.metadata_exists?("title") 
 
-	# Returns all the available metadata keys that can be read from the document
+	# Return all the available metadata keys that can be read from the document
 	parser.available_metadata
+
+	# Return only the first 10000 chars of the content:
+	parser = Rika::Parser.new('document.pdf', 10000)
+	parser.content # 10000 first chars returned	
 ```
 ## Contributing
 

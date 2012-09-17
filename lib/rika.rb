@@ -8,15 +8,14 @@ Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |ja
 end
 
 module Rika
-  import org.apache.tika.sax.BodyContentHandler
-  import org.apache.tika.parser.AutoDetectParser
   import org.apache.tika.metadata.Metadata
-
+  import org.apache.tika.Tika
   class Parser
     
-    def initialize(filename)
+    def initialize(filename, max_content_length = -1)
       if File.exists?(filename)
         @filename = filename
+        @max_content_length = max_content_length
         self.perform
       else
         raise IOError, "File does not exist"
@@ -24,7 +23,7 @@ module Rika
     end
 
     def content
-      @content.to_s
+      @content.to_s.strip
     end
 
     def metadata
@@ -57,9 +56,8 @@ module Rika
         input_stream = java.io.FileInputStream.new(java.io.File.new(@filename))
         @metadata = Metadata.new
         @metadata.set("filename", File.basename(@filename))
-        @parser = AutoDetectParser.new
-        @content = BodyContentHandler.new
-        @parser.parse(input_stream, @content, @metadata)
+        @tika = Tika.new
+        @content = @tika.parse_to_string(input_stream, @metadata, @max_content_length) 
       ensure
         input_stream.close  
       end
