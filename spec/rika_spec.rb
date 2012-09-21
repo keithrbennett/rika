@@ -1,17 +1,37 @@
 # encoding: utf-8
 
 require 'spec_helper'
+require 'webrick'
 
+include WEBrick
+ 
 describe Rika::Parser do 
   before(:all) do
     @txt_parser = Rika::Parser.new(file_path("text_file.txt"))
     @docx_parser = Rika::Parser.new(file_path("document.docx"))
     @pdf_parser = Rika::Parser.new(file_path("document.pdf"))
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
+    @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))  
+    port = 50505
+    @url = "http://#{Socket.gethostname}:#{port}"
+    
+    @t1 = Thread.new do
+      @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir, 
+      :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))  
+      @server.start
+    end
+  end
+
+  after(:all) do
+    @t1.exit
   end
 
   it "should raise error if file does not exists" do
-    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist")
+    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist or can't be reached.")
+  end
+
+  it "should raise error if URL does not exists" do
+    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError, "File does not exist or can't be reached.")
   end
 
   it "should detect file type without a file extension" do
@@ -45,6 +65,11 @@ describe Rika::Parser do
       parser = Rika::Parser.new(file_path("over_100k_file.txt"))
       parser.content.length.should == 101_761
     end
+
+    it "should return the content from a file over http" do
+      parser = Rika::Parser.new(@url + "/document.pdf")
+      parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."   
+    end
   end
 
   # We just test a few of the metadata fields for some common file formats 
@@ -64,6 +89,10 @@ describe Rika::Parser do
     end
 
     it "should return metadata from a pdf file" do
+      @pdf_parser.metadata["title"].should == "A simple title"
+    end
+
+    it "should return metadata from a file over http" do
       @pdf_parser.metadata["title"].should == "A simple title"
     end
 

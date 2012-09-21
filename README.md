@@ -39,7 +39,11 @@ Something like this:
 
 	# Return only the first 10000 chars of the content:
 	parser = Rika::Parser.new('document.pdf', 10000)
-	parser.content # 10000 first chars returned	
+	parser.content # 10000 first chars returned
+
+	# Return content from URL (only in master)
+	parser = Rika::Parser.new('http://www.exampleurl.com/example.pdf')
+	parser.content	
 ```
 ## Contributing
 
