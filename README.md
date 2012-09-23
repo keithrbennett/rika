@@ -41,9 +41,9 @@ Something like this:
 	parser = Rika::Parser.new('document.pdf', 10000)
 	parser.content # 10000 first chars returned
 
-	# Return content from URL (only in master)
+	# Return content from URL
 	parser = Rika::Parser.new('http://www.exampleurl.com/example.pdf')
-	parser.content	
+	parser.content
 ```
 ## Contributing
 
