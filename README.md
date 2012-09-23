@@ -42,7 +42,7 @@ Something like this:
 	parser.content # 10000 first chars returned
 
 	# Return content from URL
-	parser = Rika::Parser.new('http://www.exampleurl.com/example.pdf')
+	parser = Rika::Parser.new('http://riakhandbook.com/sample.pdf', 200)
 	parser.content
 ```
 ## Contributing
