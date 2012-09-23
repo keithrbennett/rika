@@ -9,20 +9,24 @@ Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |ja
   require jar
 end
 
+# Heavily based on the Apache Tika API: http://tika.apache.org/1.2/api/org/apache/tika/Tika.html
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
+  
   class Parser
     
     def initialize(uri, max_content_length = -1)
       p = URI::Parser.new
       @uri = uri
-      @max_content_length = max_content_length
+      @tika = Tika.new
+      @tika.set_max_string_length(max_content_length)
+      @metadata = Metadata.new
       
-      if File.exists?(@uri) # it's a file!
-        self.perform_file
-      elsif p.parse(@uri).scheme == 'http' || p.parse(@uri).scheme == 'https' # URL FTW!!
-        self.perform_url
+      if File.exists?(@uri)
+        self.parse_file
+      elsif p.parse(@uri).scheme == 'http' || p.parse(@uri).scheme == 'https'
+        self.parse_url
       else
         raise IOError, "File does not exist or can't be reached."
       end
@@ -47,45 +51,23 @@ module Rika
     end
 
     def metadata_exists?(name)
-      if @metadata.get(name) == nil
-        false
-      else
-        true
-      end
+      @metadata.get(name) != nil
     end
 
     protected
     
-    def perform_file
-      input_stream = nil
-      begin
-        input_stream = java.io.FileInputStream.new(java.io.File.new(@uri))
-        @metadata = Metadata.new
-        @metadata.set("filename", File.basename(@uri))
-        @tika = Tika.new
-        @content = @tika.parse_to_string(input_stream, @metadata, @max_content_length) 
-      ensure
-        input_stream.close
-      end
+    def parse_file
+      input_stream = java.io.FileInputStream.new(java.io.File.new(@uri))
+      @metadata.set("filename", File.basename(@uri))
+      @content = @tika.parse_to_string(input_stream, @metadata) 
     end
 
-
-    def perform_url
-      input_stream = nil
-      begin
-        uri = URI(@uri)
-        res = Net::HTTP.get_response(uri)
-        raise IOError, "File does not exist or can't be reached." if not res.is_a?(Net::HTTPSuccess)
-        
-        url = java.net.URL.new(@uri)
-        @metadata = Metadata.new
-        @metadata.set("url", @uri)
-        @tika = Tika.new
-        input_stream = @tika.parse(url)
-        @content = @tika.parse_to_string(url) 
-      ensure
-        input_stream.close if not input_stream.nil?
-      end
+    def parse_url
+      raise IOError, "File does not exist or can't be reached." if not Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
+      url = java.net.URL.new(@uri)
+      input_stream = url.open_stream
+      @metadata.set("url", @uri)
+      @content = @tika.parse_to_string(input_stream, @metadata) 
     end
   end
 end

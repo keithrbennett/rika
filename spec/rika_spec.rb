@@ -61,6 +61,11 @@ describe Rika::Parser do
       parser.content.should == "First"
     end
 
+    it "should only return max content length for file over http" do
+      parser = Rika::Parser.new(@url + "/document.pdf", 6)
+      parser.content.should == "First"   
+    end
+
     it "should be possible to read files over 100k by default" do
       parser = Rika::Parser.new(file_path("over_100k_file.txt"))
       parser.content.length.should == 101_761
@@ -93,7 +98,8 @@ describe Rika::Parser do
     end
 
     it "should return metadata from a file over http" do
-      @pdf_parser.metadata["title"].should == "A simple title"
+      parser = Rika::Parser.new(@url + "/document.pdf")
+      parser.metadata["title"].should == "A simple title"
     end
 
     it "should return metadata from an image" do
