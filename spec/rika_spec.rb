@@ -14,7 +14,7 @@ describe Rika::Parser do
     @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))  
     port = 50505
     @url = "http://#{Socket.gethostname}:#{port}"
-    
+    @qoute = "First they ignore you, then they ridicule you, then they fight you, then you win."
     @t1 = Thread.new do
       @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir, 
       :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))  
@@ -41,15 +41,15 @@ describe Rika::Parser do
 
   describe '#content' do
     it "should return the content in a text file" do
-      @txt_parser.content.strip.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
+      @txt_parser.content.strip.should == @qoute
     end
 
     it "should return the content in a docx file" do
-      @docx_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
+      @docx_parser.content.should == @qoute
     end
 
     it "should return the content in a pdf file" do 
-      @pdf_parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."
+      @pdf_parser.content.should == @qoute
     end
 
     it "should return no content for an image" do
@@ -73,7 +73,7 @@ describe Rika::Parser do
 
     it "should return the content from a file over http" do
       parser = Rika::Parser.new(@url + "/document.pdf")
-      parser.content.should == "First they ignore you, then they ridicule you, then they fight you, then you win."   
+      parser.content.should == @qoute   
     end
   end
 
