@@ -23,11 +23,19 @@ module Rika
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
+
+      @is_file = File.exists?(@uri)
+      is_http = ["http", "https"].include?(URI.parse(@uri).scheme) && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !@is_file
+      
+      if !@is_file && !is_http
+        raise IOError, "File does not exist or can't be reached."
+      end
+
       self.parse
     end
 
     def content
-      @content.to_s.strip
+      @content 
     end
 
     def metadata
@@ -41,7 +49,7 @@ module Rika
     end
 
     def media_type
-      @media_type
+      @media_type ||= @tika.detect(input_stream) 
     end
 
     def available_metadata
@@ -55,19 +63,11 @@ module Rika
     protected
     
     def parse
-      is_file = File.exists?(@uri)
-      is_http = ["http", "https"].include?(URI.parse(@uri).scheme) && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !is_file
-      
-      if !is_file && !is_http
-        raise IOError, "File does not exist or can't be reached."
-      end
-
-      @media_type = @tika.detect(input_stream)
-      @content = @tika.parse_to_string(input_stream, @metadata) 
+      @content ||= @tika.parse_to_string(input_stream, @metadata).to_s.strip
     end
 
     def input_stream
-      if File.exists?(@uri)
+      if @is_file
         FileInputStream.new(java.io.File.new(@uri))
       else 
         URL.new(@uri).open_stream
