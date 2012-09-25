@@ -23,15 +23,7 @@ module Rika
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
-      
-      if File.exists?(@uri)
-        self.parse
-      elsif ["http", "https"].include?(URI::Parser.new.parse(@uri).scheme) 
-        raise IOError, "File does not exist or can't be reached." if not Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
-        self.parse
-      else
-        raise IOError, "File does not exist or can't be reached."
-      end
+      self.parse
     end
 
     def content
@@ -63,6 +55,13 @@ module Rika
     protected
     
     def parse
+      is_file = File.exists?(@uri)
+      is_http = ["http", "https"].include?(URI.parse(@uri).scheme) && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !is_file
+      
+      if !is_file && !is_http
+        raise IOError, "File does not exist or can't be reached."
+      end
+
       @media_type = @tika.detect(input_stream)
       @content = @tika.parse_to_string(input_stream, @metadata) 
     end
