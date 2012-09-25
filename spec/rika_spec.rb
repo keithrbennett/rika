@@ -11,6 +11,7 @@ describe Rika::Parser do
     @docx_parser = Rika::Parser.new(file_path("document.docx"))
     @pdf_parser = Rika::Parser.new(file_path("document.pdf"))
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
+    @unknown_parser = Rika::Parser.new(file_path("unknown.bin"))
     @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))  
     port = 50505
     @url = "http://#{Socket.gethostname}:#{port}"
@@ -75,6 +76,10 @@ describe Rika::Parser do
       parser = Rika::Parser.new(@url + "/document.pdf")
       parser.content.should == @qoute   
     end
+
+    it "should return empty string for unknown file" do
+      @unknown_parser.content.should be_empty
+    end
   end
 
   # We just test a few of the metadata fields for some common file formats 
@@ -125,6 +130,25 @@ describe Rika::Parser do
 
     it "should return true if metadata exists" do
       @docx_parser.metadata_exists?("title").should == true
+    end
+  end
+
+  describe '#media_type' do
+    it "should return application/pdf for a pdf file" do
+      @pdf_parser.media_type.should == "application/pdf"
+    end
+
+    it "should return text/plain for a txt file" do
+      @txt_parser.media_type.should == "text/plain"
+    end
+
+    it "should return application/pdf for a pdf over http" do
+      parser = Rika::Parser.new(@url + "/document.pdf")
+      parser.media_type.should == "application/pdf"
+    end
+
+    it "should return application/octet-stream for unknown file" do
+      @unknown_parser.media_type.should == "application/octet-stream"
     end
   end
 end

@@ -46,6 +46,10 @@ module Rika
       metadata_hash
     end
 
+    def media_type
+      @media_type
+    end
+
     def available_metadata
       @metadata.names.to_a
     end
@@ -59,6 +63,7 @@ module Rika
     def parse_file
       input_stream = java.io.FileInputStream.new(java.io.File.new(@uri))
       @metadata.set("filename", File.basename(@uri))
+      @media_type = @tika.detect(java.io.FileInputStream.new(java.io.File.new(@uri)))
       @content = @tika.parse_to_string(input_stream, @metadata) 
     end
 
@@ -66,6 +71,7 @@ module Rika
       raise IOError, "File does not exist or can't be reached." if not Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
       url = java.net.URL.new(@uri)
       input_stream = url.open_stream
+      @media_type = @tika.detect(url.open_stream)
       @metadata.set("url", @uri)
       @content = @tika.parse_to_string(input_stream, @metadata) 
     end

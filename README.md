@@ -31,6 +31,10 @@ Something like this:
 	# Return the content of the document:
 	parser.content 
 
+	# Return the media type for the document:
+	parser.media_type 
+	=> "application/pdf"
+
 	# Return the metadata field title if it exists:
 	parser.metadata["title"] if parser.metadata_exists?("title") 
 
