@@ -13,20 +13,22 @@ end
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
+  import java.io.FileInputStream
+  import java.net.URL
   
   class Parser
     
-    def initialize(uri, max_content_length = -1)
-      p = URI::Parser.new
-      @uri = uri
+    def initialize(file_location, max_content_length = -1)
+      @uri = file_location
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
       
       if File.exists?(@uri)
-        self.parse_file
-      elsif p.parse(@uri).scheme == 'http' || p.parse(@uri).scheme == 'https'
-        self.parse_url
+        self.parse
+      elsif ["http", "https"].include?(URI::Parser.new.parse(@uri).scheme) 
+        raise IOError, "File does not exist or can't be reached." if not Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
+        self.parse
       else
         raise IOError, "File does not exist or can't be reached."
       end
@@ -60,20 +62,17 @@ module Rika
 
     protected
     
-    def parse_file
-      input_stream = java.io.FileInputStream.new(java.io.File.new(@uri))
-      @metadata.set("filename", File.basename(@uri))
-      @media_type = @tika.detect(java.io.FileInputStream.new(java.io.File.new(@uri)))
+    def parse
+      @media_type = @tika.detect(input_stream)
       @content = @tika.parse_to_string(input_stream, @metadata) 
     end
 
-    def parse_url
-      raise IOError, "File does not exist or can't be reached." if not Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
-      url = java.net.URL.new(@uri)
-      input_stream = url.open_stream
-      @media_type = @tika.detect(url.open_stream)
-      @metadata.set("url", @uri)
-      @content = @tika.parse_to_string(input_stream, @metadata) 
+    def input_stream
+      if File.exists?(@uri)
+        FileInputStream.new(java.io.File.new(@uri))
+      else 
+        URL.new(@uri).open_stream
+      end
     end
   end
 end

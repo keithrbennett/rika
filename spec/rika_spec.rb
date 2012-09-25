@@ -90,10 +90,6 @@ describe Rika::Parser do
       @txt_parser.metadata["nonsense"].should be_nil
     end
 
-    it "should return metadata from a text file" do
-      @txt_parser.metadata["filename"].should == "text_file.txt"
-    end
-
     it "should return metadata from a docx file" do
       @docx_parser.metadata["Page-Count"].should == "1"
     end
