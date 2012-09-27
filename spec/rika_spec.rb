@@ -40,6 +40,11 @@ describe Rika::Parser do
     parser.metadata["Content-Type"].should == "text/plain; charset=ISO-8859-1"
   end
 
+  it "should work with filenames containing weird chars" do
+    weird_parser = Rika::Parser.new(file_path("åäö.txt"))
+    weird_parser.content.should == "test"
+  end
+
   describe '#content' do
     it "should return the content in a text file" do
       @txt_parser.content.strip.should == @qoute

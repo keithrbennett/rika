@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
 
 require "rika/version"
@@ -25,7 +27,7 @@ module Rika
       @metadata = Metadata.new
 
       @is_file = File.exists?(@uri)
-      is_http = URI.parse(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !@is_file
+      is_http = URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !@is_file
       
       if !@is_file && !is_http
         raise IOError, "File does not exist or can't be reached."
