@@ -32,15 +32,15 @@ module Rika
       if !@is_file && !is_http
         raise IOError, "File does not exist or can't be reached."
       end
-
-      self.parse
     end
 
     def content
+      self.parse
       @content 
     end
 
     def metadata
+      self.parse
       metadata_hash = {}
       
       @metadata.names.each do |name|
@@ -55,10 +55,12 @@ module Rika
     end
 
     def available_metadata
+      self.parse
       @metadata.names.to_a
     end
 
     def metadata_exists?(name)
+      self.parse
       @metadata.get(name) != nil
     end
 
