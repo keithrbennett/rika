@@ -40,6 +40,10 @@ describe Rika::Parser do
     parser.metadata["Content-Type"].should == "text/plain; charset=ISO-8859-1"
   end
 
+  it "should not be possible to trick the parser to read a folder with an extension" do
+    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError, "File does not exist or can't be reached.")
+  end
+
   describe '#content' do
     it "should return the content in a text file" do
       @txt_parser.content.strip.should == @qoute

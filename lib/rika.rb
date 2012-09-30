@@ -26,7 +26,7 @@ module Rika
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
 
-      @is_file = File.exists?(@uri)
+      @is_file = File.exists?(@uri) && File.directory?(@uri) == false
       is_http = URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !@is_file
       
       if !@is_file && !is_http
