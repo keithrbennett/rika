@@ -11,7 +11,7 @@ Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |ja
   require jar
 end
 
-# Heavily based on the Apache Tika API: http://tika.apache.org/1.2/api/org/apache/tika/Tika.html
+# Heavily based on the Apache Tika API: http://tika.apache.org/1.3/api/org/apache/tika/Tika.html
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
