@@ -28,16 +28,6 @@ module Rika
       @input_type = get_input_type
     end
 
-    def get_input_type
-      if File.exists?(@uri) && File.directory?(@uri) == false
-        :file
-      elsif URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
-        :http
-      else
-        raise IOError, "Input (#{@uri})is neither file nor http."
-      end
-    end
-
     def content
       self.parse
       @content 
@@ -72,6 +62,16 @@ module Rika
     
     def parse
       @content ||= @tika.parse_to_string(input_stream, @metadata).to_s.strip
+    end
+
+    def get_input_type
+      if File.exists?(@uri) && File.directory?(@uri) == false
+        :file
+      elsif URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
+        :http
+      else
+        raise IOError, "Input (#{@uri})is neither file nor http."
+      end
     end
 
     def input_stream
