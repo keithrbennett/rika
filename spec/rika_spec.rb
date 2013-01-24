@@ -15,7 +15,7 @@ describe Rika::Parser do
     @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))  
     port = 50505
     @url = "http://#{Socket.gethostname}:#{port}"
-    @qoute = "First they ignore you, then they ridicule you, then they fight you, then you win."
+    @quote = "First they ignore you, then they ridicule you, then they fight you, then you win."
     @t1 = Thread.new do
       @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir, 
       :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))  
@@ -28,11 +28,11 @@ describe Rika::Parser do
   end
 
   it "should raise error if file does not exists" do
-    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError)
   end
 
   it "should raise error if URL does not exists" do
-    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError)
   end
 
   it "should detect file type without a file extension" do
@@ -41,20 +41,20 @@ describe Rika::Parser do
   end
 
   it "should not be possible to trick the parser to read a folder with an extension" do
-    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError)
   end
 
   describe '#content' do
     it "should return the content in a text file" do
-      @txt_parser.content.strip.should == @qoute
+      @txt_parser.content.strip.should == @quote
     end
 
     it "should return the content in a docx file" do
-      @docx_parser.content.should == @qoute
+      @docx_parser.content.should == @quote
     end
 
     it "should return the content in a pdf file" do 
-      @pdf_parser.content.should == @qoute
+      @pdf_parser.content.should == @quote
     end
 
     it "should return no content for an image" do
@@ -78,7 +78,7 @@ describe Rika::Parser do
 
     it "should return the content from a file over http" do
       parser = Rika::Parser.new(@url + "/document.pdf")
-      parser.content.should == @qoute   
+      parser.content.should == @quote
     end
 
     it "should return empty string for unknown file" do
