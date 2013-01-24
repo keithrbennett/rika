@@ -25,12 +25,16 @@ module Rika
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
+      @input_type = get_input_type
+    end
 
-      @is_file = File.exists?(@uri) && File.directory?(@uri) == false
-      is_http = URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess) if !@is_file
-      
-      if !@is_file && !is_http
-        raise IOError, "File does not exist or can't be reached."
+    def get_input_type
+      if File.exists?(@uri) && File.directory?(@uri) == false
+        :file
+      elsif URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
+        :http
+      else
+        raise IOError, "Input (#{@uri})is neither file nor http."
       end
     end
 
@@ -71,9 +75,9 @@ module Rika
     end
 
     def input_stream
-      if @is_file
+      if @input_type == :file
         FileInputStream.new(java.io.File.new(@uri))
-      else 
+      else # :http
         URL.new(@uri).open_stream
       end
     end

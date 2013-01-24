@@ -28,11 +28,11 @@ describe Rika::Parser do
   end
 
   it "should raise error if file does not exists" do
-    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError)
   end
 
   it "should raise error if URL does not exists" do
-    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError)
   end
 
   it "should detect file type without a file extension" do
@@ -41,7 +41,7 @@ describe Rika::Parser do
   end
 
   it "should not be possible to trick the parser to read a folder with an extension" do
-    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError, "File does not exist or can't be reached.")
+    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError)
   end
 
   describe '#content' do
