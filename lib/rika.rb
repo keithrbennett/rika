@@ -26,6 +26,7 @@ module Rika
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
       @metadata_hash = nil
+      @available_metadata = nil
       @input_type = get_input_type
     end
 
@@ -51,12 +52,13 @@ module Rika
     end
 
     def available_metadata
-      self.parse
-      @metadata.names.to_a
+      unless @available_metadata
+        @available_metadata = @metadata.names.to_a
+      end
+      @available_metadata
     end
 
     def metadata_exists?(name)
-      self.parse
       @metadata.get(name) != nil
     end
 
