@@ -24,9 +24,8 @@ module Rika
       @uri = file_location
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
-      @metadata = Metadata.new
-      @metadata_hash = nil
-      @available_metadata = nil
+      @metadata_java = Metadata.new
+      @metadata_ruby = nil
       @input_type = get_input_type
     end
 
@@ -36,15 +35,15 @@ module Rika
     end
 
     def metadata
-      unless @metadata_hash
+      unless @metadata_ruby
         self.parse
-        @metadata_hash = {}
+        @metadata_ruby = {}
       
-        @metadata.names.each do |name|
-          @metadata_hash[name] = @metadata.get(name)
+        @metadata_java.names.each do |name|
+          @metadata_ruby[name] = @metadata_java.get(name)
         end
       end
-      @metadata_hash
+      @metadata_ruby
     end
 
     def media_type
@@ -52,14 +51,11 @@ module Rika
     end
 
     def available_metadata
-      unless @available_metadata
-        @available_metadata = @metadata.names.to_a
-      end
-      @available_metadata
+      metadata.keys
     end
 
     def metadata_exists?(name)
-      @metadata.get(name) != nil
+      metadata[name] != nil
     end
 
     def file?
@@ -69,7 +65,7 @@ module Rika
     protected
     
     def parse
-      @content ||= @tika.parse_to_string(input_stream, @metadata).to_s.strip
+      @content ||= @tika.parse_to_string(input_stream, @metadata_java).to_s.strip
     end
 
     def get_input_type
