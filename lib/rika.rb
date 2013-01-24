@@ -25,6 +25,7 @@ module Rika
       @tika = Tika.new
       @tika.set_max_string_length(max_content_length)
       @metadata = Metadata.new
+      @metadata_hash = nil
       @input_type = get_input_type
     end
 
@@ -34,14 +35,15 @@ module Rika
     end
 
     def metadata
-      self.parse
-      metadata_hash = {}
+      unless @metadata_hash
+        self.parse
+        @metadata_hash = {}
       
-      @metadata.names.each do |name|
-        metadata_hash[name] = @metadata.get(name) 
+        @metadata.names.each do |name|
+          @metadata_hash[name] = @metadata.get(name)
+        end
       end
-
-      metadata_hash
+      @metadata_hash
     end
 
     def media_type
