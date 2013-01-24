@@ -60,6 +60,10 @@ module Rika
       @metadata.get(name) != nil
     end
 
+    def file?
+      @input_type == :file
+    end
+
     protected
     
     def parse
@@ -77,7 +81,7 @@ module Rika
     end
 
     def input_stream
-      if @input_type == :file
+      if file?
         FileInputStream.new(java.io.File.new(@uri))
       else # :http
         URL.new(@uri).open_stream
