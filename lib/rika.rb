@@ -74,7 +74,7 @@ module Rika
       elsif URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
         :http
       else
-        raise IOError, "Input (#{@uri})is neither file nor http."
+        raise IOError, "Input (#{@uri}) is neither file nor http."
       end
     end
 
