@@ -57,7 +57,6 @@ Something like this:
 	# Check whether the langugage identification is certain enough to be trusted
 	parser.language_is_reasonably_certain?
 	
-	#  
 ```
 ## Contributing
 
