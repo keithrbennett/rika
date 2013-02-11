@@ -151,4 +151,35 @@ describe Rika::Parser do
       @unknown_parser.media_type.should == "application/octet-stream"
     end
   end
+
+  describe '#language' do
+    it "should return the language of the content" do
+      en = Rika::Parser.new(file_path("english.txt"))
+      en.language.should == "en"
+      
+      de = Rika::Parser.new(file_path("german.txt"))
+      de.language.should == "de"
+      
+      fr = Rika::Parser.new(file_path("french.txt"))
+      fr.language.should == "fr"
+       
+      ru = Rika::Parser.new(file_path("russian.txt"))
+      ru.language.should == "ru"
+      
+      es = Rika::Parser.new(file_path("spanish.txt"))
+      es.language.should == "es"
+    end
+  end
+
+  describe '#language_is_reasonably_certain?' do
+    it "should return false if lang can't be determined" do
+      lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
+      lang.language_is_reasonably_certain? == false
+    end
+
+    it "should return true if language can be determined" do
+      lang = Rika::Parser.new(file_path("english.txt"))
+      lang.language_is_reasonably_certain? == true
+    end
+  end
 end

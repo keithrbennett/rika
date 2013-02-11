@@ -48,6 +48,16 @@ Something like this:
 	# Return content from URL
 	parser = Rika::Parser.new('http://riakhandbook.com/sample.pdf', 200)
 	parser.content
+
+	# Return the language for the content
+	parser = parser = Rika::Parser.new('german document.pdf')
+	parser.language
+	=> "de"
+
+	# Check whether the langugage identification is certain enough to be trusted
+	parser.language_is_reasonably_certain?
+	
+	#  
 ```
 ## Contributing
 

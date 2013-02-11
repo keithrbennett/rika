@@ -15,6 +15,7 @@ end
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
+  import org.apache.tika.language.LanguageIdentifier
   import java.io.FileInputStream
   import java.net.URL
   
@@ -60,6 +61,18 @@ module Rika
 
     def file?
       @input_type == :file
+    end
+
+    def language
+      @lang ||= LanguageIdentifier.new(content)
+      
+      @lang.language
+    end
+
+    def language_is_reasonably_certain?
+      @lang ||= LanguageIdentifier.new(content)
+
+      @lang.is_reasonably_certain
     end
 
     protected
