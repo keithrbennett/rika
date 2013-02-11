@@ -154,20 +154,11 @@ describe Rika::Parser do
 
   describe '#language' do
     it "should return the language of the content" do
-      en = Rika::Parser.new(file_path("english.txt"))
-      en.language.should == "en"
       
-      de = Rika::Parser.new(file_path("german.txt"))
-      de.language.should == "de"
-      
-      fr = Rika::Parser.new(file_path("french.txt"))
-      fr.language.should == "fr"
-       
-      ru = Rika::Parser.new(file_path("russian.txt"))
-      ru.language.should == "ru"
-      
-      es = Rika::Parser.new(file_path("spanish.txt"))
-      es.language.should == "es"
+      ["en", "de", "fr", "ru", "es"].each do |lang|
+        txt = Rika::Parser.new(file_path("#{lang}.txt"))
+        txt.language.should == lang
+      end
     end
   end
 
@@ -178,7 +169,7 @@ describe Rika::Parser do
     end
 
     it "should return true if language can be determined" do
-      lang = Rika::Parser.new(file_path("english.txt"))
+      lang = Rika::Parser.new(file_path("en.txt"))
       lang.language_is_reasonably_certain? == true
     end
   end
