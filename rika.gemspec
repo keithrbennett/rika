@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
-  gem.add_development_dependency "rspec"
+  gem.add_development_dependency "rspec", "2.12.0"
+  gem.add_development_dependency "rake", "10.0.3"
   gem.platform = "java"
 end
