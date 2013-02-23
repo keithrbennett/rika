@@ -1,0 +1,7 @@
+language: ruby
+rvm:
+  - jruby-19mode
+  - jruby-head
+notifications:
+  recipients:
+    - ricny046@gmail.com
