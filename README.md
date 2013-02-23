@@ -4,6 +4,8 @@ A JRuby wrapper for Apache Tika to extract text and metadata from various file f
 
 More information about Apache Tika can be found here: http://tika.apache.org/
 
+[![Code Climate](https://codeclimate.com/github/ricn/rika.png)](https://codeclimate.com/github/ricn/rika)
+
 ## Installation
 
 Add this line to your application's Gemfile:
