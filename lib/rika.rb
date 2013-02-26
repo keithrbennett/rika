@@ -18,7 +18,23 @@ module Rika
   import org.apache.tika.language.LanguageIdentifier
   import java.io.FileInputStream
   import java.net.URL
-  
+
+  def self.parse_content_and_metadata(file_location, max_content_length = -1)
+    parser = Parser.new(file_location, max_content_length)
+    [parser.content, parser.metadata]
+  end
+
+  def self.parse_content(file_location, max_content_length = -1)
+    parser = Parser.new(file_location, max_content_length)
+    parser.content
+  end
+
+  def self.parse_metadata(file_location)
+    parser = Parser.new(file_location, 0)
+    parser.metadata
+  end
+
+
   class Parser
     
     def initialize(file_location, max_content_length = -1)
