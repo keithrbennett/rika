@@ -39,38 +39,38 @@ content, metadata = Rika.parse_content_and_metadata('document.pdf')   # both of 
 For other use cases and finer control, you can work directly with the Rika::Parser object:
 
 ```ruby
-	require 'rika'
+require 'rika'
 
-	parser = Rika::Parser.new('document.pdf')
+parser = Rika::Parser.new('document.pdf')
 
-	# Return the content of the document:
-	parser.content 
+# Return the content of the document:
+parser.content 
 
-	# Return the media type for the document:
-	parser.media_type 
-	=> "application/pdf"
+# Return the media type for the document:
+parser.media_type 
+=> "application/pdf"
 
-	# Return the metadata field title if it exists:
-	parser.metadata["title"] if parser.metadata_exists?("title") 
+# Return the metadata field title if it exists:
+parser.metadata["title"] if parser.metadata_exists?("title") 
 
-	# Return all the available metadata keys that can be read from the document
-	parser.available_metadata
+# Return all the available metadata keys that can be read from the document
+parser.available_metadata
 
-	# Return only the first 10000 chars of the content:
-	parser = Rika::Parser.new('document.pdf', 10000)
-	parser.content # 10000 first chars returned
+# Return only the first 10000 chars of the content:
+parser = Rika::Parser.new('document.pdf', 10000)
+parser.content # 10000 first chars returned
 
-	# Return content from URL
-	parser = Rika::Parser.new('http://riakhandbook.com/sample.pdf', 200)
-	parser.content
+# Return content from URL
+parser = Rika::Parser.new('http://riakhandbook.com/sample.pdf', 200)
+parser.content
 
-	# Return the language for the content
-	parser = parser = Rika::Parser.new('german document.pdf')
-	parser.language
-	=> "de"
+# Return the language for the content
+parser = parser = Rika::Parser.new('german document.pdf')
+parser.language
+=> "de"
 
-	# Check whether the langugage identification is certain enough to be trusted
-	parser.language_is_reasonably_certain?
+# Check whether the langugage identification is certain enough to be trusted
+parser.language_is_reasonably_certain?
 	
 ```
 
