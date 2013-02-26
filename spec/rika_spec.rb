@@ -21,6 +21,7 @@ describe Rika::Parser do
       :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))  
       @server.start
     end
+    @sample_pdf_filespec = file_path("document.pdf")
   end
 
   after(:all) do
@@ -172,5 +173,21 @@ describe Rika::Parser do
       lang = Rika::Parser.new(file_path("en.txt"))
       lang.language_is_reasonably_certain? == true
     end
+  end
+
+  it "should return valid content using Rika.parse_content" do
+    content = Rika.parse_content(@sample_pdf_filespec)
+    (content.should be_a(String)) && (content.should_not be_empty)
+  end
+
+  it "should return valid metadata using Rika.parse_metadata" do
+    metadata = Rika.parse_metadata(@sample_pdf_filespec)
+    (metadata.should be_a(Hash)) && (metadata.should_not be_empty)
+  end
+
+  it "should return valid content and metadata using Rika.parse_content_and_metadata" do
+    content, metadata = Rika.parse_content_and_metadata(@sample_pdf_filespec)
+    (content.should be_a(String)) && (content.should_not be_empty) && \
+      (metadata.should be_a(Hash)) && (metadata.should_not be_empty)
   end
 end
