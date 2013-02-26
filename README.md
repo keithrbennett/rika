@@ -25,7 +25,19 @@ Or install it yourself as:
 
 ## Usage
 
-Something like this:
+For a quick start with the simplest use cases, the following functions
+are provided to get what you need in a single function call, for your convenience:
+
+```ruby
+require 'rika'
+
+content           = Rika.parse_content    # string containing all content text
+metadata          = Rika.parse_metadata   # hash containing the document metadata
+content, metadata = Rika.parse_content_and_metadata   # both of the above
+```
+
+For other use cases and finer control, you can work directly with the Rika::Parser object:
+
 ```ruby
 	require 'rika'
 
