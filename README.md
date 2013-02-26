@@ -61,6 +61,12 @@ Something like this:
 	parser.language_is_reasonably_certain?
 	
 ```
+
+## Credits
+The following people have contributed ideas, documentation, or code to Rika:
+* Keith Bennett
+* Richard Nyström
+
 ## Contributing
 
 1. Fork it
