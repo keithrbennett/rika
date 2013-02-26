@@ -31,9 +31,9 @@ are provided to get what you need in a single function call, for your convenienc
 ```ruby
 require 'rika'
 
-content           = Rika.parse_content    # string containing all content text
-metadata          = Rika.parse_metadata   # hash containing the document metadata
-content, metadata = Rika.parse_content_and_metadata   # both of the above
+content           = Rika.parse_content('document.pdf')    # string containing all content text
+metadata          = Rika.parse_metadata('document.pdf')   # hash containing the document metadata
+content, metadata = Rika.parse_content_and_metadata('document.pdf')   # both of the above
 ```
 
 For other use cases and finer control, you can work directly with the Rika::Parser object:
