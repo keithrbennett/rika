@@ -9,6 +9,7 @@ describe Rika::Parser do
   before(:all) do
     @txt_parser = Rika::Parser.new(file_path("text_file.txt"))
     @docx_parser = Rika::Parser.new(file_path("document.docx"))
+    @doc_parser = Rika::Parser.new(file_path("document.doc"))
     @pdf_parser = Rika::Parser.new(file_path("document.pdf"))
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
     @unknown_parser = Rika::Parser.new(file_path("unknown.bin"))
@@ -150,6 +151,14 @@ describe Rika::Parser do
 
     it "should return application/octet-stream for unknown file" do
       @unknown_parser.media_type.should == "application/octet-stream"
+    end
+
+    it "should return msword for a doc file" do
+      @doc_parser.media_type.should == "application/msword"
+    end
+
+    it "should return wordprocessingml for a docx file" do
+      @docx_parser.media_type.should == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     end
   end
 

@@ -16,6 +16,7 @@ module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
   import org.apache.tika.language.LanguageIdentifier
+  import org.apache.tika.detect.DefaultDetector
   import java.io.FileInputStream
   import java.net.URL
 
@@ -34,12 +35,11 @@ module Rika
     parser.metadata
   end
 
-
   class Parser
     
-    def initialize(file_location, max_content_length = -1)
+    def initialize(file_location, max_content_length = -1, detector = DefaultDetector.new)
       @uri = file_location
-      @tika = Tika.new
+      @tika = Tika.new(detector)
       @tika.set_max_string_length(max_content_length)
       @metadata_java = Metadata.new
       @metadata_ruby = nil
@@ -64,7 +64,11 @@ module Rika
     end
 
     def media_type
-      @media_type ||= @tika.detect(input_stream) 
+      if file?
+        @media_type ||= @tika.detect(java.io.File.new(@uri))
+      else
+        @media_type ||= @tika.detect(input_stream)
+      end
     end
 
     def available_metadata
