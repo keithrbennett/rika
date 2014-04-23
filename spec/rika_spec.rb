@@ -4,8 +4,8 @@ require 'spec_helper'
 require 'webrick'
 
 include WEBrick
- 
-describe Rika::Parser do 
+
+describe Rika::Parser do
   before(:all) do
     @txt_parser = Rika::Parser.new(file_path("text_file.txt"))
     @docx_parser = Rika::Parser.new(file_path("document.docx"))
@@ -13,13 +13,13 @@ describe Rika::Parser do
     @pdf_parser = Rika::Parser.new(file_path("document.pdf"))
     @image_parser = Rika::Parser.new(file_path("image.jpg"))
     @unknown_parser = Rika::Parser.new(file_path("unknown.bin"))
-    @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))  
-    port = 50505
+    @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))
+    port = 50515
     @url = "http://#{Socket.gethostname}:#{port}"
     @quote = "First they ignore you, then they ridicule you, then they fight you, then you win."
     @t1 = Thread.new do
-      @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir, 
-      :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))  
+      @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir,
+      :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))
       @server.start
     end
     @sample_pdf_filespec = file_path("document.pdf")
@@ -55,7 +55,7 @@ describe Rika::Parser do
       @docx_parser.content.should == @quote
     end
 
-    it "should return the content in a pdf file" do 
+    it "should return the content in a pdf file" do
       @pdf_parser.content.should == @quote
     end
 
@@ -70,7 +70,7 @@ describe Rika::Parser do
 
     it "should only return max content length for file over http" do
       parser = Rika::Parser.new(@url + "/document.pdf", 6)
-      parser.content.should == "First"   
+      parser.content.should == "First"
     end
 
     it "should be possible to read files over 100k by default" do
@@ -88,8 +88,8 @@ describe Rika::Parser do
     end
   end
 
-  # We just test a few of the metadata fields for some common file formats 
-  # to make sure the integration with Apache Tika works. Apache Tika already 
+  # We just test a few of the metadata fields for some common file formats
+  # to make sure the integration with Apache Tika works. Apache Tika already
   # have tests for all file formats it supports so we won't retest that
   describe '#metadata' do
     it "should return nil if metadata field does not exists" do
@@ -164,7 +164,7 @@ describe Rika::Parser do
 
   describe '#language' do
     it "should return the language of the content" do
-      
+
       ["en", "de", "fr", "ru", "es"].each do |lang|
         txt = Rika::Parser.new(file_path("#{lang}.txt"))
         txt.language.should == lang

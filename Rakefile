@@ -8,4 +8,4 @@ task :default => :spec
 desc 'Download jars'
 task :download_jars do
 	system "mvn dependency:copy-dependencies"
- end
+end
