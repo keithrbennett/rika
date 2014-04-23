@@ -5,13 +5,13 @@ raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
 require "rika/version"
 require 'uri'
 require 'net/http'
-require 'java' 
+require 'java'
 
 Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |jar|
   require jar
 end
 
-# Heavily based on the Apache Tika API: http://tika.apache.org/1.4/api/org/apache/tika/Tika.html
+# Heavily based on the Apache Tika API: http://tika.apache.org/1.5/api/org/apache/tika/Tika.html
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
@@ -36,7 +36,7 @@ module Rika
   end
 
   class Parser
-    
+
     def initialize(file_location, max_content_length = -1, detector = DefaultDetector.new)
       @uri = file_location
       @tika = Tika.new(detector)
@@ -48,14 +48,14 @@ module Rika
 
     def content
       self.parse
-      @content 
+      @content
     end
 
     def metadata
       unless @metadata_ruby
         self.parse
         @metadata_ruby = {}
-      
+
         @metadata_java.names.each do |name|
           @metadata_ruby[name] = @metadata_java.get(name)
         end
@@ -85,7 +85,7 @@ module Rika
 
     def language
       @lang ||= LanguageIdentifier.new(content)
-      
+
       @lang.language
     end
 
@@ -96,7 +96,7 @@ module Rika
     end
 
     protected
-    
+
     def parse
       @content ||= @tika.parse_to_string(input_stream, @metadata_java).to_s.strip
     end
