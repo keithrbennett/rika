@@ -4,7 +4,7 @@ raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
 
 require "rika/version"
 require 'uri'
-require 'net/http'
+require 'open-uri'
 require 'java'
 
 Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |jar|
@@ -104,7 +104,7 @@ module Rika
     def get_input_type
       if File.exists?(@uri) && File.directory?(@uri) == false
         :file
-      elsif URI(@uri).scheme == "http" && Net::HTTP.get_response(URI(@uri)).is_a?(Net::HTTPSuccess)
+      elsif URI(@uri).is_a?(URI::HTTP) && open(@uri)
         :http
       else
         raise IOError, "Input (#{@uri}) is neither file nor http."
