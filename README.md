@@ -69,7 +69,7 @@ parser = parser = Rika::Parser.new('german document.pdf')
 parser.language
 => "de"
 
-# Check whether the langugage identification is certain enough to be trusted
+# Check whether the language identification is certain enough to be trusted
 parser.language_is_reasonably_certain?
 	
 ```
