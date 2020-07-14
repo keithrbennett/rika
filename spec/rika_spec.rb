@@ -34,7 +34,9 @@ describe Rika::Parser do
   end
 
   it "should raise error if URL does not exists" do
-    lambda { Rika::Parser.new("http://nonsense.com/whatever.pdf") }.should raise_error(IOError)
+    unavailable_server = "http://k6075sd0dfkr8nvfw0zvwfwckucf2aba.com"
+    unavailable_file_on_web = File.join(unavailable_server, 'x.pdf')
+    lambda { Rika::Parser.new(unavailable_file_on_web) }.should raise_error(SocketError)
   end
 
   it "should detect file type without a file extension" do
