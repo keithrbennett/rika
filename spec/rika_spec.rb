@@ -6,87 +6,97 @@ require 'webrick'
 include WEBrick
 
 describe Rika::Parser do
+
   before(:all) do
-    @txt_parser = Rika::Parser.new(file_path("text_file.txt"))
-    @docx_parser = Rika::Parser.new(file_path("document.docx"))
-    @doc_parser = Rika::Parser.new(file_path("document.doc"))
-    @pdf_parser = Rika::Parser.new(file_path("document.pdf"))
-    @image_parser = Rika::Parser.new(file_path("image.jpg"))
-    @unknown_parser = Rika::Parser.new(file_path("unknown.bin"))
+
+    @txt_parser     = Rika::Parser.new(file_path('text_file.txt'))
+    @docx_parser    = Rika::Parser.new(file_path('document.docx'))
+    @doc_parser     = Rika::Parser.new(file_path('document.doc'))
+    @pdf_parser     = Rika::Parser.new(file_path('document.pdf'))
+    @image_parser   = Rika::Parser.new(file_path('image.jpg'))
+    @unknown_parser = Rika::Parser.new(file_path('unknown.bin'))
+
     @dir = File.expand_path(File.join(File.dirname(__FILE__), 'fixtures'))
+    @quote = 'First they ignore you, then they ridicule you, then they fight you, then you win.'
+
     port = 50515
     @url = "http://#{Socket.gethostname}:#{port}"
-    @quote = "First they ignore you, then they ridicule you, then they fight you, then you win."
+
     @t1 = Thread.new do
-      @server = HTTPServer.new(:Port => port, :DocumentRoot => @dir,
-      :AccessLog => [], :Logger => WEBrick::Log::new("/dev/null", 7))
+      @server = HTTPServer.new(
+          :Port => port,
+          :DocumentRoot => @dir,
+          :AccessLog => [],
+          :Logger => WEBrick::Log::new('/dev/null', 7)
+      )
       @server.start
     end
-    @sample_pdf_filespec = file_path("document.pdf")
+
+    @sample_pdf_filespec = file_path('document.pdf')
   end
 
   after(:all) do
     @t1.exit
   end
 
-  it "should raise error if file does not exists" do
-    lambda { Rika::Parser.new(file_path("nonsense.txt")) }.should raise_error(IOError)
+  it 'should raise error if file does not exist' do
+    expect(-> { Rika::Parser.new(file_path('nonsense.txt')) }).to raise_error(IOError)
   end
 
-  it "should raise error if URL does not exists" do
-    unavailable_server = "http://k6075sd0dfkr8nvfw0zvwfwckucf2aba.com"
+  it 'should raise error if URL does not exist' do
+    unavailable_server = 'http://k6075sd0dfkr8nvfw0zvwfwckucf2aba.com'
     unavailable_file_on_web = File.join(unavailable_server, 'x.pdf')
-    lambda { Rika::Parser.new(unavailable_file_on_web) }.should raise_error(SocketError)
+    expect(-> { Rika::Parser.new(unavailable_file_on_web) }).to raise_error(SocketError)
   end
 
-  it "should detect file type without a file extension" do
-    parser = Rika::Parser.new(file_path("text_file_without_extension"))
-    parser.metadata["Content-Type"].should == "text/plain; charset=ISO-8859-1"
+  it 'should detect file type without a file extension' do
+    parser = Rika::Parser.new(file_path('text_file_without_extension'))
+    expect(parser.metadata['Content-Type']).to eq('text/plain; charset=ISO-8859-1')
   end
 
-  it "should not be possible to trick the parser to read a folder with an extension" do
-    lambda { Rika::Parser.new(file_path("folder.js")).content }.should raise_error(IOError)
+  it 'should not be possible to trick the parser to read a folder with an extension' do
+    expect(-> { Rika::Parser.new(file_path('folder.js')).content }).to raise_error(IOError)
   end
 
   describe '#content' do
-    it "should return the content in a text file" do
-      @txt_parser.content.strip.should == @quote
+    it 'should return the content in a text file' do
+      expect(@txt_parser.content.strip).to eq(@quote)
     end
 
-    it "should return the content in a docx file" do
-      @docx_parser.content.should == @quote
+    it 'should return the content in a docx file' do
+      expect(@docx_parser.content).to eq(@quote)
     end
 
-    it "should return the content in a pdf file" do
-      @pdf_parser.content.should == @quote
+    it 'should return the content in a pdf file' do
+      expect(@pdf_parser.content).to eq(@quote)
     end
 
-    it "should return no content for an image" do
-      @image_parser.content.should be_empty
+    it 'should return no content for an image' do
+      expect(@image_parser.content).to be_empty
     end
 
-    it "should only return max content length" do
-      parser = Rika::Parser.new(file_path("text_file.txt"), 5)
-      parser.content.should == "First"
+    it 'should only return max content length' do
+      content = Rika::Parser.new(file_path('text_file.txt'), 5).content
+      expect(content).to eq('First')
     end
 
-    it "should only return max content length for file over http" do
-      parser = Rika::Parser.new(@url + "/document.pdf", 6)
-      parser.content.should == "First"
+    it 'should only return max content length for file over http' do
+      content = Rika::Parser.new(File.join(@url, 'document.pdf'), 6).content
+      expect(content).to eq('First')
     end
 
-    it "should be possible to read files over 100k by default" do
-      parser = Rika::Parser.new(file_path("over_100k_file.txt"))
-      parser.content.length.should == 101_761
+    it 'should be possible to read files over 100k by default' do
+      content = Rika::Parser.new(file_path('over_100k_file.txt')).content
+      expect(content.length).to eq(101_761)
     end
 
-    it "should return the content from a file over http" do
-      parser = Rika::Parser.new(@url + "/document.pdf")
-      parser.content.should == @quote
+    it 'should return the content from a file over http' do
+      content = Rika::Parser.new(File.join(@url, 'document.pdf')).content
+      expect(content).to eq(@quote)
     end
 
-    it "should return empty string for unknown file" do
-      @unknown_parser.content.should be_empty
+    it 'should return empty string for unknown file' do
+      expect(@unknown_parser.content).to be_empty
     end
   end
 
@@ -94,111 +104,114 @@ describe Rika::Parser do
   # to make sure the integration with Apache Tika works. Apache Tika already
   # have tests for all file formats it supports so we won't retest that
   describe '#metadata' do
-    it "should return nil if metadata field does not exists" do
-      @txt_parser.metadata["nonsense"].should be_nil
+    it 'should return nil if metadata field does not exist' do
+      expect(@txt_parser.metadata['nonsense']).to be_nil
     end
 
-    it "should return metadata from a docx file" do
-      @docx_parser.metadata["Page-Count"].should == "1"
+    it 'should return metadata from a docx file' do
+      expect(@docx_parser.metadata['Page-Count']).to eq('1')
     end
 
-    it "should return metadata from a pdf file" do
-      @pdf_parser.metadata["title"].should == "A simple title"
+    it 'should return metadata from a pdf file' do
+      expect(@pdf_parser.metadata['title']).to eq('A simple title')
     end
 
-    it "should return metadata from a file over http" do
-      parser = Rika::Parser.new(@url + "/document.pdf")
-      parser.metadata["title"].should == "A simple title"
+    it 'should return metadata from a file over http' do
+      parser = Rika::Parser.new(File.join(@url, 'document.pdf'))
+      expect(parser.metadata['title']).to eq('A simple title')
     end
 
-    it "should return metadata from an image" do
-      @image_parser.metadata["Image Height"].should == "72 pixels"
-      @image_parser.metadata["Image Width"].should == "72 pixels"
+    it 'should return metadata from an image' do
+      expect(@image_parser.metadata['Image Height']).to eq('72 pixels')
+      expect(@image_parser.metadata['Image Width']).to  eq('72 pixels')
     end
   end
 
   describe '#available_metadata' do
-    it "should return available metadata fields" do
-      @txt_parser.available_metadata.should_not be_empty
+    it 'should return available metadata fields' do
+      expect(@txt_parser.available_metadata).to_not be_empty
     end
 
-    it "should be an array" do
-      @txt_parser.available_metadata.is_a?(Array).should == true
+    it 'should be an array' do
+      expect(@txt_parser.available_metadata).to be_an(Array)
     end
   end
 
   describe '#metadata_exists?' do
-    it "should return false if metadata does not exists" do
-      @txt_parser.metadata_exists?("title").should == false
+    it 'should return false if metadata does not exist' do
+      expect(@txt_parser.metadata_exists?('title')).to be false
     end
 
-    it "should return true if metadata exists" do
-      @docx_parser.metadata_exists?("title").should == true
+    it 'should return true if metadata exist' do
+      expect(@docx_parser.metadata_exists?('title')).to be true
     end
   end
 
   describe '#media_type' do
-    it "should return application/pdf for a pdf file" do
-      @pdf_parser.media_type.should == "application/pdf"
+    it 'should return application/pdf for a pdf file' do
+      expect(@pdf_parser.media_type).to eq('application/pdf')
     end
 
-    it "should return text/plain for a txt file" do
-      @txt_parser.media_type.should == "text/plain"
+    it 'should return text/plain for a txt file' do
+      expect(@txt_parser.media_type).to eq('text/plain')
     end
 
-    it "should return application/pdf for a pdf over http" do
-      parser = Rika::Parser.new(@url + "/document.pdf")
-      parser.media_type.should == "application/pdf"
+    it 'should return application/pdf for a pdf over http' do
+      parser = Rika::Parser.new(File.join(@url, 'document.pdf'))
+      expect(parser.media_type).to eq('application/pdf')
     end
 
-    it "should return application/octet-stream for unknown file" do
-      @unknown_parser.media_type.should == "application/octet-stream"
+    it 'should return application/octet-stream for unknown file' do
+      expect(@unknown_parser.media_type).to eq('application/octet-stream')
     end
 
-    it "should return msword for a doc file" do
-      @doc_parser.media_type.should == "application/msword"
+    it 'should return msword for a doc file' do
+      expect(@doc_parser.media_type).to eq('application/msword')
     end
 
-    it "should return wordprocessingml for a docx file" do
-      @docx_parser.media_type.should == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    it 'should return wordprocessingml for a docx file' do
+      expect(@docx_parser.media_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     end
   end
 
   describe '#language' do
-    it "should return the language of the content" do
-
-      ["en", "de", "fr", "ru", "es"].each do |lang|
+    it 'should return the language of the content' do
+      %w(en de fr ru es).each do |lang|
         txt = Rika::Parser.new(file_path("#{lang}.txt"))
-        txt.language.should == lang
+        expect(txt.language).to eq(lang)
       end
     end
   end
 
-  describe '#language_is_reasonably_certain?' do
-    it "should return false if lang can't be determined" do
-      lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
-      lang.language_is_reasonably_certain? == false
-    end
+  # describe '#language_is_reasonably_certain?' do
+  #   it "should return false if lang can't be determined" do
+  #     lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
+  #     lang.language_is_reasonably_certain? == false
+  #   end
+  #
+  #   it "should return true if language can be determined" do
+  #     lang = Rika::Parser.new(file_path("en.txt"))
+  #     lang.language_is_reasonably_certain? == true
+  #   end
+  # end
 
-    it "should return true if language can be determined" do
-      lang = Rika::Parser.new(file_path("en.txt"))
-      lang.language_is_reasonably_certain? == true
-    end
-  end
-
-  it "should return valid content using Rika.parse_content" do
+  it 'should return valid content using Rika.parse_content' do
     content = Rika.parse_content(@sample_pdf_filespec)
-    (content.should be_a(String)) && (content.should_not be_empty)
+    expect(content).to be_a(String)
+    expect(content).to_not be_empty
   end
 
-  it "should return valid metadata using Rika.parse_metadata" do
+  it 'should return valid metadata using Rika.parse_metadata' do
     metadata = Rika.parse_metadata(@sample_pdf_filespec)
-    (metadata.should be_a(Hash)) && (metadata.should_not be_empty)
+    expect(metadata).to be_a(Hash)
+    expect(metadata).to_not be_empty
   end
 
-  it "should return valid content and metadata using Rika.parse_content_and_metadata" do
+  it 'should return valid content and metadata using Rika.parse_content_and_metadata' do
     content, metadata = Rika.parse_content_and_metadata(@sample_pdf_filespec)
-    (content.should be_a(String)) && (content.should_not be_empty) && \
-      (metadata.should be_a(Hash)) && (metadata.should_not be_empty)
+    expect(content).to be_a(String)
+    expect(content).to_not be_empty
+    expect(metadata).to be_a(Hash)
+    expect(metadata).to_not be_empty
   end
 end
