@@ -183,6 +183,7 @@ describe Rika::Parser do
     end
   end
 
+  # See note in rika.rb #language_is_reasonably_certain? regarding this method's future.
   # describe '#language_is_reasonably_certain?' do
   #   it "should return false if lang can't be determined" do
   #     lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))

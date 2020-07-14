@@ -85,13 +85,17 @@ module Rika
 
     def language
       @lang ||= LanguageIdentifier.new(content)
-
       @lang.language
     end
 
+    # @deprecated
+    # https://tika.apache.org/1.9/api/org/apache/tika/language/LanguageIdentifier.html#isReasonablyCertain()
+    # says: WARNING: Will never return true for small amount of input texts.
+    # https://tika.apache.org/1.19/api/org/apache/tika/language/LanguageIdentifier.html
+    # indicated that the LanguageIdentifier class used in this implementation is deprecated.
+    # TODO: More research needed to see if an alternate implementation can be used.
     def language_is_reasonably_certain?
       @lang ||= LanguageIdentifier.new(content)
-
       @lang.is_reasonably_certain
     end
 
