@@ -5,11 +5,8 @@ raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
 require "rika/version"
 require 'uri'
 require 'open-uri'
-require 'java'
 
-Dir[File.join(File.dirname(__FILE__), "../target/dependency/*.jar")].each do |jar|
-  require jar
-end
+require_relative '../target/dependency/tika-app-1.24.1.jar'
 
 # Heavily based on the Apache Tika API: http://tika.apache.org/1.5/api/org/apache/tika/Tika.html
 module Rika

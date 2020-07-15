@@ -87,7 +87,7 @@ describe Rika::Parser do
 
     it 'should be possible to read files over 100k by default' do
       content = Rika::Parser.new(file_path('over_100k_file.txt')).content
-      expect(content.length).to eq(101_761)
+      expect(content.length).to be > 100_000
     end
 
     it 'should return the content from a file over http' do
@@ -184,17 +184,17 @@ describe Rika::Parser do
   end
 
   # See note in rika.rb #language_is_reasonably_certain? regarding this method's future.
-  # describe '#language_is_reasonably_certain?' do
-  #   it "should return false if lang can't be determined" do
-  #     lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
-  #     lang.language_is_reasonably_certain? == false
-  #   end
-  #
-  #   it "should return true if language can be determined" do
-  #     lang = Rika::Parser.new(file_path("en.txt"))
-  #     lang.language_is_reasonably_certain? == true
-  #   end
-  # end
+  describe '#language_is_reasonably_certain?' do
+    it "should return false if lang can't be determined" do
+      lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
+      lang.language_is_reasonably_certain? == false
+    end
+
+    it "should return true if language can be determined" do
+      lang = Rika::Parser.new(file_path("en.txt"))
+      lang.language_is_reasonably_certain? == true
+    end
+  end
 
   it 'should return valid content using Rika.parse_content' do
     content = Rika.parse_content(@sample_pdf_filespec)
