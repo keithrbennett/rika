@@ -5,7 +5,7 @@ Rika is a [JRuby](https://www.jruby.org) wrapper for the [Apache Tika](http://ti
 
 _Caution: This gem only works with [JRuby](https://www.jruby.org)._
 
-Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more Tika functionality, and perhaps a command line interface as well. See (#other-tika-resources) for alternatives to Rika that may suit more demanding needs.
+Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more Tika functionality, and perhaps a command line interface as well. See the [Other Tika Resources](#other-tika-resources) section for alternatives to Rika that may suit more demanding needs.
 
 [![Code Climate](https://codeclimate.com/github/keithrbennett/rika.png)](https://codeclimate.com/github/keithrbennett/rika)
 [![Build Status](https://travis-ci.org/keithrbennett/rika.png?branch=master)](https://travis-ci.org/keithrbennett/rika)
