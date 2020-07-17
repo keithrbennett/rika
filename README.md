@@ -32,15 +32,12 @@ parser = Rika::Parser.new('x.pdf')
 # Return the content of the document:
 parser.content 
 
+# Return the metadata of the document:
+parser.metadata 
+
 # Return the media type for the document:
 parser.media_type 
 => "application/pdf"
-
-# Return the metadata field title if it exists:
-parser.metadata["title"] if parser.metadata_exists?("title") 
-
-# Return all the available metadata keys that can be read from the document
-parser.available_metadata
 
 # Return only the first 10000 chars of the content:
 parser = Rika::Parser.new('x.pdf', 10000)
