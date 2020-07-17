@@ -1,7 +1,7 @@
 language: ruby
 rvm:
-  - jruby-19mode
-  - jruby-head
+  - jruby-9.2.12.0
 notifications:
   recipients:
     - ricny046@gmail.com
+    - keithrbennett@gmail.com

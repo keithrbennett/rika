@@ -1,39 +1,25 @@
+
 # Rika
 
-A JRuby wrapper for Apache Tika to extract text and metadata from various file formats.
+Rika is a [JRuby](https://www.jruby.org) wrapper for the [Apache Tika](http://tika.apache.org/) Java library, which extracts text and metadata from files and resources of [many different formats](https://tika.apache.org/1.24.1/formats.html).
 
-More information about Apache Tika can be found here: http://tika.apache.org/
+_Caution: This gem only works with [JRuby](https://www.jruby.org)._
 
-[![Code Climate](https://codeclimate.com/github/ricn/rika.png)](https://codeclimate.com/github/ricn/rika)
-[![Build Status](https://travis-ci.org/ricn/rika.png?branch=master)](https://travis-ci.org/ricn/rika)
+Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more Tika functionality, and perhaps a command line interface as well. See (#other-tika-resources) for alternatives to Rika that may suit more demanding needs.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'rika'
-
-Remember that this gem only works on JRuby.
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rika
+[![Code Climate](https://codeclimate.com/github/keithrbennett/rika.png)](https://codeclimate.com/github/keithrbennett/rika)
+[![Build Status](https://travis-ci.org/keithrbennett/rika.png?branch=master)](https://travis-ci.org/keithrbennett/rika)
 
 ## Usage
 
-For a quick start with the simplest use cases, the following functions
-are provided to get what you need in a single function call, for your convenience:
+For a quick start with the simplest use cases, the following functions are provided to get what you need in a single function call, for your convenience:
 
 ```ruby
 require 'rika'
 
-content           = Rika.parse_content('document.pdf')    # string containing all content text
-metadata          = Rika.parse_metadata('document.pdf')   # hash containing the document metadata
-content, metadata = Rika.parse_content_and_metadata('document.pdf')   # both of the above
+content           = Rika.parse_content('x.pdf')    # string containing all content text
+metadata          = Rika.parse_metadata('x.pdf')   # hash containing the document metadata
+content, metadata = Rika.parse_content_and_metadata('x.pdf')   # both of the above
 ```
 
 For other use cases and finer control, you can work directly with the Rika::Parser object:
@@ -41,7 +27,7 @@ For other use cases and finer control, you can work directly with the Rika::Pars
 ```ruby
 require 'rika'
 
-parser = Rika::Parser.new('document.pdf')
+parser = Rika::Parser.new('x.pdf')
 
 # Return the content of the document:
 parser.content 
@@ -57,27 +43,81 @@ parser.metadata["title"] if parser.metadata_exists?("title")
 parser.available_metadata
 
 # Return only the first 10000 chars of the content:
-parser = Rika::Parser.new('document.pdf', 10000)
+parser = Rika::Parser.new('x.pdf', 10000)
 parser.content # 10000 first chars returned
 
 # Return content from URL
-parser = Rika::Parser.new('http://riakhandbook.com/sample.pdf', 200)
+parser = Rika::Parser.new('http://example.com/x.pdf', 200)
 parser.content
 
 # Return the language for the content
-parser = parser = Rika::Parser.new('german document.pdf')
+parser = Rika::Parser.new('german-document.pdf')
 parser.language
 => "de"
 
-# Check whether the langugage identification is certain enough to be trusted
+# Check whether the language identification is certain enough to be trusted
 parser.language_is_reasonably_certain?
 	
 ```
 
+#### Simple Command Line Use
+
+Since Ruby supports the `-r` option to require a library, and the `-e` option to evaluate a string of code, you can easily do simple parsing on the command line, such as:
+
+```
+ruby -r rika -e 'puts Rika.parse_content("x.pdf")'
+```
+
+You could also parse the metadata and output it as JSON as follows:
+
+```
+ruby -r rika -r json -e 'puts Rika.parse_metadata("x.pdf").to_json'
+```
+
+If you want to get both content and metadata in JSON format, this would do that:
+
+```
+ruby -r rika -r json -e 'c,m = Rika.parse_content_and_metadata("tw.pdf"); puts({ c: c, m: m }.to_json)'
+```
+
+Using the [rexe](https://github.com/keithrbennett/rexe) gem, that can be made much more concise:
+
+```
+rexe -r rika -oj 'c,m = Rika.parse_content_and_metadata("tw.pdf"); { c: c, m: m }'
+```
+
+...and changing the `-oj` option gives you access to other output formats such as "Pretty JSON", YAML, and AwesomePrint (a very human readable format).
+ 
+
+## Installation
+
+Add this line to your application's Gemfile. Use `gem` or `jgem` depending on your JRuby installation:
+
+    gem 'rika' # or: jgem 'rika'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install rika  # or: jgem install rika
+
+## Other Tika Resources
+
+* For more sophisticated use of Tika, you can use the Tika jar file directly in your JRuby code. After installing the `rika` gem, the Tika jar file will be located in `$GEM_HOME/gems/rika-[rika-version]-java/target/dependency/tika-core-[tika-version].jar`. 
+
+* Tika also provides another jar file containing a RESTful server that you can run on the command line. You can download this server jar from http://tika.apache.org/download.html. 
+ See the "Running the Tika Server as a Jar file" section of https://cwiki.apache.org/confluence/display/TIKA/TikaServer for more information.
+
+* @chrismattman and others have provided a [Python library and CLI](https://github.com/chrismattmann/tika-python) that interfaces with the Tika server. 
+
+* A general Tika wiki is at https://cwiki.apache.org/confluence/display/tika.
+
+
 ## Credits
-The following people have contributed ideas, documentation, or code to Rika:
-* Keith Bennett
-* Richard Nyström
+
+Richard Nyström (@ricn) is the original author of Rika, but has not been able to maintain it since 2015. In July 2020, Richard transferred the project to Keith Bennett (@keithrbennett), who had made made some contributions back in 2013.
 
 ## Contributing
 
