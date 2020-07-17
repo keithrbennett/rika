@@ -72,7 +72,7 @@ describe Rika::Parser do
     end
 
     it 'should return no content for an image' do
-      expect(@image_parser.content).to be_empty
+      expect(@image_parser.metadata.keys).to_not be_empty
     end
 
     it 'should only return max content length' do
