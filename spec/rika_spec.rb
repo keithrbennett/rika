@@ -225,7 +225,7 @@ describe Rika::Parser do
   specify 'getting content and metadata individually and together should return the same values' do
     content_1, metadata_1 = Rika.parse_content_and_metadata(@sample_pdf_filespec, -1)
     content_2             = Rika.parse_content(@sample_pdf_filespec)
-    metadata_2            = Rika.parse_metadata(@sample_pdf_filespec, -1``)
+    metadata_2            = Rika.parse_metadata(@sample_pdf_filespec, -1)
 
     expect(content_1).to eq(content_2)
     expect(metadata_1).to eq(metadata_2)
