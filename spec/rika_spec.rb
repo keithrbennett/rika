@@ -53,11 +53,6 @@ describe Rika::Parser do
     parser = Rika::Parser.new(file_path('text_file_without_extension'))
     expect(parser.metadata['Content-Type']).to eq('text/plain; charset=ISO-8859-1')
   end
-
-  it 'should not be possible to trick the parser to read a folder with an extension' do
-    expect(-> { Rika::Parser.new(file_path('folder.js')).content }).to raise_error(IOError)
-  end
-
   describe '#content' do
     it 'should return the content in a text file' do
       expect(@txt_parser.content.strip).to eq(@quote)
@@ -214,5 +209,25 @@ describe Rika::Parser do
     expect(content).to_not be_empty
     expect(metadata).to be_a(Hash)
     expect(metadata).to_not be_empty
+  end
+
+  specify 'both means of getting both content and metadata should return the same values' do
+    content_1, metadata_1 = Rika.parse_content_and_metadata(@sample_pdf_filespec)
+
+    h = Rika.parse_content_and_metadata_as_hash(@sample_pdf_filespec)
+    content_2  = h[:content]
+    metadata_2 = h[:metadata]
+
+    expect(content_1).to eq(content_2)
+    expect(metadata_1).to eq(metadata_2)
+  end
+
+  specify 'getting content and metadata individually and together should return the same values' do
+    content_1, metadata_1 = Rika.parse_content_and_metadata(@sample_pdf_filespec, -1)
+    content_2             = Rika.parse_content(@sample_pdf_filespec)
+    metadata_2            = Rika.parse_metadata(@sample_pdf_filespec, -1``)
+
+    expect(content_1).to eq(content_2)
+    expect(metadata_1).to eq(metadata_2)
   end
 end

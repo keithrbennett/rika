@@ -22,6 +22,12 @@ metadata          = Rika.parse_metadata('x.pdf')   # hash containing the documen
 content, metadata = Rika.parse_content_and_metadata('x.pdf')   # both of the above
 ```
 
+A URL can be used instead of a filespec wherever a data source is specified:
+
+```ruby
+content, metadata = Rika.parse_content_and_metadata('https://github.com/keithrbennett/rika')
+```
+
 For other use cases and finer control, you can work directly with the Rika::Parser object:
 
 ```ruby
@@ -35,9 +41,8 @@ parser.content
 # Return the metadata of the document:
 parser.metadata 
 
-# Return the media type for the document:
+# Return the media type for the document, e.g. "application/pdf":
 parser.media_type 
-=> "application/pdf"
 
 # Return only the first 10000 chars of the content:
 parser = Rika::Parser.new('x.pdf', 10000)
@@ -80,7 +85,7 @@ ruby -r rika -r json -e 'c,m = Rika.parse_content_and_metadata("tw.pdf"); puts({
 Using the [rexe](https://github.com/keithrbennett/rexe) gem, that can be made much more concise:
 
 ```
-rexe -r rika -oj 'c,m = Rika.parse_content_and_metadata("tw.pdf"); { c: c, m: m }'
+rexe -r rika -oj 'c,m = Rika.parse_content_and_metadata("x.pdf"); { c: c, m: m }'
 ```
 
 ...and changing the `-oj` option gives you access to other output formats such as "Pretty JSON", YAML, and AwesomePrint (a very human readable format).
