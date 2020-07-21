@@ -24,6 +24,7 @@ describe Rika::Parser do
     let(:server_runner) do
       # returns a lambda that, when passed an action, will wrap it in an HTTP server
       ->(action) do
+        server = nil
         server_thread = Thread.new do
           server = HTTPServer.new(
               :Port => port,
@@ -34,6 +35,7 @@ describe Rika::Parser do
           server.start
         end
         action.call
+        server.stop
         server_thread.exit
       end
     end
