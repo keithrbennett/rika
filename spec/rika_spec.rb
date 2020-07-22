@@ -27,13 +27,17 @@ describe Rika::Parser do
         server = nil
         server_thread = Thread.new do
           server = HTTPServer.new(
-              :Port => port,
-              :DocumentRoot => dir,
-              :AccessLog => [],
-              :Logger => WEBrick::Log::new('/dev/null', 7)
+              Port:         port,
+              DocumentRoot: dir,
+              AccessLog:    [],
+              Logger:       WEBrick::Log::new('/dev/null', 7)
           )
           server.start
         end
+
+        # Wait for server to become ready on its new thread
+        sleep 0.01 while server.nil?
+
         action.call
         server.stop
         server_thread.exit
