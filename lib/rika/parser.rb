@@ -20,18 +20,17 @@ module Rika
     def metadata
       unless @metadata_ruby
         parse
-        @metadata_ruby = @metadata_java.names.each_with_object({}) do |name, m_ruby|
-          m_ruby[name] = @metadata_java.get(name)
+        @metadata_ruby = metadata_java.names.each_with_object({}) do |name, m_ruby|
+          m_ruby[name] = metadata_java.get(name)
         end
       end
       @metadata_ruby
     end
 
-
     def media_type
       @media_type ||= file? \
-          ? @tika.detect(java.io.File.new(@data_source)) \
-          : @media_type ||= @tika.detect(input_stream)
+          ? tika.detect(java.io.File.new(data_source)) \
+          : tika.detect(input_stream)
     end
 
     # @deprecated
@@ -42,10 +41,6 @@ module Rika
     # @deprecated
     def metadata_exists?(name)
       metadata[name] != nil
-    end
-
-    def file?
-      @input_type == :file
     end
 
     def language
@@ -64,29 +59,32 @@ module Rika
       @lang.is_reasonably_certain
     end
 
-    protected
 
     def parse
       unless @content
         @metadata_java = Metadata.new
-        @content = @tika.parse_to_string(input_stream, @metadata_java).to_s.strip
+        @content = tika.parse_to_string(input_stream, @metadata_java).to_s.strip
       end
     end
 
-    def get_input_type
-      if File.exists?(@data_source) && File.directory?(@data_source) == false
+    private def get_input_type
+      if File.file?(data_source)
         :file
-      elsif URI(@data_source).is_a?(URI::HTTP) && open(@data_source)
+      elsif URI(data_source).is_a?(URI::HTTP) && URI.open(data_source)
         :http
       else
-        raise IOError, "Input (#{@data_source}) is neither file nor http."
+        raise IOError, "Input (#{data_source}) is not an available file or HTTP resource."
       end
     end
 
-    def input_stream
+    private def input_stream
       file? \
-          ? FileInputStream.new(java.io.File.new(@data_source)) \
-          : URL.new(@data_source).open_stream
+          ? FileInputStream.new(java.io.File.new(data_source)) \
+          : URL.new(data_source).open_stream
+    end
+
+    private def file?
+      input_type == :file
     end
   end
 end

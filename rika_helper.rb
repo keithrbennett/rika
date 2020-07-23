@@ -1,6 +1,6 @@
 # Defines some shortcuts for ad-hoc work with Rika.
 #
-# Can be used with the `pry` interactive shell (https://github.com/pry/pry):
+# Can be used with the `irb`/`jirb` or `pry` (https://github.com/pry/pry) interactive shells:
 # `pry -r rika_helper.rb`
 #
 # Can be used with the `rexe` command line executor (https://github.com/keithrbennett/rexe):

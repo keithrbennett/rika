@@ -91,11 +91,6 @@ describe Rika::Parser do
       end)
     end
 
-    it 'should be possible to read files over 100k by default' do
-      content = Rika::Parser.new(file_path('over_100k_file.txt')).content
-      expect(content.length).to be > 100_000
-    end
-
     it 'should return the content from a file over http' do
       server_runner.call( -> do
         content = Rika::Parser.new(File.join(url, 'document.pdf')).content
