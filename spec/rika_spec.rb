@@ -7,19 +7,21 @@ include WEBrick
 
 describe Rika::Parser do
 
-    let (:txt_parser)     { Rika::Parser.new(file_path('text_file.txt')) }
-    let (:docx_parser)    { Rika::Parser.new(file_path('document.docx')) }
-    let (:doc_parser)     { Rika::Parser.new(file_path('document.doc'))  }
-    let (:pdf_parser)     { Rika::Parser.new(file_path('document.pdf'))  }
-    let (:image_parser)   { Rika::Parser.new(file_path('image.jpg'))     }
-    let (:unknown_parser) { Rika::Parser.new(file_path('unknown.bin'))   }
-    let (:dir)            { File.expand_path(File.join(File.dirname(__FILE__), 'fixtures')) }
-    let (:quote)          { 'First they ignore you, then they ridicule you, then they fight you, then you win.' }
+    let (:txt_parser)       { Rika::Parser.new(file_path('text_file.txt')) }
+    let (:docx_parser)      { Rika::Parser.new(file_path('document.docx')) }
+    let (:doc_parser)       { Rika::Parser.new(file_path('document.doc'))  }
+    let (:pdf_parser)       { Rika::Parser.new(file_path('document.pdf'))  }
+    let (:image_parser)     { Rika::Parser.new(file_path('image.jpg'))     }
+    let (:unknown_parser)   { Rika::Parser.new(file_path('unknown.bin'))   }
+    let (:dir)              { File.expand_path(File.join(File.dirname(__FILE__), 'fixtures')) }
+    let (:quote_first_line) { 'Stopping by Woods on a Snowy Evening' }
 
     port = 50515
     let (:url) { "http://#{Socket.gethostname}:#{port}" }
 
     let (:sample_pdf_filespec) { file_path('document.pdf') }
+
+    let(:first_line) { ->(string) { string.split("\n").first.strip } }
 
     let(:server_runner) do
       # returns a lambda that, when passed an action, will wrap it in an HTTP server
@@ -30,17 +32,19 @@ describe Rika::Parser do
               Port:         port,
               DocumentRoot: dir,
               AccessLog:    [],
-              Logger:       WEBrick::Log::new('/dev/null', 7)
+              Logger:       WEBrick::Log::new('/dev/null')
           )
           server.start
         end
 
         # Wait for server to become ready on its new thread
         sleep 0.01 while server.nil?
-
-        action.call
-        server.stop
-        server_thread.exit
+        begin
+          action.call
+        ensure
+          server.shutdown
+          server_thread.exit
+        end
       end
     end
 
@@ -57,20 +61,20 @@ describe Rika::Parser do
 
   it 'should detect file type without a file extension' do
     parser = Rika::Parser.new(file_path('text_file_without_extension'))
-    expect(parser.metadata['Content-Type']).to eq('text/plain; charset=ISO-8859-1')
+    expect(parser.metadata['Content-Type']).to eq('text/plain; charset=UTF-8')
   end
 
   describe '#content' do
     it 'should return the content in a text file' do
-      expect(txt_parser.content.strip).to eq(quote)
+      expect(first_line.(txt_parser.content)).to eq(quote_first_line)
     end
 
     it 'should return the content in a docx file' do
-      expect(docx_parser.content).to eq(quote)
+      expect(first_line.(docx_parser.content)).to eq(quote_first_line)
     end
 
     it 'should return the content in a pdf file' do
-      expect(pdf_parser.content).to eq(quote)
+      expect(first_line.(pdf_parser.content)).to eq(quote_first_line)
     end
 
     it 'should return no content for an image' do
@@ -78,14 +82,12 @@ describe Rika::Parser do
     end
 
     it 'should only return max content length' do
-      content = Rika::Parser.new(file_path('text_file.txt'), 5).content
-      expect(content).to eq('First')
+      expect(Rika::Parser.new(file_path('text_file.txt'), 9).content).to eq('Stopping')
     end
 
-    it 'should only return max content length for file over http' do
+    it 'should only return max content length for file over http', focus: true do
       server_runner.call( -> do
-        content = Rika::Parser.new(File.join(url, 'document.pdf'), 6).content
-        expect(content).to eq('First')
+        expect(Rika::Parser.new(File.join(url, 'document.pdf'), 9).content).to eq('Stopping')
       end)
     end
 
@@ -97,7 +99,7 @@ describe Rika::Parser do
     it 'should return the content from a file over http' do
       server_runner.call( -> do
         content = Rika::Parser.new(File.join(url, 'document.pdf')).content
-        expect(content).to eq(quote)
+        expect(first_line.(content)).to eq(quote_first_line)
       end)
     end
 
@@ -119,13 +121,13 @@ describe Rika::Parser do
     end
 
     it 'should return metadata from a pdf file' do
-      expect(pdf_parser.metadata['title']).to eq('A simple title')
+      expect(pdf_parser.metadata['Author']).to eq('Robert Frost')
     end
 
-    it 'should return metadata from a file over http' do
+    it 'should return metadata from a file over http', focus: true do
       server_runner.call( -> do
         parser = Rika::Parser.new(File.join(url, 'document.pdf'))
-        expect(parser.metadata['title']).to eq('A simple title')
+        expect(parser.metadata['Author']).to eq('Robert Frost')
       end)
     end
 
