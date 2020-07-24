@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Rika::VERSION
   gem.authors       = ["Richard Nyström", "Keith Bennett"]
   gem.email         = ["ricny046@gmail.com", "keithrbennett@gmail.com"]
-  gem.description   = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from various file formats. }
-  gem.summary       = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from various file formats. }
+  gem.description   = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats. }
+  gem.summary       = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats. }
   gem.homepage      = "https://github.com/keithrbennett/rika"
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -18,5 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec", "~> 3.9"
   gem.add_development_dependency "rake", "~> 13.0"
   gem.platform = "java"
+  gem.license = "Apache-2.0"
 end
 

@@ -1,5 +1,10 @@
 ## Release Notes
 
+#### v1.11.1
+
+* Add Apache-2.0 license to gemspec.
+
+
 #### v1.11.0
 
 * Replace 2015 Tika jar files w/2020 tika-app-1.24.1.jar.
