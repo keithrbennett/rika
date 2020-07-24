@@ -6,9 +6,8 @@ require "rika/version"
 require 'uri'
 require 'open-uri'
 require_relative 'rika/parser'
-require_relative '../target/dependency/tika-app-1.24.1.jar'
+require_relative '../java-lib/tika-app-1.24.1.jar'
 
-# Heavily based on the Apache Tika API: http://tika.apache.org/1.5/api/org/apache/tika/Tika.html
 module Rika
   import org.apache.tika.metadata.Metadata
   import org.apache.tika.Tika
