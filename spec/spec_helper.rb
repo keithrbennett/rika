@@ -6,8 +6,9 @@ end
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
-  config.treat_symbols_as_metadata_keys_with_true_values = true
-  # config.run_all_when_everything_filtered = true
+
+  # Enable the line below if you want ", focus: true" after a test declaration to
+  # denote the only tests that will be run:
   # config.filter_run :focus
 
   config.order = 'random'
