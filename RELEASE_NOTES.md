@@ -9,3 +9,4 @@
 * Various cleanup and refactoring.
 * Improve README.md documentation.
 * Tested successfully on Java 14.
+* Move Tika jar file from /target/dependency to /java-lib.
