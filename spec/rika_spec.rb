@@ -112,17 +112,17 @@ describe Rika::Parser do
     end
 
     it 'should return metadata from a docx file' do
-      expect(docx_parser.metadata['Page-Count']).to eq('1')
+      expect(docx_parser.metadata['meta:page-count']).to eq('1')
     end
 
     it 'should return metadata from a pdf file' do
-      expect(pdf_parser.metadata['Author']).to eq('Robert Frost')
+      expect(pdf_parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
     end
 
     it 'should return metadata from a file over http', focus: true do
       server_runner.call( -> do
         parser = Rika::Parser.new(File.join(url, 'document.pdf'))
-        expect(parser.metadata['Author']).to eq('Robert Frost')
+        expect(parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
       end)
     end
 
@@ -144,11 +144,11 @@ describe Rika::Parser do
 
   describe '#metadata_exists?' do
     it 'should return false if metadata does not exist' do
-      expect(txt_parser.metadata_exists?('title')).to be false
+      expect(txt_parser.metadata_exists?('dc:title')).to be false
     end
 
     it 'should return true if metadata exist' do
-      expect(docx_parser.metadata_exists?('title')).to be true
+      expect(docx_parser.metadata_exists?('dc:title')).to be true
     end
   end
 
@@ -187,19 +187,6 @@ describe Rika::Parser do
         txt = Rika::Parser.new(file_path("#{lang}.txt"))
         expect(txt.language).to eq(lang)
       end
-    end
-  end
-
-  # See note in rika.rb #language_is_reasonably_certain? regarding this method's future.
-  describe '#language_is_reasonably_certain?' do
-    it "should return false if lang can't be determined" do
-      lang = Rika::Parser.new(file_path("lang_cant_be_determined.txt"))
-      lang.language_is_reasonably_certain? == false
-    end
-
-    it "should return true if language can be determined" do
-      lang = Rika::Parser.new(file_path("en.txt"))
-      lang.language_is_reasonably_certain? == true
     end
   end
 
