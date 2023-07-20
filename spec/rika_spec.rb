@@ -59,9 +59,9 @@ describe Rika::Parser do
     expect { Rika::Parser.new(unavailable_file_on_web) }.to raise_error(SocketError)
   end
 
-  it 'should detect file type without a file extension' do
-    parser = Rika::Parser.new(file_path('text_file_without_extension'))
-    expect(parser.metadata['Content-Type']).to eq('text/plain; charset=UTF-8')
+  it 'should detect a file type without a file extension' do
+    parser = Rika::Parser.new(file_path('image_jpg_without_extension'))
+    expect(parser.metadata['Content-Type']).to eq('image/jpeg')
   end
 
   describe '#content' do
@@ -100,6 +100,16 @@ describe Rika::Parser do
 
     it 'should return empty string for unknown file' do
       expect(unknown_parser.content).to be_empty
+    end
+
+    specify 'the parse method should return the parser' do
+      input_stream = File.open(__FILE__)
+      begin
+        parser = Rika::Parser.new(input_stream)
+        expect(parser.parse).to eq(parser)
+      ensure
+        input_stream.close
+      end
     end
   end
 

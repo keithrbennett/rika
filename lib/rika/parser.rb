@@ -53,6 +53,7 @@ module Rika
         @metadata_java = Metadata.new
         @content = tika.parse_to_string(input_stream, @metadata_java).to_s.strip
       end
+      self
     end
 
     private def get_input_type
