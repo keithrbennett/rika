@@ -18,13 +18,12 @@ module Rika
     end
 
     def metadata
-      unless @metadata_ruby
+      @metadata_ruby ||= begin
         parse
-        @metadata_ruby = metadata_java.names.each_with_object({}) do |name, m_ruby|
+        metadata_java.names.each_with_object({}) do |name, m_ruby|
           m_ruby[name] = metadata_java.get(name)
         end
       end
-      @metadata_ruby
     end
 
     def media_type
