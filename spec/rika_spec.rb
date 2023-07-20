@@ -50,13 +50,13 @@ describe Rika::Parser do
 
 
   it 'should raise error if file does not exist' do
-    expect(-> { Rika::Parser.new(file_path('nonexistent_file.txt')) }).to raise_error(IOError)
+    expect { Rika::Parser.new(file_path('nonexistent_file.txt')) }.to raise_error(IOError)
   end
 
   it 'should raise error if URL does not exist' do
     unavailable_server = 'http://k6075sd0dfkr8nvfw0zvwfwckucf2aba.com'
     unavailable_file_on_web = File.join(unavailable_server, 'x.pdf')
-    expect(-> { Rika::Parser.new(unavailable_file_on_web) }).to raise_error(SocketError)
+    expect { Rika::Parser.new(unavailable_file_on_web) }.to raise_error(SocketError)
   end
 
   it 'should detect file type without a file extension' do
