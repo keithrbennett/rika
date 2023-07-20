@@ -103,13 +103,8 @@ describe Rika::Parser do
     end
 
     specify 'the parse method should return the parser' do
-      input_stream = File.open(__FILE__)
-      begin
-        parser = Rika::Parser.new(input_stream)
-        expect(parser.parse).to eq(parser)
-      ensure
-        input_stream.close
-      end
+      parser = Rika::Parser.new(file_path('text_file.txt'))
+      expect(parser.parse).to eq(parser)
     end
   end
 
