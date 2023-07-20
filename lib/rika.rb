@@ -26,6 +26,10 @@ module Rika
     Tika.java_class.package.implementation_version
   end
 
+  def self.language(text)
+    Rika.tika_language_detector.detect(text.to_java_string).get_language
+  end
+
   def self.parse_content_and_metadata(file_location, max_content_length = -1)
     parser = Parser.new(file_location, max_content_length)
     [parser.content, parser.metadata]

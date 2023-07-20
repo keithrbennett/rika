@@ -44,7 +44,7 @@ module Rika
     end
 
     def language
-      Rika.tika_language_detector.detect(content.to_java_string).get_language
+      Rika.language(content)
     end
 
 
