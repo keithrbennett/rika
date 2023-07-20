@@ -137,26 +137,6 @@ describe Rika::Parser do
     end
   end
 
-  describe '#available_metadata' do
-    it 'should return available metadata fields' do
-      expect(txt_parser.available_metadata).to_not be_empty
-    end
-
-    it 'should be an array' do
-      expect(txt_parser.available_metadata).to be_an(Array)
-    end
-  end
-
-  describe '#metadata_exists?' do
-    it 'should return false if metadata does not exist' do
-      expect(txt_parser.metadata_exists?('dc:title')).to be false
-    end
-
-    it 'should return true if metadata exist' do
-      expect(docx_parser.metadata_exists?('dc:title')).to be true
-    end
-  end
-
   describe '#media_type' do
     it 'should return application/pdf for a pdf file' do
       expect(pdf_parser.media_type).to eq('application/pdf')

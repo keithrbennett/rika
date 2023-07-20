@@ -33,16 +33,6 @@ module Rika
           : tika.detect(input_stream)
     end
 
-    # @deprecated
-    def available_metadata
-      metadata.keys
-    end
-
-    # @deprecated
-    def metadata_exists?(name)
-      metadata[name] != nil
-    end
-
     def language
       Rika.language(content)
     end
