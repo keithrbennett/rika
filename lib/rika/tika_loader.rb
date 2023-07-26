@@ -4,16 +4,44 @@
 # @return absolute filespec of loaded Tika jar file
 class TikaLoader
   def self.require_tika
-    tika_jar_location_override = ENV['TIKA_JAR_FILESPEC']
-    if tika_jar_location_override
-      tika_jar_location = File.absolute_path(tika_jar_location_override)
-      require tika_jar_location
-      puts "Using Tika jar file at #{tika_jar_location_override}."
-    else
-      tika_jar_location = File.absolute_path('./java-lib/tika-app-1.24.1.jar')
-      puts "Using Tika jar file at default location: #{tika_jar_location}"
-      require default_tika_jar_location
+    tika_jar_filespec = get_specified_tika_filespec
+
+    begin
+      abs_tika_jar_filespec = File.absolute_path(tika_jar_filespec)
+      require abs_tika_jar_filespec
+    rescue LoadError => e
+      message = "Unable to load Tika jar file from #{tika_jar_filespec}."
+      if tika_jar_filespec != abs_tika_jar_filespec
+        message << "\nAbsolute filespec is #{abs_tika_jar_filespec}."
+      end
+      print_message_and_exit(message)
     end
-    tika_jar_location
+  end
+
+  def self.get_specified_tika_filespec
+    tika_jar_filespec = ENV['TIKA_JAR_FILESPEC']
+    not_specified = tika_jar_filespec.nil? || tika_jar_filespec.strip.empty?
+    if not_specified
+      message = 'Environment variable TIKA_JAR_FILESPEC is not set.'
+      print_message_and_exit(message)
+    end
+    tika_jar_filespec
+  end
+
+
+  def self.formatted_error_message(message)
+    banner = '!' * 79 # message.length
+    <<~MESSAGE
+
+        #{banner}
+        #{message}
+        #{banner}
+
+    MESSAGE
+  end
+
+  def self.print_message_and_exit(message)
+    $stderr.puts formatted_error_message(message)
+    exit 1
   end
 end
