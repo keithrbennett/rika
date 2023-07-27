@@ -20,5 +20,14 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 13.0"
   gem.platform = "java"
   gem.license = "Apache-2.0"
+
+  gem.post_install_message = <<~MESSAGE
+
+    Using the rika gem requires that you:
+      1) download the Apache Tika tika-app jar file from https://tika.apache.org/download.html
+      2) place it somewhere accessible to the running application
+      3) specify its location in the TIKA_JAR_FILESPEC environment variable
+
+  MESSAGE
 end
 
