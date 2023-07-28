@@ -22,24 +22,29 @@ module Rika
   import org.apache.tika.metadata.Metadata
 
 
+# @return [String] version of loaded Tika jar file
   def self.tika_version
     Tika.java_class.package.implementation_version
   end
 
+# @return [String] language of passed text, as 2-character ISO 639-1 code
   def self.language(text)
     Rika.tika_language_detector.detect(text.to_java_string).get_language
   end
 
+  # @return [Array<String,Hash>] content and metadata of file at specified location
   def self.parse_content_and_metadata(file_location, max_content_length = -1)
     parser = Parser.new(file_location, max_content_length)
     [parser.content, parser.metadata]
   end
 
+  # @return [Hash] content and metadata of file at specified location
   def self.parse_content_and_metadata_as_hash(file_location, max_content_length = -1)
     content, metadata = parse_content_and_metadata(file_location, max_content_length)
     { content: content, metadata: metadata }
   end
 
+# @return [Parser] parser for resource at specified location
   def self.parse_content(file_location, max_content_length = -1)
     Parser.new(file_location, max_content_length).content
   end

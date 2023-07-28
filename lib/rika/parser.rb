@@ -12,11 +12,13 @@ module Rika
       @input_type = get_input_type
     end
 
+    # @return [String] content
     def content
       parse
       @content
     end
 
+    # @return [Hash] metadata
     def metadata
       @metadata_ruby ||= begin
         parse
@@ -26,17 +28,19 @@ module Rika
       end
     end
 
+    # @return [String] media type
     def media_type
       @media_type ||= file? \
           ? tika.detect(java.io.File.new(data_source)) \
           : tika.detect(input_stream)
     end
 
+    # @return [String] language of content, as 2-character ISO 639-1 code
     def language
       Rika.language(content)
     end
 
-
+    # @return [Parser] self
     def parse
       unless @content
         @metadata_java = Metadata.new
@@ -45,6 +49,8 @@ module Rika
       self
     end
 
+    # @return [Symbol] input type (currently only :file and :http are supported)
+    # @raise [IOError] if input is not a file or HTTP resource
     private def get_input_type
       if File.file?(data_source)
         :file
@@ -55,12 +61,14 @@ module Rika
       end
     end
 
+    # @return [InputStream] input stream from which data was or will be parsed
     private def input_stream
       file? \
           ? FileInputStream.new(java.io.File.new(data_source)) \
           : URL.new(data_source).open_stream
     end
 
+    # @return [Boolean] true if, and only if, input is a file
     private def file?
       input_type == :file
     end
