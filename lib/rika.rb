@@ -1,6 +1,6 @@
-# encoding: utf-8
-
-raise "You need to run JRuby to use Rika" unless RUBY_PLATFORM =~ /java/
+unless RUBY_PLATFORM.match(/java/)
+  raise "\n\n\nRika can only be run with JRuby! It needs access to the Java Virtual Machine.\n\n\n"
+end
 
 require "rika/version"
 require 'uri'
