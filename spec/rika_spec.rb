@@ -1,8 +1,6 @@
 require 'spec_helper'
 require 'webrick'
 
-include WEBrick
-
 describe Rika::Parser do
 
     let (:txt_parser)       { Rika::Parser.new(file_path('text_file.txt')) }
@@ -26,7 +24,7 @@ describe Rika::Parser do
       ->(action) do
         server = nil
         server_thread = Thread.new do
-          server = HTTPServer.new(
+          server = WEBrick::HTTPServer.new(
               Port:         port,
               DocumentRoot: dir,
               AccessLog:    [],
@@ -76,24 +74,25 @@ describe Rika::Parser do
     end
 
     it 'should return no content for an image' do
-      expect(image_parser.metadata.keys).to_not be_empty
+      expect(image_parser.content).to be_empty
     end
 
     it 'should only return max content length' do
-      expect(Rika::Parser.new(file_path('text_file.txt'), 9).content).to eq('Stopping')
+      expect(Rika::Parser.new(file_path('text_file.txt'), 8).content).to eq('Stopping')
     end
 
     it 'should only return max content length for file over http', focus: true do
       server_runner.call( -> do
-        expect(Rika::Parser.new(File.join(url, 'document.pdf'), 9).content).to eq('Stopping')
+        content = Rika::Parser.new(File.join(url, 'document.pdf'), 9).content
+        expect(content).to eq('Stopping')
       end)
     end
 
     it 'should return the content from a file over http' do
-      server_runner.call( -> do
-        content = Rika::Parser.new(File.join(url, 'document.pdf')).content
-        expect(first_line.(content)).to eq(quote_first_line)
+      content = server_runner.call( -> do
+        Rika::Parser.new(File.join(url, 'document.pdf')).content
       end)
+      expect(first_line.(content)).to eq(quote_first_line)
     end
 
     it 'should return empty string for unknown file' do
