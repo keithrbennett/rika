@@ -19,8 +19,8 @@ describe Rika::Parser do
 
     let(:first_line) { ->(string) { string.split("\n").first.strip } }
 
+    # returns a lambda that, when passed an action, will wrap it in an HTTP server
     let(:server_runner) do
-      # returns a lambda that, when passed an action, will wrap it in an HTTP server
       ->(action) do
         server = nil
         server_thread = Thread.new do
@@ -81,7 +81,7 @@ describe Rika::Parser do
       expect(Rika::Parser.new(file_path('text_file.txt'), 8).content).to eq('Stopping')
     end
 
-    it 'should only return max content length for file over http', focus: true do
+    it 'should only return max content length for file over http' do
       server_runner.call( -> do
         content = Rika::Parser.new(File.join(url, 'document.pdf'), 9).content
         expect(content).to eq('Stopping')
@@ -121,7 +121,7 @@ describe Rika::Parser do
       expect(pdf_parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
     end
 
-    it 'should return metadata from a file over http', focus: true do
+    it 'should return metadata from a file over http' do
       server_runner.call( -> do
         parser = Rika::Parser.new(File.join(url, 'document.pdf'))
         expect(parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
