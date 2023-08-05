@@ -1,76 +1,70 @@
-module Rika
-  class Parser
+# frozen_string_literal: true
 
-    attr_reader :data_source, :tika, :metadata_java, :metadata_ruby, :input_type
+require_relative 'parse_result'
+
+module Rika
+  # Parses a document and returns a ParseResult.
+  # This class is intended to be used only by the Rika module, not by users of the gem.
+  class Parser
+    # @param [String] data_source file path or HTTP URL
+    # @param [Integer] max_content_length maximum content length to return
+    # @param [Detector] Tika detector
 
     def initialize(data_source, max_content_length = -1, detector = DefaultDetector.new)
       @data_source = data_source
-      @tika = Tika.new(detector)
-      @tika.set_max_string_length(max_content_length)
-      @metadata_java = nil
-      @metadata_ruby = nil
-      @input_type = get_input_type
+      @max_content_length = max_content_length
+      @detector = detector
     end
 
-    # @return [String] content
-    def content
-      parse
-      @content
-    end
-
-    # @return [Hash] metadata
-    def metadata
-      @metadata_ruby ||= begin
-        parse
-        metadata_java.names.each_with_object({}) do |name, m_ruby|
-          m_ruby[name] = metadata_java.get(name)
-        end
-      end
-    end
-
-    # @return [String] media type
-    def media_type
-      @media_type ||= file? \
-          ? tika.detect(java.io.File.new(data_source)) \
-          : tika.detect(input_stream)
-    end
-
-    # @return [String] language of content, as 2-character ISO 639-1 code
-    def language
-      Rika.language(content)
-    end
-
-    # @return [Parser] self
     def parse
-      unless @content
-        @metadata_java = Metadata.new
-        @content = tika.parse_to_string(input_stream, @metadata_java).to_s.strip
+      metadata_java = Metadata.new
+      tika = Tika.new(@detector)
+      tika.set_max_string_length(@max_content_length)
+      input_type = data_source_input_type
+      input_stream = create_input_stream(input_type)
+      media_type = (input_type == :file) \
+                     ? tika.detect(java.io.File.new(@data_source)) \
+                     : tika.detect(input_stream)
+
+      content = tika.parse_to_string(input_stream, metadata_java).to_s.strip
+
+      metadata_ruby =  metadata_java.names.each_with_object({}) do |name, m_ruby|
+        m_ruby[name] = metadata_java.get(name)
       end
-      self
+
+      ParseResult.new(
+        content:            content,
+        metadata:           metadata_ruby,
+        metadata_java:      metadata_java,
+        media_type:         media_type,
+        input_type:         input_type,
+        data_source:        @data_source,
+        max_content_length: @max_content_length,
+        tika:               tika
+      )
     end
+
 
     # @return [Symbol] input type (currently only :file and :http are supported)
     # @raise [IOError] if input is not a file or HTTP resource
-    private def get_input_type
-      if File.file?(data_source)
+    private def data_source_input_type
+      if File.file?(@data_source)
         :file
-      elsif URI(data_source).is_a?(URI::HTTP) && URI.open(data_source)
+      elsif URI(@data_source).is_a?(URI::HTTP) # && URI.parse(@data_source).open
         :http
       else
-        raise IOError, "Input (#{data_source}) is not an available file or HTTP resource."
+        raise IOError, "Input (#{@data_source}) is not an available file or HTTP resource."
       end
     end
 
-    # @return [InputStream] input stream from which data was or will be parsed
-    private def input_stream
-      file? \
-          ? FileInputStream.new(java.io.File.new(data_source)) \
-          : URL.new(data_source).open_stream
-    end
-
-    # @return [Boolean] true if, and only if, input is a file
-    private def file?
-      input_type == :file
+    # @param [Symbol] input_type input type (currently only :file and :http are supported)
+    # @return [InputStream] input stream from which data can be parsed
+    private def create_input_stream(input_type)
+      if input_type == :file
+        FileInputStream.new(java.io.File.new(@data_source))
+      else
+        URL.new(@data_source).open_stream
+      end
     end
   end
 end
