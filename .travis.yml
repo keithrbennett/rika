@@ -1,7 +1,0 @@
-language: ruby
-rvm:
-  - jruby-9.2.12.0
-notifications:
-  recipients:
-    - ricny046@gmail.com
-    - keithrbennett@gmail.com
