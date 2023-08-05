@@ -15,3 +15,17 @@
 * Improve README.md documentation.
 * Tested successfully on Java 14.
 * Move Tika jar file from /target/dependency to /java-lib.
+
+### v2.0.0-alpha.1
+
+* Add support for Tika 2.8.0, breaks compatibility with Tika 1.x.
+* Remove tika-app-1.24.1.jar from repo and gem.
+* Tika jar file is now downloaded by the user and found via environment variable `TIKA_JAR_FILESPEC`. 
+* Add `Rika.tika_version`.
+* Add `webrick` dependency, needed for current versions of Ruby.
+* Remove deprecated methods `Parser#available_metadata` and `Parser#metadata_exists?`.
+* Move `Parser#language` to `Rika.language`, add `Parser#language` that calls it.
+* Remove `Parser#language_is_reasonably_certain?`, no longer supported by Tika.
+* Remove `LanguageIdentifier` import, obsolete. Otherwise updated language detection.
+* Minor refactoring and improvements.
+
