@@ -12,7 +12,6 @@ module Rika
     :input_type,
     :data_source,
     :max_content_length,
-    :tika,
     keyword_init: true
   ) do
     # @return [String] language of content, as 2-character ISO 639-1 code

@@ -21,29 +21,28 @@ module Rika
       tika = Tika.new(@detector)
       tika.set_max_string_length(@max_content_length)
       input_type = data_source_input_type
-      input_stream = create_input_stream(input_type)
-      media_type = (input_type == :file) \
-                     ? tika.detect(java.io.File.new(@data_source)) \
-                     : tika.detect(input_stream)
-
-      content = tika.parse_to_string(input_stream, metadata_java).to_s.strip
-
-      metadata_ruby =  metadata_java.names.each_with_object({}) do |name, m_ruby|
-        m_ruby[name] = metadata_java.get(name)
-      end
+      media_type = tika.detect(
+        input_type == :file ? java.io.File.new(@data_source) : URL.new(@data_source)
+      )
+      content = tika_parse(input_type, metadata_java, tika)
 
       ParseResult.new(
         content:            content,
-        metadata:           metadata_ruby,
+        metadata:           metadata_java_to_ruby(metadata_java),
         metadata_java:      metadata_java,
         media_type:         media_type,
+        language:           Rika.language(content),
         input_type:         input_type,
         data_source:        @data_source,
-        max_content_length: @max_content_length,
-        tika:               tika
+        max_content_length: @max_content_length
       )
     end
 
+    private def metadata_java_to_ruby(metadata_java)
+      metadata_java.names.each_with_object({}) do |name, m_ruby|
+        m_ruby[name] = metadata_java.get(name)
+      end
+    end
 
     # @return [Symbol] input type (currently only :file and :http are supported)
     # @raise [IOError] if input is not a file or HTTP resource
@@ -65,6 +64,16 @@ module Rika
       else
         URL.new(@data_source).open_stream
       end
+    end
+
+    private def tika_parse(input_type, metadata_java, tika)
+      begin
+        input_stream = create_input_stream(input_type)
+        content = tika.parse_to_string(input_stream, metadata_java).to_s.strip
+      ensure
+        input_stream.close if input_stream.respond_to?(:close)
+      end
+      content
     end
   end
 end
