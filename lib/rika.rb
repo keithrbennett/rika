@@ -51,9 +51,8 @@ module Rika
 
   # Regarding max_content_length, the default is set at 0 to save unnecessary processing,
   # since the content is being ignored. However, the PDF metadata "pdf:unmappedUnicodeCharsPerPage"
-  # and "pdf:charsPerPage" will be absent if the max_content_length is 0, and will be
-  # ]may differ depending on
-  # the number of characters read.
+  # and "pdf:charsPerPage" will be absent if the max_content_length is 0, and otherwise may differ
+  # depending on the number of characters read.
   def self.parse_metadata(file_location, max_content_length = 0)
     Parser.new(file_location, max_content_length).metadata
   end

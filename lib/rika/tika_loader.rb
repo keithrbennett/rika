@@ -16,6 +16,7 @@ class TikaLoader
       end
       print_message_and_exit(message)
     end
+    nil
   end
 
   def self.get_specified_tika_filespec
