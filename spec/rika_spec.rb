@@ -3,12 +3,12 @@ require 'webrick'
 
 describe Rika::Parser do
 
-    let (:txt_parser)       { Rika::Parser.new(file_path('text_file.txt')) }
-    let (:docx_parser)      { Rika::Parser.new(file_path('document.docx')) }
-    let (:doc_parser)       { Rika::Parser.new(file_path('document.doc'))  }
-    let (:pdf_parser)       { Rika::Parser.new(file_path('document.pdf'))  }
-    let (:image_parser)     { Rika::Parser.new(file_path('image.jpg'))     }
-    let (:unknown_parser)   { Rika::Parser.new(file_path('unknown.bin'))   }
+    let (:text_parse_result)    { Rika.parse(file_path('text_file.txt')) }
+    let (:docx_parse_result)    { Rika.parse(file_path('document.docx')) }
+    let (:doc_parse_result)     { Rika.parse(file_path('document.doc'))  }
+    let (:pdf_parse_result)     { Rika.parse(file_path('document.pdf'))  }
+    let (:image_parse_result)   { Rika.parse(file_path('image.jpg'))     }
+    let (:unknown_parse_result) { Rika.parse(file_path('unknown.bin'))   }
     let (:dir)              { File.expand_path(File.join(File.dirname(__FILE__), 'fixtures')) }
     let (:quote_first_line) { 'Stopping by Woods on a Snowy Evening' }
 
@@ -46,62 +46,57 @@ describe Rika::Parser do
 
 
   it 'should raise error if file does not exist' do
-    expect { Rika::Parser.new(file_path('nonexistent_file.txt')) }.to raise_error(IOError)
+    expect { Rika.parse(file_path('nonexistent_file.txt')) }.to raise_error(IOError)
   end
 
   it 'should raise error if URL does not exist' do
     unavailable_server = 'http://k6075sd0dfkr8nvfw0zvwfwckucf2aba.com'
     unavailable_file_on_web = File.join(unavailable_server, 'x.pdf')
-    expect { Rika::Parser.new(unavailable_file_on_web) }.to raise_error(SocketError)
+    expect { Rika.parse(unavailable_file_on_web) }.to raise_error(Java::JavaNet::UnknownHostException)
   end
 
   it 'should detect a file type without a file extension' do
-    parser = Rika::Parser.new(file_path('image_jpg_without_extension'))
-    expect(parser.metadata['Content-Type']).to eq('image/jpeg')
+    parse_result = Rika.parse(file_path('image_jpg_without_extension'))
+    expect(parse_result.metadata['Content-Type']).to eq('image/jpeg')
   end
 
   describe '#content' do
     it 'should return the content in a text file' do
-      expect(first_line.(txt_parser.content)).to eq(quote_first_line)
+      expect(first_line.(text_parse_result.content)).to eq(quote_first_line)
     end
 
     it 'should return the content in a docx file' do
-      expect(first_line.(docx_parser.content)).to eq(quote_first_line)
+      expect(first_line.(docx_parse_result.content)).to eq(quote_first_line)
     end
 
     it 'should return the content in a pdf file' do
-      expect(first_line.(pdf_parser.content)).to eq(quote_first_line)
+      expect(first_line.(pdf_parse_result.content)).to eq(quote_first_line)
     end
 
     it 'should return no content for an image' do
-      expect(image_parser.content).to be_empty
+      expect(image_parse_result.content).to be_empty
     end
 
     it 'should only return max content length' do
-      expect(Rika::Parser.new(file_path('text_file.txt'), 8).content).to eq('Stopping')
+      expect(Rika.parse(file_path('text_file.txt'), 8).content).to eq('Stopping')
     end
 
     it 'should only return max content length for file over http' do
       server_runner.call( -> do
-        content = Rika::Parser.new(File.join(url, 'document.pdf'), 9).content
+        content = Rika.parse(File.join(url, 'document.pdf'), 9).content
         expect(content).to eq('Stopping')
       end)
     end
 
     it 'should return the content from a file over http' do
       content = server_runner.call( -> do
-        Rika::Parser.new(File.join(url, 'document.pdf')).content
+        Rika.parse(File.join(url, 'document.pdf')).content
       end)
       expect(first_line.(content)).to eq(quote_first_line)
     end
 
     it 'should return empty string for unknown file' do
-      expect(unknown_parser.content).to be_empty
-    end
-
-    specify 'the parse method should return the parser' do
-      parser = Rika::Parser.new(file_path('text_file.txt'))
-      expect(parser.parse).to eq(parser)
+      expect(unknown_parse_result.content).to be_empty
     end
   end
 
@@ -110,64 +105,64 @@ describe Rika::Parser do
   # have tests for all file formats it supports so we won't retest that
   describe '#metadata' do
     it 'should return nil if metadata field does not exist' do
-      expect(txt_parser.metadata['nonsense']).to be_nil
+      expect(text_parse_result.metadata['nonsense']).to be_nil
     end
 
     it 'should return metadata from a docx file' do
-      expect(docx_parser.metadata['meta:page-count']).to eq('1')
+      expect(docx_parse_result.metadata['meta:page-count']).to eq('1')
     end
 
     it 'should return metadata from a pdf file' do
-      expect(pdf_parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
+      expect(pdf_parse_result.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
     end
 
     it 'should return metadata from a file over http' do
       server_runner.call( -> do
-        parser = Rika::Parser.new(File.join(url, 'document.pdf'))
+        parser = Rika.parse(File.join(url, 'document.pdf'))
         expect(parser.metadata['pdf:docinfo:creator']).to eq('Robert Frost')
       end)
     end
 
     it 'should return metadata from an image' do
-      expect(image_parser.metadata['Image Height']).to eq('72 pixels')
-      expect(image_parser.metadata['Image Width']).to  eq('72 pixels')
+      expect(image_parse_result.metadata['Image Height']).to eq('72 pixels')
+      expect(image_parse_result.metadata['Image Width']).to  eq('72 pixels')
     end
   end
 
   describe '#media_type' do
     it 'should return application/pdf for a pdf file' do
-      expect(pdf_parser.media_type).to eq('application/pdf')
+      expect(pdf_parse_result.media_type).to eq('application/pdf')
     end
 
     it 'should return text/plain for a txt file' do
-      expect(txt_parser.media_type).to eq('text/plain')
+      expect(text_parse_result.media_type).to eq('text/plain')
     end
 
     it 'should return application/pdf for a pdf over http' do
       server_runner.call( -> do
-        parser = Rika::Parser.new(File.join(url, 'document.pdf'))
-        expect(parser.media_type).to eq('application/pdf')
+        parse_result = Rika.parse(File.join(url, 'document.pdf'))
+        expect(parse_result.media_type).to eq('application/pdf')
       end)
     end
 
     it 'should return application/octet-stream for unknown file' do
-      expect(unknown_parser.media_type).to eq('application/octet-stream')
+      expect(unknown_parse_result.media_type).to eq('application/octet-stream')
     end
 
     it 'should return msword for a doc file' do
-      expect(doc_parser.media_type).to eq('application/msword')
+      expect(doc_parse_result.media_type).to eq('application/msword')
     end
 
     it 'should return wordprocessingml for a docx file' do
-      expect(docx_parser.media_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+      expect(docx_parse_result.media_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     end
   end
 
   describe '#language' do
     it 'should return the language of the content' do
       %w(en de fr ru es).each do |lang|
-        txt = Rika::Parser.new(file_path("#{lang}.txt"))
-        expect(txt.language).to eq(lang)
+        parse_result = Rika.parse(file_path("#{lang}.txt"))
+        expect(parse_result.language).to eq(lang)
       end
     end
   end
