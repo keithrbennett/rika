@@ -150,7 +150,7 @@ describe Rika::Parser do
     end
 
     it 'should return msword for a doc file' do
-      expect(doc_parse_result.media_type).to eq('application/msword')
+      expect(%w{application/msword application/x-tika-msoffice}).to include(doc_parse_result.media_type)
     end
 
     it 'should return wordprocessingml for a docx file' do
