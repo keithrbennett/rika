@@ -28,5 +28,13 @@ module Rika
     def http?
       input_type == :http
     end
+
+    # @return [Hash] content and metadata of ParseResult instance as hash
+    def to_output_hash
+      {
+        content: content,
+        metadata: metadata,
+      }
+    end
   end
 end

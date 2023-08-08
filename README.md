@@ -95,6 +95,23 @@ the metadata and the text (whose keys are "metadata" and "text"). This enables p
 to a file or to another program that can use it as a data source. In addition, when processing multiple files, 
 this streaming approach will be more efficient than calling Rika separately for each file.
 
+Here is an example of how to use Rika and [rexe]((https://github.com/keithrbennett/rexe) to get a tally 
+of content types for a set of documents:
+
+```bash
+$ rika -m -fy -a spec/fixtures/* | \
+  rexe -iy -oa -mb -r rika "map { |r| r[:metadata]['Content-Type'] }.tally"
+{
+                                                  "text/plain; charset=UTF-8" => 6,
+                                                         "application/msword" => 1,
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => 1,
+                                                            "application/pdf" => 1,
+                                                                 "image/jpeg" => 2,
+                                             "text/plain; charset=ISO-8859-1" => 1,
+                                                   "application/octet-stream" => 1
+}
+```
+
 ## Installation
 
 * Install [JRuby](https://www.jruby.org) if you don't already have it. Ruby version managers such as

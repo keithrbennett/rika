@@ -26,7 +26,13 @@ class RikaCommand
     @options = parse_command_line
     set_output_format
     ensure_targets_specified
-    targets.each { |target| output_result(target) }
+    if @options[:as_array]
+      results = targets.map { |target| Rika.parse(target) }
+      output_hashes = results.map { |result| result.to_output_hash }
+      puts @metadata_formatter.call(output_hashes)
+    else
+      targets.each { |target| output_result(target) }
+    end
     nil
   end
 
@@ -106,6 +112,10 @@ class RikaCommand
         options[:metadata] = false
       end
 
+      opts.on('-a', '--as-array', 'Output all parsed results as an array') do
+        options[:as_array] = true
+      end
+
       opts.on('-v', '--version', 'Output version') do
         puts versions_string
         exit
@@ -117,7 +127,7 @@ class RikaCommand
       end
     end.parse!
     options[:format] ||= 'at'
-    options[:format] += options[:format][0] if options[:format].length == 1
+    options[:format] *= 2 if options[:format].length == 1
     options
   end
 
