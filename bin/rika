@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # This command line application enables the parsing of documents on the command line.
 # Syntax is:
@@ -57,10 +58,7 @@ class RikaCommand
     # If both metadata and text are requested, and the format is one of the JSON or YAML
     # formats, then output a hash with both metadata and text as keys.
     if @options[:metadata] && @options[:text] && %w[jj pp yy].include?(@options[:format])
-      puts @metadata_formatter.( {
-        'metadata' => result.metadata,
-        'text' => result.content
-      })
+      puts @metadata_formatter.({ 'metadata' => result.metadata, 'text' => result.content })
     else
       puts @metadata_formatter.(result.metadata) if @options[:metadata]
       puts @text_formatter.(result.content) if @options[:text]
@@ -70,7 +68,7 @@ class RikaCommand
 
   private def ensure_targets_specified
     if targets.empty?
-      puts "Please specify a file or URL to parse."
+      puts 'Please specify a file or URL to parse.'
       exit
     end
     nil
@@ -86,27 +84,28 @@ class RikaCommand
     }
 
     OptionParser.new do |opts|
-      opts.banner = "Usage: rika [options] <file or url>" \
-      "If a format contains two letters, the first will be used for metadata, the second for text."
+      opts.banner = 'Usage: rika [options] <file or url>' \
+      'If a format contains two letters, the first will be used for metadata, the second for text.'
 
-      opts.on("-f", "--format FORMAT", "Output format ([a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml)") do |format|
+      format_message = 'Output format ([a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml)'
+      opts.on('-f', '--format FORMAT', format_message) do |format|
         options[:format] = format
       end
 
-      opts.on("-m", "--metadata-only", "Output metadata only") do
+      opts.on('-m', '--metadata-only', 'Output metadata only') do
         options[:text] = false
       end
 
-      opts.on("-t", "--text-only", "Output text only") do
+      opts.on('-t', '--text-only', 'Output text only') do
         options[:metadata] = false
       end
 
-      opts.on("-v", "--version", "Output version") do
+      opts.on('-v', '--version', 'Output version') do
         puts versions_string
         exit
       end
 
-      opts.on("-h", "--help", "Output help") do
+      opts.on('-h', '--help', 'Output help') do
         puts opts
         exit
       end
