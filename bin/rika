@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+
+# This command line application enables the parsing of documents on the command line.
+# Syntax is:
+#   rika [options] <file or url> [...file or url...]
+# Run with -h or --help option for more details.
+
+require 'awesome_print'
+require 'optparse'
+require_relative '../lib/rika'
+
+class RikaCommand
+
+  FORMATTERS = {
+    'a' => ->(object) { object.ai },
+    'i' => ->(object) { object.inspect },
+    'j' => ->(object) { object.to_json },
+    'p' => ->(object) { JSON.pretty_generate(object) },
+    't' => ->(object) { object.to_s },
+    'y' => ->(object) { object.to_yaml }
+  }
+
+  # Run the command line application.
+  def run
+    @options = parse_command_line
+    set_output_format
+    ensure_targets_specified
+    targets.each { |target| output_result(target) }
+    nil
+  end
+
+  private def set_output_format
+    format = @options[:format]
+    format.chars.each do |char|
+      case char.downcase
+      when 'a'
+        require 'awesome_print'
+      when 'j', 'p'
+        require 'json'
+      when 'y'
+        require 'yaml'
+      end
+
+      unless FORMATTERS.key?(char)
+        puts "Invalid format '#{char}'."
+        exit
+      end
+    end
+
+    @metadata_formatter = FORMATTERS[format[0]]
+    @text_formatter     = FORMATTERS[format[1]]
+    nil
+  end
+
+  private def output_result(target)
+    result = Rika.parse(target)
+    # If both metadata and text are requested, and the format is one of the JSON or YAML
+    # formats, then output a hash with both metadata and text as keys.
+    if @options[:metadata] && @options[:text] && %w[jj pp yy].include?(@options[:format])
+      puts @metadata_formatter.( {
+        'metadata' => result.metadata,
+        'text' => result.content
+      })
+    else
+      puts @metadata_formatter.(result.metadata) if @options[:metadata]
+      puts @text_formatter.(result.content) if @options[:text]
+    end
+    nil
+  end
+
+  private def ensure_targets_specified
+    if targets.empty?
+      puts "Please specify a file or URL to parse."
+      exit
+    end
+    nil
+  end
+
+  # Parse the command line options into a hash, and remove them from ARGV.
+  # @return [Hash] options, or exits if help or version requested
+  private def parse_command_line
+    # Default to outputting both metadata and text:
+    options = {
+      metadata: true,
+      text: true
+    }
+
+    OptionParser.new do |opts|
+      opts.banner = "Usage: rika [options] <file or url>" \
+      "If a format contains two letters, the first will be used for metadata, the second for text."
+
+      opts.on("-f", "--format FORMAT", "Output format ([a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml)") do |format|
+        options[:format] = format
+      end
+
+      opts.on("-m", "--metadata-only", "Output metadata only") do
+        options[:text] = false
+      end
+
+      opts.on("-t", "--text-only", "Output text only") do
+        options[:metadata] = false
+      end
+
+      opts.on("-v", "--version", "Output version") do
+        puts versions_string
+        exit
+      end
+
+      opts.on("-h", "--help", "Output help") do
+        puts opts
+        exit
+      end
+    end.parse!
+    options[:format] ||= 'at'
+    options[:format] += options[:format][0] if options[:format].length == 1
+    options
+  end
+
+  private def versions_string
+    "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
+  end
+
+  private def targets
+    ARGV
+  end
+end
+
+RikaCommand.new.run
