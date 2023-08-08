@@ -1,15 +1,21 @@
+# Rika
 
-# (Rika}[https://github.com/keithrbennett/rika]
+[Rika](https://github.com/keithrbennett/rika) is a [JRuby](https://www.jruby.org) wrapper for
+the [Apache Tika](http://tika.apache.org/) Java library, which extracts text and metadata from files and resources
+of [many different formats](https://tika.apache.org/1.24.1/formats.html).
 
-Rika is a [JRuby](https://www.jruby.org) wrapper for the [Apache Tika](http://tika.apache.org/) Java library, which extracts text and metadata from files and resources of [many different formats](https://tika.apache.org/1.24.1/formats.html).
+Rika can be used as a library in your Ruby code, or on the command line.
 
 _Caution: This gem only works with [JRuby](https://www.jruby.org)._
 
-Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more Tika functionality, and perhaps a command line interface as well. See the [Other Tika Resources](#other-tika-resources) section for alternatives to Rika that may suit more demanding needs.
+Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more
+Tika functionality. See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
+Rika that may suit more demanding needs.
 
 ## Usage
 
-For a quick start with the simplest use cases, the following functions are provided to get what you need in a single function call, for your convenience:
+For a quick start with the simplest use cases, the following functions are provided to get what you need in a single
+function call, for your convenience:
 
 ```ruby
 require 'rika'
@@ -33,13 +39,13 @@ require 'rika'
 parser = Rika::Parser.new('x.pdf')
 
 # Return the content of the document:
-parser.content 
+parser.content
 
 # Return the metadata of the document:
-parser.metadata 
+parser.metadata
 
 # Return the media type for the document, e.g. "application/pdf":
-parser.media_type 
+parser.media_type
 
 # Return only the first 10000 chars of the content:
 Rika::Parser.new('x.pdf', 10000).content # 10000 first chars returned
@@ -70,7 +76,8 @@ content, metadata = Rika.parse_content_and_metadata('x.pdf')   # both of the abo
 
 #### Simple Command Line Use
 
-Since Ruby supports the `-r` option to require a library, and the `-e` option to evaluate a string of code, you can easily do simple parsing on the command line, such as:
+Since Ruby supports the `-r` option to require a library, and the `-e` option to evaluate a string of code, you can
+easily do simple parsing on the command line, such as:
 
 ```
 ruby -r rika -e 'puts Rika.parse_content("x.pdf")'
@@ -95,8 +102,8 @@ Using the [rexe](https://github.com/keithrbennett/rexe) gem, that can be made mu
 rexe -r rika -oj 'c,m = Rika.parse_content_and_metadata("x.pdf"); { c: c, m: m }'
 ```
 
-...and changing the `-oj` option gives you access to other output formats such as "Pretty JSON", YAML, and AwesomePrint (a very human readable format).
- 
+...and changing the `-oj` option gives you access to other output formats such as "Pretty JSON", YAML, and
+AwesomePrint (a very human readable format).
 
 ## Installation
 
@@ -116,12 +123,14 @@ Or install it yourself as:
 
 * The Apache Tika wiki is at https://cwiki.apache.org/confluence/display/tika.
 
-* Tika also provides another jar file containing a RESTful server that you can run on the command line. 
-You can download this server jar from http://tika.apache.org/download.html (look for the "tika-server-standard" jar file). 
-See the "Running the Tika Server as a Jar file" section of https://cwiki.apache.org/confluence/display/TIKA/TikaServer for more information.
+* Tika also provides another jar file containing a RESTful server that you can run on the command line.
+  You can download this server jar from http://tika.apache.org/download.html (look for the "tika-server-standard" jar
+  file).
+  See the "Running the Tika Server as a Jar file" section of https://cwiki.apache.org/confluence/display/TIKA/TikaServer
+  for more information.
 
-* @chrismattman and others have provided a [Python library and CLI](https://github.com/chrismattmann/tika-python) 
-that interfaces with the Tika server.
+* @chrismattman and others have provided a [Python library and CLI](https://github.com/chrismattmann/tika-python)
+  that interfaces with the Tika server.
 
 ## Credits
 
