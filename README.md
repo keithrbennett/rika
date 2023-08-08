@@ -6,7 +6,13 @@ of [many different formats](https://tika.apache.org/1.24.1/formats.html).
 
 Rika can be used as a library in your Ruby code, or on the command line.
 
-_Caution: This gem only works with [JRuby](https://www.jruby.org)._
+### Requirements
+
+
+* This gem only works with [JRuby](https://www.jruby.org)._
+* The [Apache Tika](http://tika.apache.org/) jar file must be installed on your system.
+  See the [Installation](#installation) section below for more information.
+
 
 Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more
 Tika functionality. See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
@@ -20,45 +26,21 @@ function call, for your convenience:
 ```ruby
 require 'rika'
 
-content           = Rika.parse_content('x.pdf')    # string containing all content text
-metadata          = Rika.parse_metadata('x.pdf')   # hash containing the document metadata
-content, metadata = Rika.parse_content_and_metadata('x.pdf')   # both of the above
+parse_result = Rika.parse('x.pdf')  # returns a Rika::ParseResult object
+parse_result.content                # string containing all content text
+parse_result.metadata               # hash containing the document metadata
+parse_result.media_type             # e.g. "application/pdf"
+parse_result.language               # e.g. "en"
+parse_result.data_source            # e.g. "x.pdf"
 ```
 
 A URL can be used instead of a filespec wherever a data source is specified:
 
 ```ruby
-content, metadata = Rika.parse_content_and_metadata('https://github.com/keithrbennett/rika')
+parse_result = Rika.parse('https://github.com/keithrbennett/rika')
 ```
 
-For other use cases and finer control, you can work directly with the Rika::Parser object:
-
-```ruby
-require 'rika'
-
-parser = Rika::Parser.new('x.pdf')
-
-# Return the content of the document:
-parser.content
-
-# Return the metadata of the document:
-parser.metadata
-
-# Return the media type for the document, e.g. "application/pdf":
-parser.media_type
-
-# Return only the first 10000 chars of the content:
-Rika::Parser.new('x.pdf', 10000).content # 10000 first chars returned
-
-# Return content from URL
-Rika::Parser.new('http://example.com/x.pdf').content
-
-# Return the language for the content parsed by this parser
-Rika::Parser.new('german-document.pdf').language
-# => "de"
-```
-
-The Rika module also has some useful methods:
+The Rika module also has some useful methods in addition to its `parse` method:
 
 ```ruby
 # Return the language for the content
@@ -67,57 +49,84 @@ Rika.language("magnifique")
 
 Rika.tika_version
 # => "2.8.0"
-
-# (also mentioned above:)
-content           = Rika.parse_content('x.pdf')    # string containing all content text
-metadata          = Rika.parse_metadata('x.pdf')   # hash containing the document metadata
-content, metadata = Rika.parse_content_and_metadata('x.pdf')   # both of the above
 ```
 
-#### Simple Command Line Use
+## Command Line Usage
+  
+Rika can also be used on the command line using the `rika` executable.  For example, the simplest form is to simply
+specify one or more filespecs or URL's as arguments:
 
-Since Ruby supports the `-r` option to require a library, and the `-e` option to evaluate a string of code, you can
-easily do simple parsing on the command line, such as:
+```bash
+rika x.pdf https://github.com/keithrbennett/rika
+```
+Here is the help text:
 
 ```
-ruby -r rika -e 'puts Rika.parse_content("x.pdf")'
-```
+Rika v2.0.0-alpha.1 (Tika v2.8.0) - https://github.com/keithrbennett/rika
 
-You could also parse the metadata and output it as JSON as follows:
+Usage: rika [options] <file or url> [...file or url...]
+Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml.
+If a format contains two letters, the first will be used for metadata, the second for text.
 
-```
-ruby -r rika -r json -e 'puts Rika.parse_metadata("x.pdf").to_json'
-```
+    -f, --format FORMAT              Output format (e.g. `-f at`, which is the default)
+    -m, --metadata-only              Output metadata only
+    -t, --text-only                  Output text only
+    -v, --version                    Output version
+    -h, --help                       Output help
+```    
 
-If you want to get both content and metadata in JSON format, these would do that:
+### Outputting Only Metadata or Only Parsed Text
 
-```
-ruby -r rika -r json -e 'c,m = Rika.parse_content_and_metadata("x.pdf"); puts({ c: c, m: m }.to_json)'
-ruby -r rika -r json -e 'c,m = Rika.parse_content_and_metadata("x.pdf"); puts JSON.pretty_generate({ c: c, m: m })'
-```
+The `-m` and `-t` options can be used to output only metadata or text, respectively.  The default is to output both.
 
-Using the [rexe](https://github.com/keithrbennett/rexe) gem, that can be made much more concise:
+### Output Formats
 
-```
-rexe -r rika -oj 'c,m = Rika.parse_content_and_metadata("x.pdf"); { c: c, m: m }'
-```
+The `-f` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
+output in awesome_print format, and the text will be output using `to_s`, as if `puts` were called on it.
 
-...and changing the `-oj` option gives you access to other output formats such as "Pretty JSON", YAML, and
-AwesomePrint (a very human readable format).
+If a single argument to `-f` is specified, it will be used for both metadata and text.  If two arguments are specified,
+the first will be used for metadata and the second for the parsed text.
+
+### Machine Readable Data Support
+
+If both metadata and text are output, and the same output format is used for both, and that format is JSON
+(plain or "pretty") or YAML, then the output will be a single JSON or YAML hash representation containing both
+the metadata and the text (whose keys are "metadata" and "text"). This enables piping the results of multiple documents
+to a file or to another program that can use it as a data source. In addition, when processing multiple files, 
+this streaming approach will be more efficient than calling Rika separately for each file.
 
 ## Installation
 
-Add this line to your application's Gemfile. Use `gem` or `jgem` depending on your JRuby installation:
+* Install [JRuby](https://www.jruby.org) if you don't already have it. Ruby version managers such as
+[rvm](https://rvm.io/) and [rbenv](https://github.com/rbenv) can simplify this process.
+* Download the [Apache Tika](http://tika.apache.org/) jar file from
+  http://tika.apache.org/download.html (look for the "tika-app" jar file).
+  Put it in a place that makes sense for your system, such as `/usr/local/lib`.
+* Configure the `TIKA_JAR_FILESPEC` environment variable to point to the Tika jar file.
+  For example, if you are using tika-app-1.24.1.jar, and put the jar file in `/usr/local/lib`,
+  then the setting of the environment variable should look like this:
 
-    gem 'rika' # or: jgem 'rika'
+  ```bash
+  export TIKA_JAR_FILESPEC=/usr/local/lib/tika-app-1.24.1.jar
+  ```
 
-And then execute:
+  You can put this in your `.bashrc` or `.zshrc` file to make it permanent.
 
-    $ bundle
+* Install the gem:
 
-Or install it yourself as:
+  ```bash
+  gem install rika
+  ```
 
-    $ gem install rika  # or: jgem install rika
+  or, if you're using [bundler](https://bundler.io/), add this to your Gemfile:
+
+  ```ruby
+  gem 'rika'
+  ```
+
+  and then run `bundle install`.
+* Verify that it works by running (as an example) `rika -m https://www.github.com`.
+  You should see key/value pairs representing the metadata of the Github home page.
 
 ## Other Tika Resources
 

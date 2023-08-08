@@ -84,10 +84,16 @@ class RikaCommand
     }
 
     OptionParser.new do |opts|
-      opts.banner = 'Usage: rika [options] <file or url>' \
-      'If a format contains two letters, the first will be used for metadata, the second for text.'
+      opts.banner =  <<~BANNER
+        Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
 
-      format_message = 'Output format ([a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml)'
+        Usage: rika [options] <file or url> [...file or url...]
+        Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml.
+        If a format contains two letters, the first will be used for metadata, the second for text.
+
+      BANNER
+
+      format_message = 'Output format (e.g. `-f at`, which is the default'
       opts.on('-f', '--format FORMAT', format_message) do |format|
         options[:format] = format
       end
