@@ -9,22 +9,21 @@ module Rika
     # @param [String] data_source file path or HTTP URL
     # @param [Integer] max_content_length maximum content length to return
     # @param [Detector] Tika detector
-
     def initialize(data_source, max_content_length = -1, detector = DefaultDetector.new)
       @data_source = data_source
       @max_content_length = max_content_length
       @detector = detector
+      @input_type = data_source_input_type
+      @tika = Tika.new(@detector)
     end
 
+    # Coordinates the parse using the other instance methods (which are all private)
+    # @return [ParseResult] parse result
     def parse
       metadata_java = Metadata.new
-      tika = Tika.new(@detector)
-      tika.set_max_string_length(@max_content_length)
-      input_type = data_source_input_type
-      media_type = tika.detect(
-        input_type == :file ? java.io.File.new(@data_source) : URL.new(@data_source)
-      )
-      content = tika_parse(input_type, metadata_java, tika)
+      @tika.set_max_string_length(@max_content_length)
+      media_type = with_input_stream { |stream| @tika.detect(stream) }
+      content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java).to_s.strip }
 
       ParseResult.new(
         content:            content,
@@ -32,12 +31,14 @@ module Rika
         metadata_java:      metadata_java,
         media_type:         media_type,
         language:           Rika.language(content),
-        input_type:         input_type,
+        input_type:         @input_type,
         data_source:        @data_source,
         max_content_length: @max_content_length
       )
     end
 
+    # @param [Metadata] a Tika Java metadata instance populated by the parse
+    # @return [Hash] a Ruby hash containing the data of the Java Metadata instance
     private def metadata_java_to_ruby(metadata_java)
       metadata_java.names.each_with_object({}) do |name, m_ruby|
         m_ruby[name] = metadata_java.get(name)
@@ -49,31 +50,26 @@ module Rika
     private def data_source_input_type
       if File.file?(@data_source)
         :file
-      elsif URI(@data_source).is_a?(URI::HTTP) # && URI.parse(@data_source).open
+      elsif URI(@data_source).is_a?(URI::HTTP)
         :http
       else
         raise IOError, "Input (#{@data_source}) is not an available file or HTTP resource."
       end
     end
 
-    # @param [Symbol] input_type input type (currently only :file and :http are supported)
-    # @return [InputStream] input stream from which data can be parsed
-    private def create_input_stream(input_type)
-      if input_type == :file
+    # Creates and opens an input stream from the configured resource.
+    # Yields that stream to the passed code block, then closes the stream.
+    # @return the value returned by the passed code block
+    private def with_input_stream
+      input_stream = if @input_type == :file
         FileInputStream.new(java.io.File.new(@data_source))
       else
         URL.new(@data_source).open_stream
       end
-    end
 
-    private def tika_parse(input_type, metadata_java, tika)
-      begin
-        input_stream = create_input_stream(input_type)
-        content = tika.parse_to_string(input_stream, metadata_java).to_s.strip
-      ensure
-        input_stream.close if input_stream.respond_to?(:close)
-      end
-      content
+      yield input_stream
+    ensure
+      input_stream.close if input_stream.respond_to?(:close)
     end
   end
 end
