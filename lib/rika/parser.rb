@@ -21,17 +21,21 @@ module Rika
     # @return [ParseResult] parse result
     def parse
       metadata_java = Metadata.new
-      metadata_java.set('data-source', @data_source)
       @tika.set_max_string_length(@max_content_length)
+      
       media_type = with_input_stream { |stream| @tika.detect(stream) }
       content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java).to_s.strip }
+
+      language = Rika.language(content)
+      metadata_java.set('rika-language', language)
+      metadata_java.set('rika-data-source', @data_source)
 
       ParseResult.new(
         content:            content,
         metadata:           metadata_java_to_ruby(metadata_java),
         metadata_java:      metadata_java,
         media_type:         media_type,
-        language:           Rika.language(content),
+        language:           language,
         input_type:         @input_type,
         data_source:        @data_source,
         max_content_length: @max_content_length
