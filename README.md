@@ -93,14 +93,18 @@ If both metadata and text are output, and the same output format is used for bot
 (plain or "pretty") or YAML, then the output will be a single JSON or YAML hash representation containing both
 the metadata and the text (whose keys are "metadata" and "text"). This enables piping the results of multiple documents
 to a file or to another program that can use it as a data source. In addition, when processing multiple files, 
-this streaming approach will be more efficient than calling Rika separately for each file.
+this streaming approach will be more efficient than calling Rika separately for each file, since each invocation of
+the rika command requires starting up a Java Virtual Machine.
 
-Here is an example of how to use Rika and [rexe]((https://github.com/keithrbennett/rexe) to get a tally 
+If the `-a` (`--as-array`) option is specified, then the output will be an array of such hashes, one for each file.
+This enables the output to be used as a data source for programs that can process an array of hashes, e.g. for analysis.
+
+For example, here is an example of how to use Rika and [rexe](https://github.com/keithrbennett/rexe]) to get a tally 
 of content types for a set of documents:
 
 ```bash
 $ rika -m -fy -a spec/fixtures/* | \
-  rexe -iy -oa -mb -r rika "map { |r| r[:metadata]['Content-Type'] }.tally"
+  rexe -iy -oa -mb "map { |r| r[:metadata]['Content-Type'] }.tally"
 {
                                                   "text/plain; charset=UTF-8" => 6,
                                                          "application/msword" => 1,
@@ -111,6 +115,23 @@ $ rika -m -fy -a spec/fixtures/* | \
                                                    "application/octet-stream" => 1
 }
 ```
+Here is a breakdown of the above command:
+
+* `rika`
+  * `-m` limits the output to metadata (no text)
+  * `-fy` outputs the data in YAML format.
+  * `-a` option causes the output to be an array of hashes, one for each file
+* `rexe` 
+  * `-iy` indicates that the input is YAML
+  * `-oa` indicates that the output should be done using awesome_print/amazing_print
+  * `-mb` indicates that all input should be ingested as a single string ("b" for "big string", as opposed to streamed)
+
+* Ruby code passed to `rexe`
+  * `map` is called on the array to extract the content type from each parsed document hash
+  * `tally` is called on the resulting array to get the count of each content type
+
+
+
 
 ## Installation
 
@@ -145,6 +166,9 @@ $ rika -m -fy -a spec/fixtures/* | \
 * Verify that it works by running (as an example) `rika -m https://www.github.com`.
   You should see key/value pairs representing the metadata of the Github home page.
 
+This gem has been tested with JRuby managed by rvm.  It should work with other Ruby version managers and
+without any version manager at all, but those configurations have not been tested.
+
 ## Other Tika Resources
 
 * The Apache Tika wiki is at https://cwiki.apache.org/confluence/display/tika.
@@ -162,7 +186,7 @@ $ rika -m -fy -a spec/fixtures/* | \
 
 Richard Nyström (@ricn) is the original author of Rika, but became unable to continue investing time in it,
 so in 2020 he transferred ownership of the project to Keith Bennett (@keithrbennett),
-who had made made some contributions back in 2013, and upgraded Rika to version 2 in 2023.
+who had made made some contributions back in 2013. Keith upgraded Rika to version 2 in 2023.
 
 ## Contributing
 
