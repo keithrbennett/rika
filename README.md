@@ -130,8 +130,26 @@ Here is a breakdown of the above command:
   * `map` is called on the array to extract the content type from each parsed document hash
   * `tally` is called on the resulting array to get the count of each content type
 
+Here is another example that prints out the 5 most common words in all the parsed text, and their counts,
+as "pretty" JSON:
 
+```bash
+$ rika -t spec/fixtures/* | \
+rexe -in -oJ -mb 'downcase \
+  .split \
+  .tally \
+  .sort_by { |word, count| [-count, word] }
+  .first(5) \
+  .to_h'
 
+{
+  "the": 35,
+  "to": 30,
+  "woods": 25,
+  "i": 25,
+  "and": 25
+}% 
+```
 
 ## Installation
 
