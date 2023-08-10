@@ -22,8 +22,14 @@ module Rika
     def parse
       metadata_java = Metadata.new
       @tika.set_max_string_length(@max_content_length)
-      
+
+      # It would be nice to eliminate this extra input stream creation. I posted a question to the Tika users
+      # mailing list (https://lists.apache.org/list.html?user@tika.apache.org) on 2023-08-09 asking if this
+      # method of media type detection is necessary, given that Tika already populates a Content-Type property
+      # in its metadata. (But do _all_ Tika parsers do so?)
+      # If it is not necessary, then we can eliminate this extra input stream creation.
       media_type = with_input_stream { |stream| @tika.detect(stream) }
+
       content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java).to_s.strip }
 
       language = Rika.language(content)
