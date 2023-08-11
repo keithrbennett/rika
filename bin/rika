@@ -70,7 +70,7 @@ class RikaCommand
     result = Rika.parse(target)
     # If both metadata and text are requested, and the format is one of the JSON or YAML
     # formats, then output a hash with both metadata and text as keys.
-    if @options[:metadata] && @options[:text] && %w[jj pp yy].include?(@options[:format])
+    if @options[:metadata] && @options[:text] && %w[jj JJ yy].include?(@options[:format])
       puts @metadata_formatter.({ 'metadata' => result.metadata, 'text' => result.content })
     else
       puts @metadata_formatter.(result.metadata) if @options[:metadata]
