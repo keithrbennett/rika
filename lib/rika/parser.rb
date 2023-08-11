@@ -6,9 +6,9 @@ module Rika
   # Parses a document and returns a ParseResult.
   # This class is intended to be used only by the Rika module, not by users of the gem.
   class Parser
-    # @param [String] data_source file path or HTTP URL
-    # @param [Integer] max_content_length maximum content length to return
-    # @param [Detector] Tika detector
+    # @param [String] data_source file path or HTTP(s) URL
+    # @param [Integer] max_content_length maximum content length to return, defaults to all
+    # @param [Detector] Tika detector, defaults to DefaultDetector
     def initialize(data_source, max_content_length = -1, detector = DefaultDetector.new)
       @data_source = data_source
       @max_content_length = max_content_length
@@ -48,7 +48,7 @@ module Rika
       )
     end
 
-    # @param [Metadata] a Tika Java metadata instance populated by the parse
+    # @param [Metadata] a Tika Java metadata instance populated by the parse and added to by this class
     # @return [Hash] a Ruby hash containing the data of the Java Metadata instance
     private def metadata_java_to_ruby(metadata_java)
       metadata_java.names.each_with_object({}) do |name, m_ruby|

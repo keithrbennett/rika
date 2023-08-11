@@ -16,18 +16,20 @@ class RikaCommand
     'a' => ->(object) { object.ai },
     'i' => ->(object) { object.inspect },
     'j' => ->(object) { object.to_json },
-    'p' => ->(object) { JSON.pretty_generate(object) },
+    'J' => ->(object) { JSON.pretty_generate(object) },
     't' => ->(object) { object.to_s },
     'y' => ->(object) { object.to_yaml }
   }
 
   # Run the command line application.
+  # @return [nil] (void)
   def run
     @options = parse_command_line
     set_output_format
     ensure_targets_specified
     if @options[:as_array]
-      results = targets.map { |target| Rika.parse(target) }
+      max_length = @options[:text] ? -1 : 0
+      results = targets.map { |target| Rika.parse(target, max_length) }
       output_hashes = results.map { |result| result.to_output_hash }
       puts @metadata_formatter.call(output_hashes)
     else
@@ -36,13 +38,15 @@ class RikaCommand
     nil
   end
 
+  # Sets the output format based on the command line options.
+  # @return [nil] (void)
   private def set_output_format
     format = @options[:format]
     format.chars.each do |char|
       case char.downcase
       when 'a'
         require 'awesome_print'
-      when 'j', 'p'
+      when 'j', 'J'
         require 'json'
       when 'y'
         require 'yaml'
@@ -52,6 +56,7 @@ class RikaCommand
         puts "Invalid format '#{char}'."
         exit
       end
+      nil
     end
 
     @metadata_formatter = FORMATTERS[format[0]]
@@ -59,6 +64,8 @@ class RikaCommand
     nil
   end
 
+  # Outputs the result of the parse to stdout.
+  # @return [nil] (void)
   private def output_result(target)
     result = Rika.parse(target)
     # If both metadata and text are requested, and the format is one of the JSON or YAML
@@ -74,7 +81,12 @@ class RikaCommand
 
   private def ensure_targets_specified
     if targets.empty?
-      puts 'Please specify a file or URL to parse.'
+      puts <<~MESSAGE
+      
+        Please specify a file or URL to parse.
+      
+        #{@help_text}
+      MESSAGE
       exit
     end
     nil
@@ -83,49 +95,55 @@ class RikaCommand
   # Parse the command line options into a hash, and remove them from ARGV.
   # @return [Hash] options, or exits if help or version requested
   private def parse_command_line
-    # Default to outputting both metadata and text:
-    options = {
-      metadata: true,
-      text: true
-    }
 
-    OptionParser.new do |opts|
-      opts.banner =  <<~BANNER
+    options = \
+      # Default to outputting both metadata and text:
+      {
+        metadata: true,
+        text: true
+      }
+
+    options_parser = \
+      OptionParser.new do |opts|
+        opts.banner =  <<~BANNER
         Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
 
         Usage: rika [options] <file or url> [...file or url...]
-        Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml.
+        Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
         If a format contains two letters, the first will be used for metadata, the second for text.
 
-      BANNER
+        BANNER
 
-      format_message = 'Output format (e.g. `-f at`, which is the default'
-      opts.on('-f', '--format FORMAT', format_message) do |format|
-        options[:format] = format
-      end
+        format_message = 'Output format (e.g. `-f at`, which is the default'
+        opts.on('-f', '--format FORMAT', format_message) do |format|
+          options[:format] = format
+        end
 
-      opts.on('-m', '--metadata-only', 'Output metadata only') do
-        options[:text] = false
-      end
+        opts.on('-m', '--metadata-only', 'Output metadata only') do
+          options[:text] = false
+        end
 
-      opts.on('-t', '--text-only', 'Output text only') do
-        options[:metadata] = false
-      end
+        opts.on('-t', '--text-only', 'Output text only') do
+          options[:metadata] = false
+        end
 
-      opts.on('-a', '--as-array', 'Output all parsed results as an array') do
-        options[:as_array] = true
-      end
+        opts.on('-a', '--as-array', 'Output all parsed results as an array') do
+          options[:as_array] = true
+        end
 
-      opts.on('-v', '--version', 'Output version') do
-        puts versions_string
-        exit
-      end
+        opts.on('-v', '--version', 'Output version') do
+          puts versions_string
+          exit
+        end
 
-      opts.on('-h', '--help', 'Output help') do
-        puts opts
-        exit
+        opts.on('-h', '--help', 'Output help') do
+          puts opts
+          exit
+        end
       end
-    end.parse!
+    @help_text = options_parser.help
+
+    options_parser.parse!
     options[:format] ||= 'at'
     options[:format] *= 2 if options[:format].length == 1
     options

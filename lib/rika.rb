@@ -32,8 +32,8 @@ module Rika
   # Gets a ParseResult from parsing a document.
   #
   # @param [String] data_source file path or HTTP URL
-  # @param [Integer] max_content_length maximum content length to return
-  # @param [Detector] Tika detector (optional)
+  # @param [Integer] max_content_length maximum content length to return, defaults to all
+  # @param [Detector] detector Tika detector, defaults to DefaultDetector
   # @return [ParseResult]
   def self.parse(data_source, max_content_length = -1, detector = DefaultDetector.new)
     Parser.new(data_source, max_content_length, detector).parse
@@ -44,32 +44,36 @@ module Rika
     Tika.java_class.package.implementation_version
   end
 
+  # @param [String] text text to detect language of
   # @return [String] language of passed text, as 2-character ISO 639-1 code
   def self.language(text)
     tika_language_detector.detect(text.to_java_string).get_language
   end
 
+  # @param [String] data_source file path or HTTP URL
   # @return [Array<String,Hash>] content and metadata of file at specified location
   #
   # @deprecated - instead, get a ParseResult and access the content and metadata fields
-  def self.parse_content_and_metadata(file_location, max_content_length = -1)
-    result = parse(file_location, max_content_length)
+  def self.parse_content_and_metadata(data_source, max_content_length = -1)
+    result = parse(data_source, max_content_length)
     [result.content, result.metadata]
   end
 
+  # @param [String] data_source file path or HTTP URL
   # @return [Hash] content and metadata of file at specified location
   #
   # @deprecated - instead, use a ParseResult or its to_h method
-  def self.parse_content_and_metadata_as_hash(file_location, max_content_length = -1)
-    result = parse(file_location, max_content_length)
+  def self.parse_content_and_metadata_as_hash(data_source, max_content_length = -1)
+    result = parse(data_source, max_content_length)
     { content: result.content, metadata: result.metadata }
   end
 
+  # @param [String] data_source file path or HTTP URL
   # @return [Parser] parser for resource at specified location
   #
   # @deprecated - instead, get a ParseResult and access the content field
-  def self.parse_content(file_location, max_content_length = -1)
-    parse(file_location, max_content_length).content
+  def self.parse_content(data_source, max_content_length = -1)
+    parse(data_source, max_content_length).content
   end
 
   # Regarding max_content_length, the default is set at 0 to save unnecessary processing,
@@ -78,8 +82,8 @@ module Rika
   # depending on the number of characters read.
   #
   # @deprecated - instead, get a ParseResult and access the metadata field
-  def self.parse_metadata(file_location, max_content_length = 0)
-    parse(file_location, max_content_length).metadata
+  def self.parse_metadata(data_source, max_content_length = 0)
+    parse(data_source, max_content_length).metadata
   end
 
   def self.tika_language_detector

@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.add_dependency 'webrick', '~> 1.6'
   gem.add_dependency "awesome_print"
+  gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec", "~> 3.9"
   gem.add_development_dependency "rake", "~> 13.0"
   gem.platform = "java"
