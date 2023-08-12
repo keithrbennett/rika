@@ -9,10 +9,7 @@ unless RUBY_PLATFORM.match(/java/)
 end
 
 require 'rika/version'
-require 'uri'
-require 'open-uri'
 require_relative 'rika/parser'
-require_relative 'rika/parse_result'
 require_relative 'rika/tika_loader'
 
 TikaLoader.require_tika

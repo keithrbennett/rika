@@ -30,7 +30,7 @@ class RikaCommand
     if @options[:as_array]
       max_length = @options[:text] ? -1 : 0
       results = targets.map { |target| Rika.parse(target, max_length) }
-      output_hashes = results.map { |result| result.to_output_hash }
+      output_hashes = results.map { |result| result.content_and_metadata_hash }
       puts @metadata_formatter.call(output_hashes)
     else
       targets.each { |target| output_result(target) }

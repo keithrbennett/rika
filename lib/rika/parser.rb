@@ -28,6 +28,7 @@ module Rika
       # method of media type detection is necessary, given that Tika already populates a Content-Type property
       # in its metadata. (But do _all_ Tika parsers do so?)
       # If it is not necessary, then we can eliminate this extra input stream creation.
+      # The stream `reset` approach would be a bit nicer meanwhile but is not supported.
       media_type = with_input_stream { |stream| @tika.detect(stream) }
 
       content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java).to_s.strip }

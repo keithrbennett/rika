@@ -8,20 +8,28 @@ Rika can be used as a library in your Ruby code, or on the command line.
 
 ### Requirements
 
-
-* This gem only works with [JRuby](https://www.jruby.org)._
+* This gem only works with [JRuby](https://www.jruby.org).
 * The [Apache Tika](http://tika.apache.org/) jar file must be installed on your system.
   See the [Installation](#installation) section below for more information.
-
 
 Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more
 Tika functionality. See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
 Rika that may suit more demanding needs.
 
-## Usage
+Rika can be used either as a gem in your own Ruby project, or on the command line using the provided executable.
 
-For a quick start with the simplest use cases, the following functions are provided to get what you need in a single
-function call, for your convenience:
+## Usage in Your Ruby Code
+
+The Rika `parse` method returns a `Rika::ParseResult` object that contains the parsed text and
+various pieces of metadata.  The `ParseResult` class' main methods are:
+
+* `content` - the parsed text
+* `metadata` - a hash of metadata key/value pairs
+* `media_type` - the media type of the parsed data, e.g. "application/pdf"
+* `language` - the language of the parsed data, e.g. "en"
+* `data_source` - the data source, either a filespec or a URL
+
+For example:
 
 ```ruby
 require 'rika'
@@ -40,18 +48,14 @@ A URL can be used instead of a filespec wherever a data source is specified:
 parse_result = Rika.parse('https://github.com/keithrbennett/rika')
 ```
 
-The Rika module also has some useful methods in addition to its `parse` method:
+The Rika module also has the following methods:
 
 ```ruby
-# Return the language for the content
-Rika.language("magnifique")
-# => "fr"
-
-Rika.tika_version
-# => "2.8.0"
+Rika.language("magnifique") # => "fr"
+Rika.tika_version           # => "2.8.0"
 ```
 
-## Command Line Usage
+## Command Line Executable Usage
   
 Rika can also be used on the command line using the `rika` executable.  For example, the simplest form is to simply
 specify one or more filespecs or URL's as arguments:
@@ -62,15 +66,16 @@ rika x.pdf https://github.com/keithrbennett/rika
 Here is the help text:
 
 ```
-Rika v2.0.0-alpha.1 (Tika v2.8.0) - https://github.com/keithrbennett/rika
+Rika v2.0.0 (Tika v2.8.0) - https://github.com/keithrbennett/rika
 
 Usage: rika [options] <file or url> [...file or url...]
-Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [p]retty json, [y]aml.
+Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
 If a format contains two letters, the first will be used for metadata, the second for text.
 
-    -f, --format FORMAT              Output format (e.g. `-f at`, which is the default)
+    -f, --format FORMAT              Output format (e.g. `-f at`, which is the default
     -m, --metadata-only              Output metadata only
     -t, --text-only                  Output text only
+    -a, --as-array                   Output all parsed results as an array
     -v, --version                    Output version
     -h, --help                       Output help
 ```    
@@ -100,19 +105,19 @@ If the `-a` (`--as-array`) option is specified, then the output will be an array
 This enables the output to be used as a data source for programs that can process an array of hashes, e.g. for analysis.
 
 For example, here is an example of how to use Rika and [rexe](https://github.com/keithrbennett/rexe]) to get a tally 
-of content types for a set of documents:
+of content types for a set of documents, sorted by content type:
 
 ```bash
 $ rika -m -fy -a spec/fixtures/* | \
-  rexe -iy -oa -mb "map { |r| r[:metadata]['Content-Type'] }.tally"
+  rexe -iy -oa -mb "map { |r| r[:metadata]['Content-Type'] }.tally.sort.to_h"
 {
-                                                  "text/plain; charset=UTF-8" => 6,
                                                          "application/msword" => 1,
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => 1,
+                                                   "application/octet-stream" => 1,
                                                             "application/pdf" => 1,
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => 1,
                                                                  "image/jpeg" => 2,
                                              "text/plain; charset=ISO-8859-1" => 1,
-                                                   "application/octet-stream" => 1
+                                                  "text/plain; charset=UTF-8" => 6
 }
 ```
 Here is a breakdown of the above command:
@@ -129,7 +134,9 @@ Here is a breakdown of the above command:
 * Ruby code passed to `rexe`
   * `map` is called on the array to extract the content type from each parsed document hash
   * `tally` is called on the resulting array to get the count of each content type
-
+  * `sort` is called on the hash to sort it by key (content type) and return an array of 2-element arrays
+  * `to_h` is called on the array of 2-element arrays to convert it back to a hash
+  
 Here is another example that prints out the 5 most common words in all the parsed text, and their counts,
 as "pretty" JSON:
 
@@ -199,12 +206,6 @@ without any version manager at all, but those configurations have not been teste
 
 * @chrismattman and others have provided a [Python library and CLI](https://github.com/chrismattmann/tika-python)
   that interfaces with the Tika server.
-
-## Credits
-
-Richard Nyström (@ricn) is the original author of Rika, but became unable to continue investing time in it,
-so in 2020 he transferred ownership of the project to Keith Bennett (@keithrbennett),
-who had made made some contributions back in 2013. Keith upgraded Rika to version 2 in 2023.
 
 ## Contributing
 
