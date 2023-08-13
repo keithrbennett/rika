@@ -25,7 +25,7 @@ describe Formatters do
     end
 
     it 'has the correct keys' do
-      expect(Formatters::REQUIRED_REQUIRE.keys.to_set).to eq(%w[a j J y].to_set)
+      expect(Formatters::REQUIRED_REQUIRE.keys).to match_array(%w[a j J y])
     end
   end
 end
