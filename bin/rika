@@ -9,23 +9,15 @@
 require 'awesome_print'
 require 'optparse'
 require_relative '../lib/rika'
+require_relative '../lib/rika/formatters'
 
 class RikaCommand
-
-  FORMATTERS = {
-    'a' => ->(object) { object.ai },
-    'i' => ->(object) { object.inspect },
-    'j' => ->(object) { object.to_json },
-    'J' => ->(object) { JSON.pretty_generate(object) },
-    't' => ->(object) { object.to_s },
-    'y' => ->(object) { object.to_yaml }
-  }
 
   # Run the command line application.
   # @return [nil] (void)
   def run
     @options = parse_command_line
-    set_output_format
+    set_output_formats
     ensure_targets_specified
     if @options[:as_array]
       max_length = @options[:text] ? -1 : 0
@@ -40,27 +32,10 @@ class RikaCommand
 
   # Sets the output format based on the command line options.
   # @return [nil] (void)
-  private def set_output_format
+  private def set_output_formats
     format = @options[:format]
-    format.chars.each do |char|
-      case char.downcase
-      when 'a'
-        require 'awesome_print'
-      when 'j', 'J'
-        require 'json'
-      when 'y'
-        require 'yaml'
-      end
-
-      unless FORMATTERS.key?(char)
-        puts "Invalid format '#{char}'."
-        exit
-      end
-      nil
-    end
-
-    @metadata_formatter = FORMATTERS[format[0]]
-    @text_formatter     = FORMATTERS[format[1]]
+    @metadata_formatter = Formatters.get(format[0])
+    @text_formatter     = Formatters.get(format[1])
     nil
   end
 
@@ -145,7 +120,10 @@ class RikaCommand
 
     options_parser.parse!
     options[:format] ||= 'at'
+
+    # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
+
     options
   end
 
