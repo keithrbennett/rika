@@ -6,6 +6,11 @@ of [many different formats](https://tika.apache.org/1.24.1/formats.html).
 
 Rika can be used as a library in your Ruby code, or on the command line.
 
+For class and method level documentation, please use [YARD](https://rubydoc.info/gems/yard).
+You can `gem install yard`, then run `yard doc` from the project root, 
+and then open the `doc/index.html` file in a browser.
+
+
 ### Requirements
 
 * This gem only works with [JRuby](https://www.jruby.org).
