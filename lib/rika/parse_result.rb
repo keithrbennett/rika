@@ -24,7 +24,7 @@ module Rika
       input_type == :file
     end
 
-    # @return [Boolean] true if, and only if, input is http
+    # @return [Boolean] true if, and only if, input is HTTP
     def http?
       input_type == :http
     end

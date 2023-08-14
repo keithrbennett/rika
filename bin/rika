@@ -14,7 +14,7 @@ require_relative '../lib/rika/formatters'
 class RikaCommand
 
   # Run the command line application.
-  # @return [nil] (void)
+  # @return [void]
   def run
     @options = parse_command_line
     set_output_formats
@@ -31,7 +31,7 @@ class RikaCommand
   end
 
   # Sets the output format based on the command line options.
-  # @return [nil] (void)
+  # @return [void]
   private def set_output_formats
     format = @options[:format]
     @metadata_formatter = Formatters.get(format[0])
@@ -40,7 +40,7 @@ class RikaCommand
   end
 
   # Outputs the result of the parse to stdout.
-  # @return [nil] (void)
+  # @return [void]
   private def output_result(target)
     result = Rika.parse(target)
     # If both metadata and text are requested, and the format is one of the JSON or YAML
@@ -54,6 +54,8 @@ class RikaCommand
     nil
   end
 
+  # Prints help and exits if no targets are specified.
+  # @return [void]
   private def ensure_targets_specified
     if targets.empty?
       puts <<~MESSAGE
@@ -127,10 +129,12 @@ class RikaCommand
     options
   end
 
+  # @return [String] string containing versions of Rika and Tika
   private def versions_string
     "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
   end
 
+  # @return [Array<String>] the filespec and/or HTTP targets to be parsed
   private def targets
     ARGV
   end

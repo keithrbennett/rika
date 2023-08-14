@@ -8,7 +8,7 @@ module Rika
   class Parser
     # @param [String] data_source file path or HTTP(s) URL
     # @param [Integer] max_content_length maximum content length to return, defaults to all
-    # @param [Detector] Tika detector, defaults to DefaultDetector
+    # @param [Detector] detector Tika detector, defaults to DefaultDetector
     def initialize(data_source, max_content_length = -1, detector = DefaultDetector.new)
       @data_source = data_source
       @max_content_length = max_content_length
@@ -17,7 +17,7 @@ module Rika
       @tika = Tika.new(@detector)
     end
 
-    # Coordinates the parse using the other instance methods (which are all private)
+    # Entry point method for parsing a document
     # @return [ParseResult] parse result
     def parse
       metadata_java = Metadata.new
@@ -49,7 +49,7 @@ module Rika
       )
     end
 
-    # @param [Metadata] a Tika Java metadata instance populated by the parse and added to by this class
+    # @param [Metadata] metadata_java a Tika Java metadata instance populated by the parse and added to by this class
     # @return [Hash] a Ruby hash containing the data of the Java Metadata instance
     private def metadata_java_to_ruby(metadata_java)
       metadata_java.names.each_with_object({}) do |name, m_ruby|
@@ -69,9 +69,10 @@ module Rika
       end
     end
 
-    # Creates and opens an input stream from the configured resource.
-    # Yields that stream to the passed code block, then closes the stream.
-    # @return the value returned by the passed code block
+    # * Creates and opens an input stream from the configured resource.
+    # * Yields that stream to the passed code block.
+    # * Then closes the stream.
+    # @return [Object] the value returned by the passed code block
     private def with_input_stream
       input_stream = if @input_type == :file
         FileInputStream.new(java.io.File.new(@data_source))

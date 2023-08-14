@@ -50,7 +50,7 @@ module Rika
   # @param [String] data_source file path or HTTP URL
   # @return [Array<String,Hash>] content and metadata of file at specified location
   #
-  # @deprecated - instead, get a ParseResult and access the content and metadata fields
+  # @deprecated Instead, get a ParseResult and access the content and metadata fields.
   def self.parse_content_and_metadata(data_source, max_content_length = -1)
     result = parse(data_source, max_content_length)
     [result.content, result.metadata]
@@ -59,7 +59,7 @@ module Rika
   # @param [String] data_source file path or HTTP URL
   # @return [Hash] content and metadata of file at specified location
   #
-  # @deprecated - instead, use a ParseResult or its to_h method
+  # @deprecated Instead, use a ParseResult or its to_h method.
   def self.parse_content_and_metadata_as_hash(data_source, max_content_length = -1)
     result = parse(data_source, max_content_length)
     { content: result.content, metadata: result.metadata }
@@ -68,7 +68,7 @@ module Rika
   # @param [String] data_source file path or HTTP URL
   # @return [Parser] parser for resource at specified location
   #
-  # @deprecated - instead, get a ParseResult and access the content field
+  # @deprecated Instead, get a ParseResult and access the content field
   def self.parse_content(data_source, max_content_length = -1)
     parse(data_source, max_content_length).content
   end
@@ -78,11 +78,12 @@ module Rika
   # and "pdf:charsPerPage" will be absent if the max_content_length is 0, and otherwise may differ
   # depending on the number of characters read.
   #
-  # @deprecated - instead, get a ParseResult and access the metadata field
+  # @deprecated Instead, get a ParseResult and access the metadata field
   def self.parse_metadata(data_source, max_content_length = 0)
     parse(data_source, max_content_length).metadata
   end
 
+  # @return [Detector] Tika detector
   def self.tika_language_detector
     @tika_language_detector ||= OptimaizeLangDetector.new.loadModels
   end
