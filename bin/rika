@@ -34,8 +34,8 @@ class RikaCommand
   # @return [void]
   private def set_output_formats
     format = @options[:format]
-    @metadata_formatter = Formatters.get(format[0])
-    @text_formatter     = Formatters.get(format[1])
+    @metadata_formatter = Rika::Formatters.get(format[0])
+    @text_formatter     = Rika::Formatters.get(format[1])
     nil
   end
 
