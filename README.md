@@ -30,7 +30,7 @@ various pieces of metadata.  The `ParseResult` class' main methods are:
 
 * `content` - the parsed text
 * `metadata` - a hash of metadata key/value pairs
-* `media_type` - the media type of the parsed data, e.g. "application/pdf"
+* `content_type` - the content type of the parsed data, e.g. "text/plain; charset=UTF-8"
 * `language` - the language of the parsed data, e.g. "en"
 * `data_source` - the data source, either a filespec or a URL
 
@@ -39,12 +39,12 @@ For example:
 ```ruby
 require 'rika'
 
-parse_result = Rika.parse('x.pdf')  # returns a Rika::ParseResult object
-parse_result.content                # string containing all content text
-parse_result.metadata               # hash containing the document metadata
-parse_result.media_type             # e.g. "application/pdf"
-parse_result.language               # e.g. "en"
-parse_result.data_source            # e.g. "x.pdf"
+parse_result = Rika.parse('x.pdf') # returns a Rika::ParseResult object
+parse_result.content               # string containing all content text
+parse_result.metadata              # hash containing the document metadata
+parse_result.content_type          # e.g. "application/pdf"
+parse_result.language              # e.g. "en"
+parse_result.data_source           # e.g. "x.pdf"
 ```
 
 A URL can be used instead of a filespec wherever a data source is specified:

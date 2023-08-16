@@ -11,7 +11,7 @@ describe Rika::ParseResult do
         :content,
         :metadata,
         :metadata_java,
-        :media_type,
+        :content_type,
         :language,
         :input_type,
         :data_source,

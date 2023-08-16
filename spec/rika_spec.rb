@@ -129,32 +129,32 @@ describe Rika::Parser do
     end
   end
 
-  describe '#media_type' do
+  describe '#content_type' do
     it 'should return application/pdf for a pdf file' do
-      expect(pdf_parse_result.media_type).to eq('application/pdf')
+      expect(pdf_parse_result.content_type).to eq('application/pdf')
     end
 
     it 'should return text/plain for a txt file' do
-      expect(text_parse_result.media_type).to eq('text/plain')
+      expect(text_parse_result.content_type).to eq('text/plain; charset=UTF-8')
     end
 
     it 'should return application/pdf for a pdf over http' do
       server_runner.call( -> do
         parse_result = Rika.parse(File.join(url, 'document.pdf'))
-        expect(parse_result.media_type).to eq('application/pdf')
+        expect(parse_result.content_type).to eq('application/pdf')
       end)
     end
 
     it 'should return application/octet-stream for unknown file' do
-      expect(unknown_parse_result.media_type).to eq('application/octet-stream')
+      expect(unknown_parse_result.content_type).to eq('application/octet-stream')
     end
 
     it 'should return msword for a doc file' do
-      expect(%w{application/msword application/x-tika-msoffice}).to include(doc_parse_result.media_type)
+      expect(%w{application/msword application/x-tika-msoffice}).to include(doc_parse_result.content_type)
     end
 
     it 'should return wordprocessingml for a docx file' do
-      expect(docx_parse_result.media_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+      expect(docx_parse_result.content_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     end
   end
 
