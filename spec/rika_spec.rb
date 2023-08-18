@@ -3,7 +3,7 @@ require 'webrick'
 
 describe Rika::Parser do
 
-    let (:text_parse_result)    { Rika.parse(file_path('text_file.txt')) }
+    let (:text_parse_result)    { Rika.parse(file_path('document.txt')) }
     let (:docx_parse_result)    { Rika.parse(file_path('document.docx')) }
     let (:doc_parse_result)     { Rika.parse(file_path('document.doc'))  }
     let (:pdf_parse_result)     { Rika.parse(file_path('document.pdf'))  }
@@ -81,7 +81,7 @@ describe Rika::Parser do
     end
 
     it 'should only return max content length from a text file' do
-      expect(Rika.parse(file_path('text_file.txt'), 8).content).to eq('Stopping')
+      expect(Rika.parse(file_path('document.txt'), 8).content).to eq('Stopping')
     end
 
     it 'should only return max content length from a PDF' do
@@ -90,14 +90,14 @@ describe Rika::Parser do
 
     it 'should only return max content length for file over http' do
       server_runner.call( -> do
-        content = Rika.parse(File.join(url, 'text_file.txt'), 8).content
+        content = Rika.parse(File.join(url, 'document.txt'), 8).content
         expect(content).to eq('Stopping')
       end)
     end
 
     it 'should return the content from a file over http' do
       content = server_runner.call( -> do
-        Rika.parse(File.join(url, 'text_file.txt')).content
+        Rika.parse(File.join(url, 'document.txt')).content
       end)
       expect(first_line.(content)).to eq(quote_first_line)
     end
