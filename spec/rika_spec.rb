@@ -70,27 +70,34 @@ describe Rika::Parser do
     end
 
     it 'should return the content in a pdf file' do
-      expect(first_line.(pdf_parse_result.content)).to eq(quote_first_line)
+      # For some reason, the generated PDF file has a newline at the beginning
+      # and trailing spaces on the lines, so we use the second line, and
+      # use `include` to do the text match.
+      expect(pdf_parse_result.content.lines[1]).to include(quote_first_line)
     end
 
     it 'should return no content for an image' do
       expect(image_parse_result.content).to be_empty
     end
 
-    it 'should only return max content length' do
+    it 'should only return max content length from a text file' do
       expect(Rika.parse(file_path('text_file.txt'), 8).content).to eq('Stopping')
+    end
+
+    it 'should only return max content length from a PDF' do
+      expect(Rika.parse(file_path('document.pdf'), 9).content).to eq("\nStopping")
     end
 
     it 'should only return max content length for file over http' do
       server_runner.call( -> do
-        content = Rika.parse(File.join(url, 'document.pdf'), 9).content
+        content = Rika.parse(File.join(url, 'text_file.txt'), 8).content
         expect(content).to eq('Stopping')
       end)
     end
 
     it 'should return the content from a file over http' do
       content = server_runner.call( -> do
-        Rika.parse(File.join(url, 'document.pdf')).content
+        Rika.parse(File.join(url, 'text_file.txt')).content
       end)
       expect(first_line.(content)).to eq(quote_first_line)
     end

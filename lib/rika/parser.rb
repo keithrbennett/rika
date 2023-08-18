@@ -22,7 +22,7 @@ module Rika
     def parse
       metadata_java = Metadata.new
       @tika.set_max_string_length(@max_content_length)
-      content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java).to_s.strip }
+      content = with_input_stream { |stream| @tika.parse_to_string(stream, metadata_java) }
       language = Rika.language(content)
       metadata_java.set('rika-language', language)
       metadata_java.set('rika-data-source', @data_source)
