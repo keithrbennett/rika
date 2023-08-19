@@ -4,7 +4,8 @@ require_relative 'parse_result'
 
 module Rika
   # Parses a document and returns a ParseResult.
-  # This class is intended to be used only by the Rika module, not by users of the gem.
+  # This class is intended to be used only by the Rika module, not by users of the gem,
+  # who should instead call `Rika.parse`.
   class Parser
     # @param [String] data_source file path or HTTP(s) URL
     # @param [Integer] max_content_length maximum content length to return, defaults to all
