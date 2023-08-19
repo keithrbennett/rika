@@ -14,11 +14,6 @@ module Rika
     :max_content_length,
     keyword_init: true
   ) do
-    # @return [String] language of content, as 2-character ISO 639-1 code
-    def language
-      Rika.language(content)
-    end
-
     # @return [Boolean] true if, and only if, input is a file
     def file?
       input_type == :file

@@ -25,10 +25,6 @@ describe Rika::ParseResult do
     let(:metadata) { { 'author' => 'John Doe' } }
     let(:result) { Rika::ParseResult.new(content: content, metadata: metadata) }
 
-    specify 'contains the language' do
-      expect(result.language).to eq('fr')
-    end
-
     specify '#content_and_metadata_hash returns a hash with content and metadata' do
       expect(result.content_and_metadata_hash).to eq({ content: content, metadata: metadata })
     end
