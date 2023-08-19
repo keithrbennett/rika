@@ -1,16 +1,19 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# This command line application enables the parsing of documents on the command line.
-# Syntax is:
-#   rika [options] <file or url> [...file or url...]
-# Run with -h or --help option for more details.
-
 require 'awesome_print'
 require 'optparse'
 require_relative '../lib/rika'
 require_relative '../lib/rika/formatters'
 
+# This command line application enables the parsing of documents on the command line.
+# Syntax is:
+#   rika [options] <file or url> [...file or url...]
+# Run with -h or --help option for more details.
+#
+# Defaults to outputting both content (text) and metadata,
+# but the -t and -m flags can be used to output only one or the other.
+# Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
   # Run the command line application.
@@ -22,7 +25,7 @@ class RikaCommand
     if @options[:as_array]
       max_length = @options[:text] ? -1 : 0
       results = targets.map { |target| Rika.parse(target, max_length) }
-      output_hashes = results.map { |result| result.content_and_metadata_hash }
+      output_hashes = results.map(&:content_and_metadata_hash)
       puts @metadata_formatter.call(output_hashes)
     else
       targets.each { |target| output_result(target) }
@@ -59,9 +62,9 @@ class RikaCommand
   private def ensure_targets_specified
     if targets.empty?
       puts <<~MESSAGE
-      
+
         Please specify a file or URL to parse.
-      
+
         #{@help_text}
       MESSAGE
       exit
@@ -83,11 +86,11 @@ class RikaCommand
     options_parser = \
       OptionParser.new do |opts|
         opts.banner =  <<~BANNER
-        Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
+          Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
 
-        Usage: rika [options] <file or url> [...file or url...]
-        Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
-        If a format contains two letters, the first will be used for metadata, the second for text.
+          Usage: rika [options] <file or url> [...file or url...]
+          Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
+          If a format contains two letters, the first will be used for metadata, the second for text.
 
         BANNER
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Rika
+  # This module manages the formatters used to format the output of the Rika command line application.
   class Formatters
     AWESOME_PRINT = ->(object) { object.ai }
     INSPECT       = ->(object) { object.inspect }

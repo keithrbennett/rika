@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'webrick'
 
@@ -161,7 +163,9 @@ describe Rika::Parser do
     end
 
     it 'should return wordprocessingml for a docx file' do
-      expect(docx_parse_result.content_type).to eq('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+      expect(docx_parse_result.content_type).to eq(
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      )
     end
   end
 

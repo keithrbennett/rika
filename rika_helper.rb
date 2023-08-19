@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Defines some shortcuts for ad-hoc work with Rika.
 #
 # Can be used with the `irb`/`jirb` or `pry` (https://github.com/pry/pry) interactive shells:
