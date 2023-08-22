@@ -13,28 +13,18 @@
 
 require 'rika'
 
-def c(resource)
-  Rika.parse_content(resource)
+# Add shortuct to Rika.parse.
+def pa(resource)
+  Rika.parse(resource)
 end
 
-def m(resource)
-  Rika.parse_metadata(resource)
+# Add abbreviated aliases for the ParseResult class methods.
+class ParseResult
+  alias_method :c, :content
+  alias_method :m, :metadata
+  alias_method :l, :language
+  alias_method :i, :input_type
+  alias_method :d, :data_source
+  alias_method :t, :content_type
+  alias_method :j, :metadata_java
 end
-
-def cm(resource)
-  Rika.parse_content_and_metadata(resource)
-end
-
-def cmh(resource)
-  Rika.parse_content_and_metadata_as_hash(resource)
-end
-
-def mj(resource); m(resource).to_json                      ; end
-def mJ(resource); JSON.pretty_generate(m(resource))        ; end
-def my(resource); m(resource).to_yaml                      ; end
-def my(resource); require 'awesome_print'; m(resource).ai  ;end
-
-def cmj(resource); c(resource).to_json;               end
-def cmJ(resource); JSON.pretty_generate(c(resource)); end
-def cmy(resource); c(resource).to_yaml              ; end
-def cma(resource); require 'awesome_print'; c,m = cm(resource); { content: c, metadata: m }; end
