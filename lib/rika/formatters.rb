@@ -17,7 +17,7 @@ module Rika
     # A hash of formatters, keyed by the format character.
     # The value is a lambda that takes the object to be formatted as a parameter.
     # @return [Hash] the hash of formatters
-    OPTION_LOOKUP_TABLE = {
+    FORMATTER_LOOKUP_TABLE = {
       'a' => AWESOME_PRINT_FORMATTER,
       'i' => INSPECT_FORMATTER,
       'j' => JSON_FORMATTER,
@@ -26,26 +26,15 @@ module Rika
       'y' => YAML_FORMATTER
     }
 
-    # A hash containing the require statements needed to use each formatter.
-    REQUIRED_REQUIRE = {
-      'a' => 'awesome_print',
-      'j' => 'json',
-      'J' => 'json',
-      'y' => 'yaml'
-    }
-
-    VALID_OPTION_CHARS = OPTION_LOOKUP_TABLE.keys
+    VALID_OPTION_CHARS = FORMATTER_LOOKUP_TABLE.keys
 
     # Gets the formatter lambda for the given option character.
-    # Also, requires the necessary library, if any.
     # @param [String] option_char the option character
     # @return [Lambda] the formatter lambda
     # @raise [RuntimeError] if the option character is invalid
     def self.get(option_char)
       raise "Invalid option char: #{option_char}" unless VALID_OPTION_CHARS.include?(option_char)
-      req = REQUIRED_REQUIRE[option_char]
-      require req if req
-      OPTION_LOOKUP_TABLE[option_char]
+      FORMATTER_LOOKUP_TABLE[option_char]
     end
   end
 end
