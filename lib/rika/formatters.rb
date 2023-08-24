@@ -1,25 +1,29 @@
 # frozen_string_literal: true
 
+require 'json'
+require 'yaml'
+require 'awesome_print'
+
 module Rika
   # This module manages the formatters used to format the output of the Rika command line application.
   class Formatters
-    AWESOME_PRINT = ->(object) { object.ai }
-    INSPECT       = ->(object) { object.inspect }
-    JSON          = ->(object) { object.to_json }
-    PRETTY_JSON   = ->(object) { JSON.pretty_generate(object) }
-    TO_S          = ->(object) { object.to_s }
-    YAML          = ->(object) { object.to_yaml }
+    AWESOME_PRINT_FORMATTER = ->(object) { object.ai }
+    INSPECT_FORMATTER       = ->(object) { object.inspect }
+    JSON_FORMATTER          = ->(object) { object.to_json }
+    PRETTY_JSON_FORMATTER   = ->(object) { JSON.pretty_generate(object) }
+    TO_S_FORMATTER          = ->(object) { object.to_s }
+    YAML_FORMATTER          = ->(object) { object.to_yaml }
 
     # A hash of formatters, keyed by the format character.
     # The value is a lambda that takes the object to be formatted as a parameter.
     # @return [Hash] the hash of formatters
     OPTION_LOOKUP_TABLE = {
-      'a' => AWESOME_PRINT,
-      'i' => INSPECT,
-      'j' => JSON,
-      'J' => PRETTY_JSON,
-      't' => TO_S,
-      'y' => YAML
+      'a' => AWESOME_PRINT_FORMATTER,
+      'i' => INSPECT_FORMATTER,
+      'j' => JSON_FORMATTER,
+      'J' => PRETTY_JSON_FORMATTER,
+      't' => TO_S_FORMATTER,
+      'y' => YAML_FORMATTER
     }
 
     # A hash containing the require statements needed to use each formatter.
