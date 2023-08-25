@@ -31,10 +31,9 @@ module Rika
     # Gets the formatter lambda for the given option character.
     # @param [String] option_char the option character
     # @return [Lambda] the formatter lambda
-    # @raise [RuntimeError] if the option character is invalid
+    # @raise [KeyError] if any option character is invalid
     def self.get(option_char)
-      raise "Invalid option char: #{option_char}" unless VALID_OPTION_CHARS.include?(option_char)
-      FORMATTER_LOOKUP_TABLE[option_char]
+      FORMATTER_LOOKUP_TABLE.fetch(option_char)
     end
   end
 end

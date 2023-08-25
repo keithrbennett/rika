@@ -35,10 +35,16 @@ class RikaCommand
   # Sets the output format based on the command line options.
   # @return [void]
   private def set_output_formats
-    format = @options[:format]
-    @metadata_formatter = Rika::Formatters.get(format[0])
-    @text_formatter     = Rika::Formatters.get(format[1])
-    nil
+    begin
+      format = @options[:format]
+      @metadata_formatter = Rika::Formatters.get(format[0])
+      @text_formatter     = Rika::Formatters.get(format[1])
+      nil
+    rescue KeyError
+      $stderr.puts "Invalid format: #{format}\n\n"
+      $stderr.puts @help_text
+      exit 1
+    end
   end
 
   # Outputs the result of the parse to stdout.
