@@ -22,17 +22,15 @@ class RikaCommand
     set_output_formats
     ensure_targets_specified
     if @options[:as_array]
-      max_length = @options[:text] ? -1 : 0
-      results = targets.map { |target| Rika.parse(target, max_length) }
-      output_hashes = results.map(&:content_and_metadata_hash)
-      puts @metadata_formatter.call(output_hashes)
+      output_result_array
     else
-      targets.each { |target| output_result(target) }
+      targets.each { |target| output_single_document_result(target) }
     end
     nil
   end
 
-  # Sets the output format based on the command line options.
+  # Sets the output format(s) based on the command line options.
+  # Exits with error message if format is invalid.
   # @return [void]
   private def set_output_formats
     begin
@@ -49,7 +47,7 @@ class RikaCommand
 
   # Outputs the result of the parse to stdout.
   # @return [void]
-  private def output_result(target)
+  private def output_single_document_result(target)
     result = Rika.parse(target)
     # If both metadata and text are requested, and the format is one of the JSON or YAML
     # formats, then output a hash with both metadata and text as keys.
@@ -62,11 +60,19 @@ class RikaCommand
     nil
   end
 
+  # Outputs the result of the parse to stdout as an array of hashes.
+  private def output_result_array
+    max_length = @options[:text] ? -1 : 0
+    results = targets.map { |target| Rika.parse(target, max_length) }
+    output_hashes = results.map(&:content_and_metadata_hash)
+    puts @metadata_formatter.call(output_hashes)
+  end
+
   # Prints help and exits if no targets are specified.
   # @return [void]
   private def ensure_targets_specified
     if targets.empty?
-      puts <<~MESSAGE
+      $stderr.puts <<~MESSAGE
 
         Please specify a file or URL to parse.
 
@@ -113,7 +119,7 @@ class RikaCommand
         end
 
         opts.on('-a', '--as-array', 'Output all parsed results as an array') do
-          options[:as_array] = true
+        options[:as_array] = true
         end
 
         opts.on('-v', '--version', 'Output version') do
