@@ -17,7 +17,7 @@ describe RF do
     end
 
     it 'raises an error if the option character is invalid' do
-      expect { RF.get('x') }.to raise_error(RuntimeError)
+      expect { RF.get('x') }.to raise_error(KeyError)
     end
   end
 end

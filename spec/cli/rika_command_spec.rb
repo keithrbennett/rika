@@ -16,15 +16,16 @@ describe RikaCommand do
 
   describe '#run' do
     it 'should run' do
-      expect { RikaCommand.new.run(__FILE__) }.to_not raise_error
+      args = [__FILE__]
+      expect { RikaCommand.new(args).run }.to_not raise_error
     end
   end
 
   describe '#parse_command_line' do
     RSpec.shared_examples 'test_arg_parsing' do |args, option_key, expected_value|
       specify "correctly sets #{option_key} to #{expected_value} when args are #{args}" do
-        rika_command = RikaCommand.new
-        options = rika_command.send(:parse_command_line, args)
+        rika_command = RikaCommand.new(args)
+        options = rika_command.send(:parse_command_line)
         expect(options[option_key]).to eq(expected_value)
       end
     end

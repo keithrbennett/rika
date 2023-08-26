@@ -15,11 +15,15 @@ require 'rika/formatters'
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
-  # Run the command line application.
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
+  def initialize(args = ARGV)
+    @args = args
+  end
+
+  # Run the command line application.
   # @return [void]
-  def run(args = ARGV)
-    @options = parse_command_line(args)
+  def run
+    @options = parse_command_line
     set_output_formats
     ensure_targets_specified
     if @options[:as_array]
@@ -85,10 +89,8 @@ class RikaCommand
   end
 
   # Parse the command line options into a hash, and remove them from ARGV.
-  # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   # @return [Hash] options, or exits if help or version requested
-  private def parse_command_line(args = ARGV)
-
+  private def parse_command_line
     # Initialize the options hash with default options:
     options = \
       {
@@ -141,7 +143,7 @@ class RikaCommand
       end
     @help_text = options_parser.help
 
-    options_parser.parse!(args)
+    options_parser.parse!(@args)
 
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
@@ -159,6 +161,6 @@ class RikaCommand
 
   # @return [Array<String>] the filespec and/or HTTP targets to be parsed
   private def targets
-    ARGV
+    @args
   end
 end
