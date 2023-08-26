@@ -73,5 +73,13 @@ describe RikaCommand do
     include_examples('test_arg_parsing', %w[--text false], :text, false)
     include_examples('test_arg_parsing', %w[--text false --text], :text, true)
   end
+
+  describe '#versions_string' do
+    specify 'returns a Rika version and a Tika version' do
+      expect(RikaCommand.new.send(:versions_string)).to match(
+        /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/
+      )
+    end
+  end
 end
 
