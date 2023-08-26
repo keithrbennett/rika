@@ -16,9 +16,10 @@ require 'rika/formatters'
 class RikaCommand
 
   # Run the command line application.
+  # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   # @return [void]
-  def run
-    @options = parse_command_line
+  def run(args = ARGV)
+    @options = parse_command_line(args)
     set_output_formats
     ensure_targets_specified
     if @options[:as_array]
@@ -84,14 +85,17 @@ class RikaCommand
   end
 
   # Parse the command line options into a hash, and remove them from ARGV.
+  # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   # @return [Hash] options, or exits if help or version requested
-  private def parse_command_line
+  private def parse_command_line(args = ARGV)
 
     options = \
       # Default to outputting both metadata and text:
       {
+        as_array: false,
+        format:   'at',
         metadata: true,
-        text: true
+        text:     true
       }
 
     options_parser = \
@@ -110,16 +114,16 @@ class RikaCommand
           options[:format] = format
         end
 
-        opts.on('-m', '--metadata-only', 'Output metadata only') do
-          options[:text] = false
+        opts.on('-m', '--[no-]metadata [FLAG]', TrueClass, 'Output metadata') do |v|
+          options[:metadata] = (v.nil? ? true : v)
         end
 
-        opts.on('-t', '--text-only', 'Output text only') do
-          options[:metadata] = false
+        opts.on('-t', '--[no-]text [FLAG]', TrueClass, 'Output text') do |v|
+          options[:text] = (v.nil? ? true : v)
         end
 
-        opts.on('-a', '--as-array', 'Output all parsed results as an array') do
-        options[:as_array] = true
+        opts.on('-a', '--[no-]as-array [FLAG]', TrueClass, 'Output all parsed results as an array') do |v|
+          options[:as_array] = (v.nil? ? true : v)
         end
 
         opts.on('-v', '--version', 'Output version') do
@@ -134,11 +138,11 @@ class RikaCommand
       end
     @help_text = options_parser.help
 
-    options_parser.parse!
-    options[:format] ||= 'at'
+    options_parser.parse!(args)
 
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
+    options[:format] = options[:format][0..1]
 
     options
   end
