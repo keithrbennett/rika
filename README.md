@@ -90,12 +90,14 @@ Values for the text, metadata, and as_array boolean options may be specified as 
 
 ### Outputting Only Metadata or Only Parsed Text
 
-The `-m` and `-t` options can be used to output only metadata or text, respectively.  The default is to output both.
+The default setting is to output both metadata and text. To disable either, use the `-m` or `-t` options 
+with a disabling flag, e.g. `-m-` to disable metadata and `-t false` or `--no-text` to disable text.
 
 ### Output Formats
 
 The `-f` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
-output in awesome_print format, and the text will be output using `to_s`, as if `puts` were called on it.
+output in awesome_print format, and the text will be output using `to_s` 
+(i.e. without any changes to the parsed string).
 
 If a single argument to `-f` is specified, it will be used for both metadata and text.  If two arguments are specified,
 the first will be used for metadata and the second for the parsed text.
@@ -103,11 +105,12 @@ the first will be used for metadata and the second for the parsed text.
 ### Machine Readable Data Support
 
 If both metadata and text are output, and the same output format is used for both, and that format is JSON
-(plain or "pretty") or YAML, then the output will be a single JSON or YAML hash representation containing both
-the metadata and the text (whose keys are "metadata" and "text"). This enables piping the results of multiple documents
-to a file or to another program that can use it as a data source. In addition, when processing multiple files, 
-this streaming approach will be more efficient than calling Rika separately for each file, since each invocation of
-the rika command requires starting up a Java Virtual Machine.
+(plain or "pretty") or YAML, then the output per document will be a single JSON or YAML hash representation
+containing both the metadata and the text (whose keys are "metadata" and "text"). This enables piping
+the results of multiple documents to a file or to another program that can use it as a data source. 
+In addition, when processing multiple files, this streaming approach will be more efficient 
+than calling Rika separately for each file, since each invocation of the rika command requires starting up
+a Java Virtual Machine.
 
 If the `-a` (`--as-array`) option is specified, then the output will be an array of such hashes, one for each file.
 This enables the output to be used as a data source for programs that can process an array of hashes, e.g. for analysis.
