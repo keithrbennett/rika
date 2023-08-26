@@ -52,6 +52,7 @@ describe RikaCommand do
 
     # Test -m metadata option:
     include_examples('test_arg_parsing', %w[-m- -m], :metadata, true)
+    include_examples('test_arg_parsing', %w[-m- -m+], :metadata, true)
     include_examples('test_arg_parsing', %w[--metadata false --metadata], :metadata, true)
     include_examples('test_arg_parsing', %w[-m -m-], :metadata, false)
     include_examples('test_arg_parsing', %w[-m yes], :metadata, true)

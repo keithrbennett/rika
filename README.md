@@ -74,13 +74,16 @@ Here is the help text:
 Rika v2.0.0 (Tika v2.8.0) - https://github.com/keithrbennett/rika
 
 Usage: rika [options] <file or url> [...file or url...]
-Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
+Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, and [y]aml.
 If a format contains two letters, the first will be used for metadata, the second for text.
+Values for the text, metadata, and as_array boolean options may be specified as follows:
+  Enable:  +, true,  yes, [empty]
+  Disable: -, false, no, [long form option with no- prefix, e.g. --no-metadata]
 
     -f, --format FORMAT              Output format (e.g. `-f at`, which is the default
-    -m, --metadata-only              Output metadata only
-    -t, --text-only                  Output text only
-    -a, --as-array                   Output all parsed results as an array
+    -m, --[no-]metadata [FLAG]       Output metadata
+    -t, --[no-]text [FLAG]           Output text
+    -a, --[no-]as-array [FLAG]       Output all parsed results as an array
     -v, --version                    Output version
     -h, --help                       Output help
 ```    

@@ -89,8 +89,8 @@ class RikaCommand
   # @return [Hash] options, or exits if help or version requested
   private def parse_command_line(args = ARGV)
 
+    # Initialize the options hash with default options:
     options = \
-      # Default to outputting both metadata and text:
       {
         as_array: false,
         format:   'at',
@@ -104,8 +104,11 @@ class RikaCommand
           Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
 
           Usage: rika [options] <file or url> [...file or url...]
-          Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, [y]aml.
+          Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, and [y]aml.
           If a format contains two letters, the first will be used for metadata, the second for text.
+          Values for the text, metadata, and as_array boolean options may be specified as follows:
+            Enable:  +, true,  yes, [empty]
+            Disable: -, false, no, [long form option with no- prefix, e.g. --no-metadata]
 
         BANNER
 
@@ -142,6 +145,8 @@ class RikaCommand
 
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
+
+    # Ignore and remove extra characters after the first two format characters.
     options[:format] = options[:format][0..1]
 
     options
