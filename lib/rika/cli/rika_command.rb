@@ -15,6 +15,8 @@ require 'rika/formatters'
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
+  attr_reader :targets
+
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
     @args = args
@@ -144,6 +146,8 @@ class RikaCommand
     @help_text = options_parser.help
 
     options_parser.parse!(@args)
+    @targets = @args.dup.freeze
+    @targets.map(&:freeze)
 
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
@@ -157,10 +161,5 @@ class RikaCommand
   # @return [String] string containing versions of Rika and Tika
   private def versions_string
     "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
-  end
-
-  # @return [Array<String>] the filespec and/or HTTP targets to be parsed
-  private def targets
-    @args
   end
 end
