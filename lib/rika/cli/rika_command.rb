@@ -61,8 +61,9 @@ class RikaCommand
     if @options[:metadata] && @options[:text] && %w[jj JJ yy].include?(@options[:format])
       puts @metadata_formatter.({ 'metadata' => result.metadata, 'text' => result.content })
     else
+      puts "Source: #{target}"                   if @options[:source]
       puts @metadata_formatter.(result.metadata) if @options[:metadata]
-      puts @text_formatter.(result.content) if @options[:text]
+      puts @text_formatter.(result.content)      if @options[:text]
     end
     nil
   end
@@ -71,7 +72,15 @@ class RikaCommand
   private def output_result_array
     max_length = @options[:text] ? -1 : 0
     results = targets.map { |target| Rika.parse(target, max_length) }
-    output_hashes = results.map(&:content_and_metadata_hash)
+
+    result_to_hash = ->(result) do
+      h = @options[:source] ? { source: result.metadata['rika-data-source'] } : {}
+      h.merge!(result.content_and_metadata_hash)
+      h
+    end
+    output_hashes = results.map { |result| result_to_hash.(result) }
+
+    # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     puts @metadata_formatter.call(output_hashes)
   end
 
@@ -99,7 +108,8 @@ class RikaCommand
         as_array: false,
         format:   'at',
         metadata: true,
-        text:     true
+        text:     true,
+        source:   true
       }
 
     options_parser = \
@@ -127,6 +137,10 @@ class RikaCommand
 
         opts.on('-t', '--[no-]text [FLAG]', TrueClass, 'Output text') do |v|
           options[:text] = (v.nil? ? true : v)
+        end
+
+        opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Document source file or URL') do |v|
+          options[:source] = (v.nil? ? true : v)
         end
 
         opts.on('-a', '--[no-]as-array [FLAG]', TrueClass, 'Output all parsed results as an array') do |v|

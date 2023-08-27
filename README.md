@@ -17,8 +17,10 @@ and then open the `doc/index.html` file in a browser.
 * The [Apache Tika](http://tika.apache.org/) jar file must be installed on your system.
   See the [Installation](#installation) section below for more information.
 
-Rika currently supports some basic and commonly used functions of Tika. Future development may add Ruby support for more
-Tika functionality. See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
+Rika currently supports some basic and commonly used functions of Tika.
+Since it runs on JRuby, the Tika library's Java methods can be called directly from Ruby code
+for more advanced needs.
+See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
 Rika that may suit more demanding needs.
 
 Rika can be used either as a gem in your own Ruby project, or on the command line using the provided executable.
@@ -91,11 +93,20 @@ Values for the text, metadata, and as_array boolean options may be specified as 
 ### Outputting Only Metadata or Only Parsed Text
 
 The default setting is to output both metadata and text. To disable either, use the `-m` or `-t` options 
-with a disabling flag, e.g. `-m-` to disable metadata and `-t false` or `--no-text` to disable text.
+with a disabling flag, e.g. `-m-`, `-m false`, `-m no`, or `--no-metadata` to disable metadata.
+
+### Outputting the Document Source Identifier (Filespec or URL)
+
+There are many times when it is useful to know the source of the document.  For example, if you are processing
+a large number of documents, you may want to know which document a particular piece of output came from.
+
+The document source identifier is output by default.  To disable it, use the `-s` option with a disabling flag, e.g. `-s-`,
+`-s false`, `-s no`, or `--no-source`.
+
 
 ### Output Formats
 
-The `-f` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
+The `- to disable the sourcef` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
 output in awesome_print format, and the text will be output using `to_s` 
 (i.e. without any changes to the parsed string).
 

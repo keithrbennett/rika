@@ -26,10 +26,7 @@ module Rika
 
     # @return [Hash] content and metadata of ParseResult instance as hash
     def content_and_metadata_hash
-      {
-        content: content,
-        metadata: metadata,
-      }
+      { content: content, metadata: metadata }
     end
   end
 end
