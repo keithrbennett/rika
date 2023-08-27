@@ -31,7 +31,10 @@ class RikaCommand
     if @options[:as_array]
       output_result_array
     else
-      targets.each { |target| output_single_document_result(target) }
+      targets.each do |target|
+        result = Rika.parse(target)
+        puts single_document_output(target, result)
+      end
     end
     nil
   end
@@ -52,33 +55,33 @@ class RikaCommand
     end
   end
 
-  # Outputs the result of the parse to stdout.
-  # @return [void]
-  private def output_single_document_result(target)
-    result = Rika.parse(target)
-    # If both metadata and text are requested, and the format is one of the JSON or YAML
-    # formats, then output a hash with both metadata and text as keys.
+  private def result_hash(result)
+    h = {}
+    h['source']   = result.metadata['rika-data-source'] if @options[:source]
+    h['metadata'] = result.metadata                     if @options[:metadata]
+    h['text']     = result.content                      if @options[:text]
+    h
+  end
+
+  private def single_document_output(target, result)
     if @options[:metadata] && @options[:text] && %w[jj JJ yy].include?(@options[:format])
-      puts @metadata_formatter.({ 'metadata' => result.metadata, 'text' => result.content })
+      @metadata_formatter.(result_hash(result))
     else
-      puts "Source: #{target}"                   if @options[:source]
-      puts @metadata_formatter.(result.metadata) if @options[:metadata]
-      puts @text_formatter.(result.content)      if @options[:text]
+      sio = StringIO.new
+      sio << "Source: #{target}\n"                         if @options[:source]
+      sio << @metadata_formatter.(result.metadata) << "\n" if @options[:metadata]
+      sio << @text_formatter.(result.content) << "\n"      if @options[:text]
+      sio.string
     end
-    nil
   end
 
   # Outputs the result of the parse to stdout as an array of hashes.
   private def output_result_array
+    # If text is not being output, we set max length to 0 so that the parse does not return it.
     max_length = @options[:text] ? -1 : 0
-    results = targets.map { |target| Rika.parse(target, max_length) }
 
-    result_to_hash = ->(result) do
-      h = @options[:source] ? { source: result.metadata['rika-data-source'] } : {}
-      h.merge!(result.content_and_metadata_hash)
-      h
-    end
-    output_hashes = results.map { |result| result_to_hash.(result) }
+    results = targets.map { |target| Rika.parse(target, max_length) }
+    output_hashes = results.map { |result| result_hash(result) }
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     puts @metadata_formatter.call(output_hashes)
