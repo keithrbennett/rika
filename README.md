@@ -106,7 +106,7 @@ The document source identifier is output by default.  To disable it, use the `-s
 
 ### Output Formats
 
-The `- to disable the sourcef` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
+The `-f` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
 output in awesome_print format, and the text will be output using `to_s` 
 (i.e. without any changes to the parsed string).
 
