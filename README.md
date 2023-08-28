@@ -85,6 +85,7 @@ Values for the text, metadata, and as_array boolean options may be specified as 
     -f, --format FORMAT              Output format (e.g. `-f at`, which is the default
     -m, --[no-]metadata [FLAG]       Output metadata
     -t, --[no-]text [FLAG]           Output text
+    -s, --[no-]source [FLAG]         Document source file or URL
     -a, --[no-]as-array [FLAG]       Output all parsed results as an array
     -v, --version                    Output version
     -h, --help                       Output help
