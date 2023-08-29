@@ -43,6 +43,7 @@ require 'rika'
 
 parse_result = Rika.parse('x.pdf') # returns a Rika::ParseResult object
 parse_result.content               # string containing all content text
+parse_result.text                  # 'text' is an alias for 'content'
 parse_result.metadata              # hash containing the document metadata
 parse_result.content_type          # e.g. "application/pdf"
 parse_result.language              # e.g. "en"
@@ -191,11 +192,11 @@ rexe -in -oJ -mb 'downcase \
   http://tika.apache.org/download.html (look for the "tika-app" jar file).
   Put it in a place that makes sense for your system, such as `/usr/local/lib`.
 * Configure the `TIKA_JAR_FILESPEC` environment variable to point to the Tika jar file.
-  For example, if you are using tika-app-1.24.1.jar, and put the jar file in `/usr/local/lib`,
+  For example, if you are using tika-app-2.8.0.jar, and put the jar file in `/opt/jars',
   then the setting of the environment variable should look like this:
 
   ```bash
-  export TIKA_JAR_FILESPEC=/usr/local/lib/tika-app-1.24.1.jar
+  export TIKA_JAR_FILESPEC=/opt/jars/tika-app-2.8.0.jar
   ```
 
   You can put this in your `.bashrc` or `.zshrc` file to make it permanent.
