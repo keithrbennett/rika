@@ -14,6 +14,9 @@ module Rika
     :max_content_length,
     keyword_init: true
   ) do
+    # Support using 'text' instead of 'content'; this often makes more sense.
+    alias_method :text, :content
+
     # @return [Boolean] true if, and only if, input is a file
     def file?
       input_type == :file
