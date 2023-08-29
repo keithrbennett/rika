@@ -131,8 +131,8 @@ For example, here is an example of how to use Rika and [rexe](https://github.com
 of content types for a set of documents, sorted by content type:
 
 ```bash
-$ rika -m -fy -a spec/fixtures/* | \
-  rexe -iy -oa -mb "map { |r| r[:metadata]['Content-Type'] }.tally.sort.to_h"
+$ rika -t- -s- -fy -a spec/fixtures/* | \
+  rexe -iy -oa -mb "map { |r| r['metadata']['Content-Type'] }.tally.sort.to_h"
 {
                                                          "application/msword" => 1,
                                                    "application/octet-stream" => 1,
@@ -140,13 +140,15 @@ $ rika -m -fy -a spec/fixtures/* | \
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => 1,
                                                                  "image/jpeg" => 2,
                                              "text/plain; charset=ISO-8859-1" => 1,
-                                                  "text/plain; charset=UTF-8" => 6
+                                                  "text/plain; charset=UTF-8" => 6,
+                                          "text/x-matlab; charset=ISO-8859-1" => 1
 }
 ```
 Here is a breakdown of the above command:
 
 * `rika`
-  * `-m` limits the output to metadata (no text)
+  * `-t-` suppresses the output of text
+  * `-s-` suppresses the output of the source identifier
   * `-fy` outputs the data in YAML format.
   * `-a` option causes the output to be an array of hashes, one for each file
 * `rexe` 
@@ -164,7 +166,7 @@ Here is another example that prints out the 5 most common words in all the parse
 as "pretty" JSON:
 
 ```bash
-$ rika -t spec/fixtures/* | \
+$ rika -m- spec/fixtures/* | \
 rexe -in -oJ -mb 'downcase \
   .split \
   .tally \
@@ -178,7 +180,7 @@ rexe -in -oJ -mb 'downcase \
   "woods": 25,
   "i": 25,
   "and": 25
-}% 
+}
 ```
 
 ## Installation
