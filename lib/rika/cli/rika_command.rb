@@ -57,7 +57,7 @@ class RikaCommand
 
   private def result_hash(result)
     h = {}
-    h['source']   = result.metadata['rika-data-source'] if @options[:source]
+    h['source']   = result.metadata['rika:data-source'] if @options[:source]
     h['metadata'] = result.metadata                     if @options[:metadata]
     h['text']     = result.content                      if @options[:text]
     h
