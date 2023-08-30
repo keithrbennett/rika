@@ -83,11 +83,12 @@ Values for the text, metadata, and as_array boolean options may be specified as 
   Enable:  +, true,  yes, [empty]
   Disable: -, false, no, [long form option with no- prefix, e.g. --no-metadata]
 
-    -f, --format FORMAT              Output format (e.g. `-f at`, which is the default
-    -m, --[no-]metadata [FLAG]       Output metadata
-    -t, --[no-]text [FLAG]           Output text
+    -f, --format FORMAT              Output format (default: at)
+    -m, --[no-]metadata [FLAG]       Output metadata (default: true)
+    -t, --[no-]text [FLAG]           Output text (default: true)
+    -k, --[no-]key-sort [FLAG]       Sort metadata keys case insensitively (default: true)
     -s, --[no-]source [FLAG]         Document source file or URL
-    -a, --[no-]as-array [FLAG]       Output all parsed results as an array
+    -a, --[no-]as-array [FLAG]       Output all parsed results as an array (default: false)
     -v, --version                    Output version
     -h, --help                       Output help
 ```    
@@ -114,6 +115,14 @@ output in awesome_print format, and the text will be output using `to_s`
 
 If a single argument to `-f` is specified, it will be used for both metadata and text.  If two arguments are specified,
 the first will be used for metadata and the second for the parsed text.
+
+### Sorting of Metadata Keys
+
+By default, metadata keys will be sorted case insensitively.  To disable this, use the `-k` option 
+with a disabling flag, i.e. `-k-`, `-k false`, `-k no`, or `--no-key-sort`.
+
+The case insensitivity is implemented by using `String#downcase`.
+This may not sort correctly on some non-English systems.
 
 ### Machine Readable Data Support
 

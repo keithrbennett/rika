@@ -144,7 +144,7 @@ class RikaCommand
           options[:text] = (v.nil? ? true : v)
         end
 
-        opts.on('-k', '--[no-]key-sort [FLAG]', TrueClass, 'Sort metadata keys (default: true)') do |v|
+        opts.on('-k', '--[no-]key-sort [FLAG]', TrueClass, 'Sort metadata keys case insensitively (default: true)') do |v|
           options[:source] = (v.nil? ? true : v)
         end
 
