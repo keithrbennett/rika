@@ -60,7 +60,22 @@ describe Rika::Parser do
       expect(parse_result.data_source).to eq('spec/fixtures/document.pdf')
     end
 
-    # specify 'ParseResult contains the expected max_content_length' do
-    #   expect(parse_result.max
+    context 'metadata key sorting' do
+      RSpec.shared_examples('metadata key sorting') do |caption, key_sort|
+        specify "Metadata keys are #{caption} case insensitively when key_sort is #{key_sort}" do
+          parser = Rika::Parser.new('spec/fixtures/document.pdf', key_sort: key_sort)
+          keys = parser.parse.metadata.keys
+          expect(keys == keys.sort_by(&:downcase)).to eq(key_sort)
+          expect(keys).not_to eq(keys.map(&:downcase)) # Above test only valid if both upper and lower case occur.
+        end
+      end
+
+      include_examples 'metadata key sorting', 'sorted', true
+      include_examples 'metadata key sorting', 'not sorted', false
+    end
+
+    specify 'ParseResult contains the expected max_content_length' do
+      expect(parse_result.max_content_length).to eq(-1)
+    end
   end
 end

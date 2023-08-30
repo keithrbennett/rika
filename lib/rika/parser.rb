@@ -31,7 +31,7 @@ module Rika
       metadata_java.set('rika:language', language)
       metadata_java.set('rika:data-source', @data_source)
       metadata = metadata_java_to_ruby(metadata_java)
-      metadata = metadata.sort_by { |key, _value| key }.to_h if @key_sort
+      metadata = metadata.sort_by { |key, _value| key.downcase }.to_h if @key_sort
 
       ParseResult.new(
         content:            content,
