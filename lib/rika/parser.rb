@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'uri'
 require_relative 'parse_result'
 
 module Rika
@@ -8,10 +9,12 @@ module Rika
   # who should instead call `Rika.parse`.
   class Parser
     # @param [String] data_source file path or HTTP(s) URL
+    # @param [Boolean] key_sort whether to sort the keys in the metadata hash, defaults to true
     # @param [Integer] max_content_length maximum content length to return, defaults to all
     # @param [Detector] detector Tika detector, defaults to DefaultDetector
-    def initialize(data_source, max_content_length = -1, detector = DefaultDetector.new)
+    def initialize(data_source, key_sort: true, max_content_length: -1, detector: DefaultDetector.new)
       @data_source = data_source
+      @key_sort = key_sort
       @max_content_length = max_content_length
       @detector = detector
       @input_type = data_source_input_type
@@ -28,6 +31,7 @@ module Rika
       metadata_java.set('rika:language', language)
       metadata_java.set('rika:data-source', @data_source)
       metadata = metadata_java_to_ruby(metadata_java)
+      metadata = metadata.sort_by { |key, _value| key }.to_h if @key_sort
 
       ParseResult.new(
         content:            content,

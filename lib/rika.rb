@@ -28,12 +28,14 @@ module Rika
 
   # Gets a ParseResult from parsing a document.
   #
-  # @param [String] data_source file path or HTTP URL
+  # @param [String] data_source file path or HTTP(s) URL
+  # @param [Boolean] key_sort whether to sort the keys in the metadata hash, defaults to true
   # @param [Integer] max_content_length maximum content length to return, defaults to all
   # @param [Detector] detector Tika detector, defaults to DefaultDetector
   # @return [ParseResult]
-  def self.parse(data_source, max_content_length = -1, detector = DefaultDetector.new)
-    Parser.new(data_source, max_content_length, detector).parse
+  def self.parse(data_source, key_sort: true, max_content_length: -1, detector: DefaultDetector.new)
+    parser = Parser.new(data_source, key_sort: key_sort, max_content_length: max_content_length, detector: detector)
+    parser.parse
   end
 
   # @return [String] version of loaded Tika jar file
@@ -51,8 +53,8 @@ module Rika
   # @return [Array<String,Hash>] content and metadata of file at specified location
   #
   # @deprecated Instead, get a ParseResult and access the content and metadata fields.
-  def self.parse_content_and_metadata(data_source, max_content_length = -1)
-    result = parse(data_source, max_content_length)
+  def self.parse_content_and_metadata(data_source, max_content_length: -1)
+    result = parse(data_source, max_content_length: max_content_length)
     [result.content, result.metadata]
   end
 
@@ -60,8 +62,8 @@ module Rika
   # @return [Hash] content and metadata of file at specified location
   #
   # @deprecated Instead, use a ParseResult or its to_h method.
-  def self.parse_content_and_metadata_as_hash(data_source, max_content_length = -1)
-    result = parse(data_source, max_content_length)
+  def self.parse_content_and_metadata_as_hash(data_source, max_content_length: -1)
+    result = parse(data_source, max_content_length: max_content_length)
     { content: result.content, metadata: result.metadata }
   end
 
@@ -69,8 +71,8 @@ module Rika
   # @return [Parser] parser for resource at specified location
   #
   # @deprecated Instead, get a ParseResult and access the content field
-  def self.parse_content(data_source, max_content_length = -1)
-    parse(data_source, max_content_length).content
+  def self.parse_content(data_source, max_content_length: -1)
+    parse(data_source, max_content_length: max_content_length).content
   end
 
   # Regarding max_content_length, the default is set at 0 to save unnecessary processing,
@@ -79,8 +81,8 @@ module Rika
   # depending on the number of characters read.
   #
   # @deprecated Instead, get a ParseResult and access the metadata field
-  def self.parse_metadata(data_source, max_content_length = 0)
-    parse(data_source, max_content_length).metadata
+  def self.parse_metadata(data_source, max_content_length: -1)
+    parse(data_source, max_content_length: max_content_length).metadata
   end
 
   # @return [Detector] Tika detector

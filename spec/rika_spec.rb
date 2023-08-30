@@ -83,16 +83,16 @@ describe Rika::Parser do
     end
 
     it 'should only return max content length from a text file' do
-      expect(Rika.parse(file_path('document.txt'), 8).content).to eq('Stopping')
+      expect(Rika.parse(file_path('document.txt'), max_content_length: 8).content).to eq('Stopping')
     end
 
     it 'should only return max content length from a PDF' do
-      expect(Rika.parse(file_path('document.pdf'), 9).content).to eq("\nStopping")
+      expect(Rika.parse(file_path('document.pdf'), max_content_length: 9).content).to eq("\nStopping")
     end
 
     it 'should only return max content length for file over http' do
       server_runner.call( -> do
-        content = Rika.parse(File.join(url, 'document.txt'), 8).content
+        content = Rika.parse(File.join(url, 'document.txt'), max_content_length: 8).content
         expect(content).to eq('Stopping')
       end)
     end
@@ -210,9 +210,9 @@ describe Rika::Parser do
   end
 
   specify 'getting content and metadata individually and together should return the same values' do
-    content_1, metadata_1 = Rika.parse_content_and_metadata(sample_pdf_filespec, -1)
+    content_1, metadata_1 = Rika.parse_content_and_metadata(sample_pdf_filespec)
     content_2             = Rika.parse_content(sample_pdf_filespec)
-    metadata_2            = Rika.parse_metadata(sample_pdf_filespec, -1)
+    metadata_2            = Rika.parse_metadata(sample_pdf_filespec)
 
     expect(content_1).to eq(content_2)
     expect(metadata_1).to eq(metadata_2)

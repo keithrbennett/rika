@@ -25,6 +25,7 @@ class RikaCommand
   # Run the command line application.
   # @return [void]
   def run
+    ARGV.reject! { |arg| File.directory?(arg) } # to handle **/* globbing
     @options = parse_command_line
     set_output_formats
     ensure_targets_specified
@@ -112,7 +113,8 @@ class RikaCommand
         format:   'at',
         metadata: true,
         text:     true,
-        source:   true
+        source:   true,
+        key_sort: true
       }
 
     options_parser = \
@@ -129,24 +131,28 @@ class RikaCommand
 
         BANNER
 
-        format_message = 'Output format (e.g. `-f at`, which is the default'
+        format_message = 'Output format (default: at)'
         opts.on('-f', '--format FORMAT', format_message) do |format|
           options[:format] = format
         end
 
-        opts.on('-m', '--[no-]metadata [FLAG]', TrueClass, 'Output metadata') do |v|
+        opts.on('-m', '--[no-]metadata [FLAG]', TrueClass, 'Output metadata (default: true)') do |v|
           options[:metadata] = (v.nil? ? true : v)
         end
 
-        opts.on('-t', '--[no-]text [FLAG]', TrueClass, 'Output text') do |v|
+        opts.on('-t', '--[no-]text [FLAG]', TrueClass, 'Output text (default: true)') do |v|
           options[:text] = (v.nil? ? true : v)
+        end
+
+        opts.on('-k', '--[no-]key-sort [FLAG]', TrueClass, 'Sort metadata keys (default: true)') do |v|
+          options[:source] = (v.nil? ? true : v)
         end
 
         opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Document source file or URL') do |v|
           options[:source] = (v.nil? ? true : v)
         end
 
-        opts.on('-a', '--[no-]as-array [FLAG]', TrueClass, 'Output all parsed results as an array') do |v|
+        opts.on('-a', '--[no-]as-array [FLAG]', TrueClass, 'Output all parsed results as an array (default: false)') do |v|
           options[:as_array] = (v.nil? ? true : v)
         end
 
