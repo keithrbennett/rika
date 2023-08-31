@@ -15,7 +15,7 @@ require 'rika/formatters'
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
-  attr_reader :targets
+  attr_reader :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
@@ -31,11 +31,11 @@ class RikaCommand
     @options = parse_command_line
     set_output_formats
     ensure_targets_specified
-    if @options[:as_array]
+    if options[:as_array]
       output_result_array
     else
       targets.each do |target|
-        result = Rika.parse(target, max_content_length: max_content_length, key_sort: @options[:key_sort])
+        result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
         puts single_document_output(target, result)
       end
     end
@@ -47,49 +47,46 @@ class RikaCommand
   # @return [void]
   private def set_output_formats
     begin
-      format = @options[:format]
+      format = options[:format]
       @metadata_formatter = Rika::Formatters.get(format[0])
       @text_formatter     = Rika::Formatters.get(format[1])
       nil
     rescue KeyError
       $stderr.puts "Invalid format: #{format}\n\n"
-      $stderr.puts @help_text
+      $stderr.puts help_text
       exit 1
     end
   end
 
   private def result_hash(result)
     h = {}
-    h['source']   = result.metadata['rika:data-source'] if @options[:source]
-    h['metadata'] = result.metadata                     if @options[:metadata]
-    h['text']     = result.content                      if @options[:text]
+    h['source']   = result.metadata['rika:data-source'] if options[:source]
+    h['metadata'] = result.metadata                     if options[:metadata]
+    h['text']     = result.content                      if options[:text]
     h
   end
 
   private def single_document_output(target, result)
-    if @options[:metadata] && @options[:text] && %w[jj JJ yy].include?(@options[:format])
-      @metadata_formatter.(result_hash(result))
+    if options[:metadata] && options[:text] && %w[jj JJ yy].include?(options[:format])
+      metadata_formatter.(result_hash(result))
     else
       sio = StringIO.new
-      sio << "Source: #{target}\n"                         if @options[:source]
-      sio << @metadata_formatter.(result.metadata) << "\n" if @options[:metadata]
-      sio << @text_formatter.(result.content) << "\n"      if @options[:text]
+      sio << "Source: #{target}\n"                         if options[:source]
+      sio << metadata_formatter.(result.metadata) << "\n" if options[:metadata]
+      sio << text_formatter.(result.content) << "\n"      if options[:text]
       sio.string
     end
   end
 
   # Outputs the result of the parse to stdout as an array of hashes.
   private def output_result_array
-    # If text is not being output, we set max length to 0 so that the parse does not return it.
-    max_length = @options[:text] ? -1 : 0
-
     results = targets.map do |target|
       Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
     end
     output_hashes = results.map { |result| result_hash(result) }
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
-    puts @metadata_formatter.call(output_hashes)
+    puts metadata_formatter.call(output_hashes)
   end
 
   # Prints help and exits if no targets are specified.
@@ -100,7 +97,7 @@ class RikaCommand
 
         Please specify a file or URL to parse.
 
-        #{@help_text}
+        #{help_text}
       MESSAGE
       exit
     end
@@ -203,6 +200,6 @@ class RikaCommand
   # Tika offers a max_content_length option, but it is not exposed in Rika.
   # Instead it is used only to enable or disable the entire text output.
   private def max_content_length
-    @options[:text] ? -1 : 0
+    options[:text] ? -1 : 0
   end
 end
