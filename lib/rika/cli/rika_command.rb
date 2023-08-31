@@ -26,11 +26,7 @@ class RikaCommand
   # Run the command line application.
   # @return [void]
   def run
-    prepend_environment_options
-    @options = parse_command_line
-    args.reject! { |arg| File.directory?(arg) } # to handle **/* globbing
-    set_output_formats
-    ensure_targets_specified
+    process_args
     if options[:as_array]
       output_result_array
     else
@@ -201,5 +197,15 @@ class RikaCommand
   # Instead it is used only to enable or disable the entire text output.
   private def max_content_length
     options[:text] ? -1 : 0
+  end
+  private
+
+  # Process arguments on the command line or passed. Populates @options and @targets.
+  def process_args
+    prepend_environment_options
+    @options = parse_command_line
+    @targets = args.reject { |arg| File.directory?(arg) } # to handle **/* globbing
+    ensure_targets_specified
+    set_output_formats
   end
 end
