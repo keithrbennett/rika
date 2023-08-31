@@ -15,20 +15,20 @@ require 'rika/formatters'
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
-  attr_reader :help_text, :metadata_formatter, :options, :targets, :text_formatter
+  attr_reader :args, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
-    @args = args
+    # Dup the array in case it has been frozen. The array will be modified later.
+    @args = args.dup
   end
 
   # Run the command line application.
   # @return [void]
   def run
-    ARGV.reject! { |arg| File.directory?(arg) } # to handle **/* globbing
     prepend_environment_options
-    warn ARGV.inspect
     @options = parse_command_line
+    args.reject! { |arg| File.directory?(arg) } # to handle **/* globbing
     set_output_formats
     ensure_targets_specified
     if options[:as_array]
@@ -193,7 +193,7 @@ class RikaCommand
     env_opt_string = ENV['RIKA_OPTIONS']
     if env_opt_string
       args_to_prepend = Shellwords.shellsplit(env_opt_string)
-      ARGV.unshift(args_to_prepend).flatten!
+      args.unshift(args_to_prepend).flatten!
     end
   end
 
