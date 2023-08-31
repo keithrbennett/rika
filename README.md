@@ -106,7 +106,6 @@ a large number of documents, you may want to know which document a particular pi
 The document source identifier is output by default.  To disable it, use the `-s` option with a disabling flag, e.g. `-s-`,
 `-s false`, `-s no`, or `--no-source`.
 
-
 ### Output Formats
 
 The `-f` option can be used to specify the output format.  The default is `at`, which means that the metadata will be
@@ -123,6 +122,12 @@ with a disabling flag, i.e. `-k-`, `-k false`, `-k no`, or `--no-key-sort`.
 
 The case insensitivity is implemented by using `String#downcase`.
 This may not sort correctly on some non-English systems.
+
+### Specifying Command Line Options in the RIKA_OPTIONS Environment Variable
+
+If you find yourself using the same options over and over again, you can put them in the `RIKA_OPTIONS` environment 
+variable. For example, if the default behavior of sorting keys does not work for your language, you can disable it
+for all invocations of the `rika` command by specifying `-k-` in the RIKA_OPTIONS environment variable.
 
 ### Machine Readable Data Support
 
