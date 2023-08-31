@@ -120,7 +120,7 @@ class RikaCommand
     options_parser = \
       OptionParser.new do |opts|
         opts.banner =  <<~BANNER
-          Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - https://github.com/keithrbennett/rika
+          Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - #{Rika::PROJECT_URL}
 
           Usage: rika [options] <file or url> [...file or url...]
           Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, and [y]aml.

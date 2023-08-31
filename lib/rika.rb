@@ -16,6 +16,8 @@ TikaLoader.require_tika
 
 # The top level module for the Rika gem.
 module Rika
+  PROJECT_URL = 'https://github.com/keithrbennett/rika'
+
   import java.io.FileInputStream
   import java.net.URL
   import org.apache.tika.Tika
