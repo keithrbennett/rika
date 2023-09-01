@@ -19,7 +19,8 @@ class RikaCommand
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
-    # Dup the array in case it has been frozen. The array will be modified later.
+    # Dup the array in case it has been frozen. The array will be modified later when options are parsed
+    # and removed, and when directories are removed.
     @args = args.dup
   end
 
@@ -74,12 +75,16 @@ class RikaCommand
     end
   end
 
-  # Outputs the result of the parse to stdout as an array of hashes.
+  # Parses the documents and outputs the result of the parse to stdout as an array of hashes.
+  # Outputting as an array necessitates that the metadata and text formatters be the same
+  # (otherwise the output would be invalid, especially with JSON or YAML).
+  # Therefore, the metadata formatter is arbitrarily selected to be used by both.
+  # @return [void]
   private def output_result_array
-    results = targets.map do |target|
-      Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+    output_hashes = targets.map do |target|
+      result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+      result_hash(result)
     end
-    output_hashes = results.map { |result| result_hash(result) }
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     puts metadata_formatter.call(output_hashes)
@@ -101,7 +106,7 @@ class RikaCommand
   end
 
   # Parse the command line options into a hash, and remove them from ARGV.
-  # @return [Hash] options, or exits if help or version requested
+  # @return [Array<Hash,String>] [options, targets, help_string], or exits if help or version requested
   private def parse_command_line
     # Initialize the options hash with default options:
     options = \
@@ -163,11 +168,10 @@ class RikaCommand
           exit
         end
       end
-    @help_text = options_parser.help
 
     options_parser.parse!(@args)
-    @targets = @args.dup.freeze
-    @targets.map(&:freeze)
+    targets = @args.dup.reject { |arg| File.directory?(arg) }.freeze # reject dirs to handle **/* globbing
+    targets.map(&:freeze)
 
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
@@ -175,7 +179,7 @@ class RikaCommand
     # Ignore and remove extra characters after the first two format characters.
     options[:format] = options[:format][0..1]
 
-    options
+    [options, targets, options_parser.help]
   end
 
   # @return [String] string containing versions of Rika and Tika
@@ -203,8 +207,7 @@ class RikaCommand
   # Process arguments on the command line or passed. Populates @options and @targets.
   def process_args
     prepend_environment_options
-    @options = parse_command_line
-    @targets = args.reject { |arg| File.directory?(arg) } # to handle **/* globbing
+    @options, @targets, @help_text = parse_command_line
     ensure_targets_specified
     set_output_formats
   end
