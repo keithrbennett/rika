@@ -7,22 +7,25 @@ describe RikaCommand do
 
   before do
     @original_stdout = $stdout
+    @original_stderr = $stderr
     $stdout = StringIO.new
+    $stderr = StringIO.new
   end
 
   after do
     $stdout = @original_stdout
+    $stderr = @original_stderr
   end
 
   describe '#run' do
     it 'should run' do
-      args = [__FILE__]
+      args = []
       expect { RikaCommand.new(args).run }.to_not raise_error
     end
   end
 
   describe '#parse_command_line' do
-    specify 'returns a hash of options, a target array,__FILE and help text' do
+    specify 'returns a hash of options, a target array, and help text' do
       options, targets, help_text = RikaCommand.new([]).send(:parse_command_line)
       expect(options).to be_a(Hash)
       expect(targets).to be_an(Array)
@@ -89,6 +92,25 @@ describe RikaCommand do
       expect(RikaCommand.new.send(:versions_string)).to match(
         /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/
       )
+    end
+  end
+
+  describe 'environment variable processing' do
+    it 'adds arguments from the environment to the args list' do
+      rika_command = RikaCommand.new([])
+      allow(rika_command).to receive(:environment_options).and_return('-t-')
+      options, _, _ = rika_command.send(:parse_command_line)
+      expect(options[:text]).to eq(false)
+    end
+
+    it 'overrides environment variable options with command line options' do
+      env_format_arg = '-fyy'
+      cmd_line_format = 'JJ'
+      cmd_line_args = ["-f#{cmd_line_format}"]
+      rika_command = RikaCommand.new(cmd_line_args)
+      allow(rika_command).to receive(:environment_options).and_return(env_format_arg)
+      options, _, _ = rika_command.send(:parse_command_line)
+      expect(options[:format]).to eq(cmd_line_format)
     end
   end
 end

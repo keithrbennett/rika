@@ -90,17 +90,16 @@ class RikaCommand
     puts metadata_formatter.call(output_hashes)
   end
 
-  # Prints help and exits if no targets are specified.
+  # Prints message and help if no targets are specified.
   # @return [void]
-  private def ensure_targets_specified
+  private def warn_if_no_targets_specified
     if targets.empty?
       $stderr.puts <<~MESSAGE
 
-        Please specify a file or URL to parse.
+        No targets specified.
 
         #{help_text}
       MESSAGE
-      exit
     end
     nil
   end
@@ -118,6 +117,8 @@ class RikaCommand
         source:   true,
         key_sort: true
       }
+
+    prepend_environment_options
 
     options_parser = \
       OptionParser.new do |opts|
@@ -190,7 +191,7 @@ class RikaCommand
   # If the user wants to specify options in an environment variable ("RIKA_OPTIONS"),
   # then this method will insert those options at the beginning of the `ARGV`` array.
   private def prepend_environment_options
-    env_opt_string = ENV['RIKA_OPTIONS']
+    env_opt_string = environment_options
     if env_opt_string
       args_to_prepend = Shellwords.shellsplit(env_opt_string)
       args.unshift(args_to_prepend).flatten!
@@ -205,10 +206,13 @@ class RikaCommand
   private
 
   # Process arguments on the command line or passed. Populates @options and @targets.
-  def process_args
-    prepend_environment_options
+  private def process_args
     @options, @targets, @help_text = parse_command_line
-    ensure_targets_specified
+    warn_if_no_targets_specified
     set_output_formats
+  end
+
+  private def environment_options
+    ENV['RIKA_OPTIONS'] || ''
   end
 end
