@@ -19,7 +19,7 @@ describe RikaCommand do
 
   describe '#run' do
     it 'should run' do
-      expect { RikaCommand.new([]).run }.to_not raise_error
+      expect { RikaCommand.new([__FILE__]).run }.to_not raise_error
     end
   end
 
@@ -42,10 +42,10 @@ describe RikaCommand do
       end
 
       # Test default option values:
-      include_examples('sets_options_correctly', [], :as_array, false)
-      include_examples('sets_options_correctly', [], :text, true)
-      include_examples('sets_options_correctly', [], :metadata, true)
-      include_examples('sets_options_correctly', [], :format, 'at')
+      include_examples('sets_options_correctly', ['*'], :as_array, false)
+      include_examples('sets_options_correctly', ['*'], :text, true)
+      include_examples('sets_options_correctly', ['*'], :metadata, true)
+      include_examples('sets_options_correctly', ['*'], :format, 'at')
 
       # Test -a as_array option:
       include_examples('sets_options_correctly', %w[-a], :as_array, true)
@@ -96,7 +96,7 @@ describe RikaCommand do
 
   describe 'environment variable processing' do
     it 'adds arguments from the environment to the args list' do
-      rika_command = RikaCommand.new([])
+      rika_command = RikaCommand.new(['*'])
       allow(rika_command).to receive(:environment_options).and_return('-t-')
       options, _, _ = rika_command.send(:parse_command_line)
       expect(options[:text]).to eq(false)
@@ -105,7 +105,7 @@ describe RikaCommand do
     it 'overrides environment variable options with command line options' do
       env_format_arg = '-fyy'
       cmd_line_format = 'JJ'
-      cmd_line_args = ["-f#{cmd_line_format}"]
+      cmd_line_args = ["-f#{cmd_line_format}", '*']
       rika_command = RikaCommand.new(cmd_line_args)
       allow(rika_command).to receive(:environment_options).and_return(env_format_arg)
       options, _, _ = rika_command.send(:parse_command_line)
@@ -116,7 +116,7 @@ describe RikaCommand do
   describe '#set_output_formats' do
     RSpec.shared_examples 'verify_correct_output_formats_selected' do |format_chars, expected_m_formatter, expected_t_formatter|
       specify "correctly sets output formats when options are #{format_chars}" do
-        rika_command = RikaCommand.new(["-f#{format_chars}"])
+        rika_command = RikaCommand.new(["-f#{format_chars}", '*'])
         rika_command.send(:process_args)
         expect(rika_command.send(:metadata_formatter)).to eq(expected_m_formatter)
         expect(rika_command.send(:text_formatter)).to eq(expected_t_formatter)
@@ -138,6 +138,15 @@ describe RikaCommand do
     include_examples 'verify_bad_output_format_exits', 'ax'
     include_examples 'verify_bad_output_format_exits', 'xa'
     include_examples 'verify_bad_output_format_exits', 'x'
+  end
+
+  describe '#warn_if_no_targets_specified' do
+    it 'prints a warning if no targets are specified' do
+      rika_command = RikaCommand.new([])
+      allow(rika_command).to receive(:targets).and_return([])
+      expect { rika_command.send(:warn_if_no_targets_specified) }.to raise_error(SystemExit)
+      expect($stderr.string).to match(/No targets specified/)
+    end
   end
 end
 
