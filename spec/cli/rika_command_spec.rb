@@ -113,5 +113,32 @@ describe RikaCommand do
       expect(options[:format]).to eq(cmd_line_format)
     end
   end
+
+  describe '#set_output_formats' do
+    RSpec.shared_examples 'test_set_output_formats' do |format_chars, expected_m_formatter, expected_t_formatter|
+      specify "correctly sets output formats when options are #{format_chars}" do
+        rika_command = RikaCommand.new(["-f#{format_chars}"])
+        rika_command.send(:process_args)
+        expect(rika_command.send(:metadata_formatter)).to eq(expected_m_formatter)
+        expect(rika_command.send(:text_formatter)).to eq(expected_t_formatter)
+      end
+    end
+
+    RF = Rika::Formatters
+    include_examples('test_set_output_formats', 'aj', RF::AWESOME_PRINT_FORMATTER, RF::JSON_FORMATTER)
+    include_examples('test_set_output_formats', 'Jy', RF::PRETTY_JSON_FORMATTER, RF::YAML_FORMATTER)
+    include_examples('test_set_output_formats', 'ti', RF::TO_S_FORMATTER, RF::INSPECT_FORMATTER)
+
+    RSpec.shared_examples 'test_bad_output_format' do |format_chars|
+      specify "exits when a bad output format is specified with #{format_chars}" do
+        rika_command = RikaCommand.new(["-f#{format_chars}"])
+        expect { rika_command.send(:process_args) }.to raise_error(SystemExit)
+      end
+    end
+
+    include_examples 'test_bad_output_format', 'ax'
+    include_examples 'test_bad_output_format', 'xa'
+    include_examples 'test_bad_output_format', 'x'
+  end
 end
 
