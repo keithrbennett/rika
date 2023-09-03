@@ -11,7 +11,7 @@ require 'rika/formatters'
 # Run with -h or --help option for more details.
 #
 # Defaults to outputting both content (text) and metadata,
-# but the -t and -m flags can be used to output only one or the other.
+# but the -t and -m flags can be used to enable or suppress either.
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
 
@@ -20,7 +20,7 @@ class RikaCommand
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
     # Dup the array in case it has been frozen. The array will be modified later when options are parsed
-    # and removed, and when directories are removed.
+    # and removed, and when directories are removed, so this array should not be frozen.
     @args = args.dup
   end
 
@@ -29,7 +29,7 @@ class RikaCommand
   def run
     process_args
     if options[:as_array]
-      output_result_array
+      puts result_array_output
     else
       targets.each do |target|
         result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
@@ -55,6 +55,9 @@ class RikaCommand
     end
   end
 
+  # Converts a ParseResult to a hash containing the selected pieces of data.
+  # @param [ParseResult] result the parse result
+  # @return [Hash] the hash containing the selected pieces of data
   private def result_hash(result)
     h = {}
     h['source']   = result.metadata['rika:data-source'] if options[:source]
@@ -63,12 +66,16 @@ class RikaCommand
     h
   end
 
+  # Builds the string representation of the result of parsing a single document
+  # @param [String] target the target document
+  # @param [ParseResult] result the parse result
+  # @return [String] the string representation of the result of parsing a single document
   private def single_document_output(target, result)
     if options[:metadata] && options[:text] && %w[jj JJ yy].include?(options[:format])
       metadata_formatter.(result_hash(result))
     else
       sio = StringIO.new
-      sio << "Source: #{target}\n"                         if options[:source]
+      sio << "Source: #{target}\n"                        if options[:source]
       sio << metadata_formatter.(result.metadata) << "\n" if options[:metadata]
       sio << text_formatter.(result.content) << "\n"      if options[:text]
       sio.string
@@ -79,15 +86,15 @@ class RikaCommand
   # Outputting as an array necessitates that the metadata and text formatters be the same
   # (otherwise the output would be invalid, especially with JSON or YAML).
   # Therefore, the metadata formatter is arbitrarily selected to be used by both.
-  # @return [void]
-  private def output_result_array
+  # @return [String] the string representation of the result of parsing the documents
+  private def result_array_output
     output_hashes = targets.map do |target|
       result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
       result_hash(result)
     end
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
-    puts metadata_formatter.call(output_hashes)
+    metadata_formatter.call(output_hashes)
   end
 
   # Prints message and help if no targets are specified.
@@ -111,7 +118,7 @@ class RikaCommand
     options = \
       {
         as_array: false,
-        format:   'at',
+        format:   'at', # AwesomePrint for metadata, to_s for text content
         metadata: true,
         text:     true,
         source:   true,
@@ -183,13 +190,13 @@ class RikaCommand
     [options, targets, options_parser.help]
   end
 
-  # @return [String] string containing versions of Rika and Tika
+  # @return [String] string containing versions of Rika and Tika, with labels
   private def versions_string
     "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
   end
 
   # If the user wants to specify options in an environment variable ("RIKA_OPTIONS"),
-  # then this method will insert those options at the beginning of the `ARGV`` array.
+  # then this method will insert those options at the beginning of the `args` array.
   private def prepend_environment_options
     env_opt_string = environment_options
     if env_opt_string
@@ -203,7 +210,6 @@ class RikaCommand
   private def max_content_length
     options[:text] ? -1 : 0
   end
-  private
 
   # Process arguments on the command line or passed. Populates @options and @targets.
   private def process_args
