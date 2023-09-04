@@ -5,19 +5,19 @@ require 'webrick'
 
 describe Rika::Parser do
 
-    let (:text_parse_result)    { Rika.parse(file_path('document.txt')) }
-    let (:docx_parse_result)    { Rika.parse(file_path('document.docx')) }
-    let (:doc_parse_result)     { Rika.parse(file_path('document.doc'))  }
-    let (:pdf_parse_result)     { Rika.parse(file_path('document.pdf'))  }
-    let (:image_parse_result)   { Rika.parse(file_path('image.jpg'))     }
-    let (:unknown_parse_result) { Rika.parse(file_path('unknown.bin'))   }
+    let (:text_parse_result)    { Rika.parse(fixture_path('document.txt')) }
+    let (:docx_parse_result)    { Rika.parse(fixture_path('document.docx')) }
+    let (:doc_parse_result)     { Rika.parse(fixture_path('document.doc'))  }
+    let (:pdf_parse_result)     { Rika.parse(fixture_path('document.pdf'))  }
+    let (:image_parse_result)   { Rika.parse(fixture_path('image.jpg'))     }
+    let (:unknown_parse_result) { Rika.parse(fixture_path('unknown.bin'))   }
     let (:dir)              { File.expand_path(File.join(File.dirname(__FILE__), 'fixtures')) }
     let (:quote_first_line) { 'Stopping by Woods on a Snowy Evening' }
 
     port = 50515
     let (:url) { "http://#{Socket.gethostname}:#{port}" }
 
-    let (:sample_pdf_filespec) { file_path('document.pdf') }
+    let (:sample_pdf_filespec) { fixture_path('document.pdf') }
 
     let(:first_line) { ->(string) { string.split("\n").first.strip } }
 
@@ -48,7 +48,7 @@ describe Rika::Parser do
 
 
   it 'should raise error if file does not exist' do
-    expect { Rika.parse(file_path('nonexistent_file.txt')) }.to raise_error(IOError)
+    expect { Rika.parse(fixture_path('nonexistent_file.txt')) }.to raise_error(IOError)
   end
 
   it 'should raise error if URL does not exist' do
@@ -58,7 +58,7 @@ describe Rika::Parser do
   end
 
   it 'should detect a file type without a file extension' do
-    parse_result = Rika.parse(file_path('image_jpg_without_extension'))
+    parse_result = Rika.parse(fixture_path('image_jpg_without_extension'))
     expect(parse_result.metadata['Content-Type']).to eq('image/jpeg')
   end
 
@@ -83,11 +83,11 @@ describe Rika::Parser do
     end
 
     it 'should only return max content length from a text file' do
-      expect(Rika.parse(file_path('document.txt'), max_content_length: 8).content).to eq('Stopping')
+      expect(Rika.parse(fixture_path('document.txt'), max_content_length: 8).content).to eq('Stopping')
     end
 
     it 'should only return max content length from a PDF' do
-      expect(Rika.parse(file_path('document.pdf'), max_content_length: 9).content).to eq("\nStopping")
+      expect(Rika.parse(fixture_path('document.pdf'), max_content_length: 9).content).to eq("\nStopping")
     end
 
     it 'should only return max content length for file over http' do
@@ -172,7 +172,7 @@ describe Rika::Parser do
   describe '#language' do
     it 'should return the language of the content' do
       %w(en de fr ru es).each do |lang|
-        parse_result = Rika.parse(file_path("#{lang}.txt"))
+        parse_result = Rika.parse(fixture_path("#{lang}.txt"))
         expect(parse_result.language).to eq(lang)
       end
     end
