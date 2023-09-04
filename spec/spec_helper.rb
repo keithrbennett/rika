@@ -13,4 +13,5 @@ RSpec.configure do |config|
   # config.filter_run :focus
 
   config.order = 'random'
+  config.example_status_persistence_file_path = 'spec/rspec-failed-tests-control-file.txt'
 end
