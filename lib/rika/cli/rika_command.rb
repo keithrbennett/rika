@@ -119,8 +119,7 @@ class RikaCommand
   # Parse the command line options into a hash, and remove them from ARGV.
   # @return [Array<Hash,String>] [options, targets, help_string], or exits if help or version requested
   private def parse_command_line
-    # Initialize the options hash with default options:
-    options = \
+    default_options = -> do
       {
         as_array: false,
         format:   'at', # AwesomePrint for metadata, to_s for text content
@@ -129,10 +128,12 @@ class RikaCommand
         source:   true,
         key_sort: true
       }
+    end
 
-    prepend_environment_options
+    prepend_environment_args
+    options = default_options.()
 
-    options_parser = \
+    create_option_parser = -> do
       OptionParser.new do |opts|
         opts.banner =  <<~BANNER
           Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - #{Rika::PROJECT_URL}
@@ -181,18 +182,26 @@ class RikaCommand
           exit
         end
       end
+    end
 
+    create_target_array = -> do
+      targets = @args.dup.reject { |arg| File.directory?(arg) }.freeze # reject dirs to handle **/* globbing
+      targets.map(&:freeze)
+    end
+
+    postprocess_format_options = ->(options) do
+      # If only one format letter is specified, use it for both metadata and text.
+      options[:format] *= 2 if options[:format].length == 1
+
+      # Ignore and remove extra characters after the first two format characters.
+      options[:format] = options[:format][0..1]
+    end
+
+    options_parser = create_option_parser.()
     options_parser.parse!(@args)
-    targets = @args.dup.reject { |arg| File.directory?(arg) }.freeze # reject dirs to handle **/* globbing
-    targets.map(&:freeze)
+    postprocess_format_options.(options)
 
-    # If only one format letter is specified, use it for both metadata and text.
-    options[:format] *= 2 if options[:format].length == 1
-
-    # Ignore and remove extra characters after the first two format characters.
-    options[:format] = options[:format][0..1]
-
-    [options, targets, options_parser.help]
+    [options, create_target_array.(), options_parser.help]
   end
 
   # @return [String] string containing versions of Rika and Tika, with labels
@@ -202,7 +211,7 @@ class RikaCommand
 
   # If the user wants to specify options in an environment variable ("RIKA_OPTIONS"),
   # then this method will insert those options at the beginning of the `args` array.
-  private def prepend_environment_options
+  private def prepend_environment_args
     env_opt_string = environment_options
     if env_opt_string
       args_to_prepend = Shellwords.shellsplit(env_opt_string)
