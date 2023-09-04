@@ -54,7 +54,7 @@ describe RikaCommand do
     RSpec.shared_examples 'verify_correct_output_formats_selected' do |format_chars, expected_m_formatter, expected_t_formatter|
       specify "correctly sets output formats when options are #{format_chars}" do
         rika_command = RikaCommand.new(["-f#{format_chars}"])
-        rika_command.prepare
+        rika_command.send(:prepare)
         expect(rika_command.send(:metadata_formatter)).to eq(expected_m_formatter)
         expect(rika_command.send(:text_formatter)).to eq(expected_t_formatter)
       end
