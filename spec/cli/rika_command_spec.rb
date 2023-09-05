@@ -5,6 +5,8 @@ require 'rika/cli/rika_command'
 
 describe RikaCommand do
 
+  let(:versions_regex) { /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/ }
+
   before do
     @original_stdout = $stdout
     @original_stderr = $stderr
@@ -17,38 +19,23 @@ describe RikaCommand do
     $stderr = @original_stderr
   end
 
-  describe '#run' do
-    it 'should run' do
+  describe '#call' do
+    specify 'call should run the command without error' do
       expect { RikaCommand.new([fixture_path('tiny.txt')]).call }.to_not raise_error
     end
-  end
 
-  describe '#versions_string' do
-    specify 'returns a Rika version and a Tika version' do
-      expect(RikaCommand.new.send(:versions_string)).to match(
-        /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/
-      )
+    specify 'prints version and exits when -v or --version is specified' do
+      expect { described_class.new(%w[-v]).call }.to \
+        output(versions_regex).to_stdout.and \
+          raise_error(SystemExit)
+    end
+
+    specify 'prints help and exits when -h or --help is specified' do
+      regex = /Usage: rika \[options\] <file or url> /m
+      expect { described_class.new(%w[-h]).call }.to output(regex).to_stdout.and raise_error(SystemExit)
     end
   end
 
-  describe 'environment variable processing' do
-    it 'adds arguments from the environment to the args list' do
-      args_parser = ArgsParser.new
-      allow(args_parser).to receive(:environment_options).and_return('-t-')
-      options, _, _ = args_parser.call([])
-      expect(options[:text]).to eq(false)
-    end
-
-    it 'overrides environment variable options with command line options' do
-      env_format_arg = '-fyy'
-      cmd_line_format = 'JJ'
-      cmd_line_args = ["-f#{cmd_line_format}"]
-      args_parser = ArgsParser.new
-      allow(args_parser).to receive(:environment_options).and_return(env_format_arg)
-      options, _, _ = args_parser.call(cmd_line_args)
-      expect(options[:format]).to eq(cmd_line_format)
-    end
-  end
 
   describe '#set_output_formats' do
     RSpec.shared_examples 'verify_correct_output_formats_selected' do |format_chars, expected_m_formatter, expected_t_formatter|

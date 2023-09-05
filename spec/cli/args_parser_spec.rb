@@ -5,8 +5,11 @@ require 'spec_helper'
 require 'rika/cli/args_parser'
 
 describe ArgsParser do
+
+  let(:versions_regex) { /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/ }
+
   specify 'returns a hash of options, a target array, and help text' do
-    options, targets, help_text = ArgsParser.call([])
+    options, targets, help_text = described_class.call([])
     expect(options).to be_a(Hash)
     expect(targets).to be_an(Array)
     expect(help_text).to be_a(String)
@@ -15,7 +18,7 @@ describe ArgsParser do
   context 'parse_options' do
     RSpec.shared_examples 'sets_options_correctly' do |args, option_key, expected_value|
       specify "correctly sets #{option_key} to #{expected_value} when args are #{args}" do
-        options, _, _ = ArgsParser.call(args)
+        options, _, _ = described_class.call(args)
         expect(options[option_key]).to eq(expected_value)
       end
     end
@@ -25,6 +28,8 @@ describe ArgsParser do
     include_examples('sets_options_correctly', [], :text, true)
     include_examples('sets_options_correctly', [], :metadata, true)
     include_examples('sets_options_correctly', [], :format, 'at')
+    include_examples('sets_options_correctly', [], :key_sort, true)
+    include_examples('sets_options_correctly', [], :source, true)
 
     # Test -a as_array option:
     include_examples('sets_options_correctly', %w[-a], :as_array, true)
@@ -62,5 +67,36 @@ describe ArgsParser do
     include_examples('sets_options_correctly', %w[-t false], :text, false)
     include_examples('sets_options_correctly', %w[--text false], :text, false)
     include_examples('sets_options_correctly', %w[--text false --text], :text, true)
+
+    # Test -k key sort option:
+    include_examples('sets_options_correctly', %w[-k-], :key_sort, false)
+
+    # Test -s source option:
+    include_examples('sets_options_correctly', %w[-s-], :source, false)
+  end
+
+  describe '#versions_string' do
+    specify 'returns a Rika version and a Tika version' do
+      expect(described_class.new.send(:versions_string)).to match(versions_regex)
+    end
+  end
+
+  describe 'environment variable processing' do
+    it 'adds arguments from the environment to the args list' do
+      args_parser = described_class.new
+      allow(args_parser).to receive(:environment_options).and_return('-t-')
+      options, _, _ = args_parser.call([])
+      expect(options[:text]).to eq(false)
+    end
+
+    it 'overrides environment variable options with command line options' do
+      env_format_arg = '-fyy'
+      cmd_line_format = 'JJ'
+      cmd_line_args = ["-f#{cmd_line_format}"]
+      args_parser = described_class.new
+      allow(args_parser).to receive(:environment_options).and_return(env_format_arg)
+      options, _, _ = args_parser.call(cmd_line_args)
+      expect(options[:format]).to eq(cmd_line_format)
+    end
   end
 end

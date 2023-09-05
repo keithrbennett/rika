@@ -105,12 +105,6 @@ class RikaCommand
     metadata_formatter.call(output_hashes)
   end
 
-
-  # @return [String] string containing versions of Rika and Tika, with labels
-  private def versions_string
-    "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
-  end
-
   # Tika offers a max_content_length option, but it is not exposed in Rika.
   # Instead it is used only to enable or disable the entire text output.
   private def max_content_length

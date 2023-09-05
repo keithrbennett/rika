@@ -124,4 +124,9 @@ class ArgsParser
   private def environment_options
     ENV['RIKA_OPTIONS'] || ''
   end
+
+  # @return [String] string containing versions of Rika and Tika, with labels
+  private def versions_string
+    "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
+  end
 end

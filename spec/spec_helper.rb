@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "rika"
+require 'simplecov'
+
+SimpleCov.start
 
 def fixture_path(*paths)
   File.expand_path(File.join(File.dirname(__FILE__), 'fixtures', *paths))

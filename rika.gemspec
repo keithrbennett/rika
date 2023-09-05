@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "pry"
   gem.add_development_dependency "rspec", "~> 3.9"
   gem.add_development_dependency "rake", "~> 13.0"
+  gem.add_development_dependency "simplecov"
   gem.add_development_dependency 'webrick', '~> 1.6'
   gem.platform = "java"
   gem.license = "Apache-2.0"
