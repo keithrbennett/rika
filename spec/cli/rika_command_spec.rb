@@ -34,6 +34,23 @@ describe RikaCommand do
       regex = /Usage: rika \[options\] <file or url> /m
       expect { described_class.new(%w[-h]).call }.to output(regex).to_stdout.and raise_error(SystemExit)
     end
+
+    specify 'when run in array mode, outputs the string representation of an array of parse results' do
+      original_stdout = $stdout
+      $stdout = StringIO.new
+      begin
+        tiny_filespec = fixture_path('tiny.txt')
+        args = ['-a', '-fJ', tiny_filespec, tiny_filespec]
+        described_class.new(args).call
+        output = $stdout.string
+        object = JSON.parse(output)
+        expect(object).to be_an(Array)
+        expect(object.size).to eq(2)
+        expect(object.map(&:class)).to eq([Hash, Hash])
+      ensure
+        $stdout = original_stdout
+      end
+    end
   end
 
 
