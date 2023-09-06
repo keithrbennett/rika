@@ -99,4 +99,21 @@ describe ArgsParser do
       expect(options[:format]).to eq(cmd_line_format)
     end
   end
+
+  describe 'DEFAULT_OPTIONS' do
+    specify 'has the correct default values' do
+      expect(described_class::DEFAULT_OPTIONS).to eq(
+        as_array: false,
+        text: true,
+        metadata: true,
+        format: 'at',
+        key_sort: true,
+        source: true
+      )
+    end
+
+    specify 'is frozen' do
+      expect(described_class::DEFAULT_OPTIONS).to be_frozen
+    end
+  end
 end
