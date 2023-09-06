@@ -53,6 +53,30 @@ describe RikaCommand do
     end
   end
 
+  describe '#single_document_output' do
+    RSpec.shared_examples 'verify_result_is_hash' do |format_chars, parser|
+      specify "correctly uses result hash for JSON and YAML when options are #{format_chars}" do
+        original_stdout = $stdout
+        $stdout = StringIO.new
+        begin
+          rika_command = RikaCommand.new(["-f#{format_chars}", fixture_path('tiny.txt')])
+          rika_command.call
+          output = $stdout.string
+          warn output
+          result_hash = parser.call(output)
+          expect(result_hash).to be_a(Hash)
+          expect(result_hash['metadata']).to be_a(Hash)
+          expect(result_hash['text']).to be_a(String)
+        ensure
+          $stdout = original_stdout
+        end
+      end
+    end
+
+    include_examples('verify_result_is_hash', 'JJ', ->(s) { JSON.parse(s) })
+    include_examples('verify_result_is_hash', 'jj', ->(s) { JSON.parse(s) })
+    include_examples('verify_result_is_hash', 'yy', ->(s) { YAML.safe_load(s) })
+  end
 
   describe '#set_output_formats' do
     RSpec.shared_examples 'verify_correct_output_formats_selected' do |format_chars, expected_m_formatter, expected_t_formatter|
