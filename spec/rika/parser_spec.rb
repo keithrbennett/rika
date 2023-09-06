@@ -248,8 +248,8 @@ describe Rika::Parser do
 
     it 'returns wordprocessingml for a docx file' do
       expect(docx_parse_result.content_type).to eq(
-                                                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                                                )
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      )
     end
   end
 

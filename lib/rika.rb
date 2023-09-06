@@ -2,17 +2,12 @@
 
 # This file is the top level file for the Rika gem.
 # It requires the other files in the gem and provides the top level API.
-
-# Raise an error if not running under JRuby.
-unless RUBY_PLATFORM.match(/java/)
-  raise "\n\n\nRika can only be run with JRuby! It needs access to the Java Virtual Machine.\n\n\n"
-end
-
+# It also provides the top level module for the gem.
 require 'rika/version'
 require_relative 'rika/parser'
 require_relative 'rika/tika_loader'
 
-TikaLoader.require_tika
+Rika::TikaLoader.require_tika
 
 # The top level module for the Rika gem.
 module Rika
@@ -91,4 +86,13 @@ module Rika
   def self.tika_language_detector
     @tika_language_detector ||= OptimaizeLangDetector.new.loadModels
   end
+
+  # Raise an error if not running under JRuby.
+  def self.raise_unless_jruby
+    unless RUBY_PLATFORM.match(/java/)
+      raise "\n\n\nRika can only be run with JRuby! It needs access to the Java Virtual Machine.\n\n\n"
+    end
+  end
 end
+
+Rika.raise_unless_jruby
