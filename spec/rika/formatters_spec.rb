@@ -5,7 +5,8 @@ require 'rika/formatters'
 
 describe Rika::Formatters do
   describe '.get' do
-    let(:rf) { Rika::Formatters }
+    let(:rf) { described_class }
+
     it 'returns the correct formatter for each option character' do
       expect(rf.get('a')).to eq(rf::AWESOME_PRINT_FORMATTER)
       expect(rf.get('i')).to eq(rf::INSPECT_FORMATTER)

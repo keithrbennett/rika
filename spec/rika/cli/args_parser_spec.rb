@@ -14,7 +14,7 @@ describe ArgsParser do
     expect(help_text).to be_a(String)
   end
 
-  context 'parse_options' do
+  context 'when parsing options' do
     RSpec.shared_examples 'sets_options_correctly' do |args, option_key, expected_value|
       specify "correctly sets #{option_key} to #{expected_value} when args are #{args}" do
         options, _, _ = described_class.call(args)
@@ -33,7 +33,6 @@ describe ArgsParser do
     # Test -a as_array option:
     include_examples('sets_options_correctly', %w[-a], :as_array, true)
     include_examples('sets_options_correctly', %w[--as_array], :as_array, true)
-    include_examples('sets_options_correctly', %w[-a -a-], :as_array, false)
     include_examples('sets_options_correctly', %w[-a -a-], :as_array, false)
     include_examples('sets_options_correctly', %w[--no-as_array], :as_array, false)
 
@@ -85,7 +84,7 @@ describe ArgsParser do
       args_parser = described_class.new
       allow(args_parser).to receive(:environment_options).and_return('-t-')
       options, _, _ = args_parser.call([])
-      expect(options[:text]).to eq(false)
+      expect(options[:text]).to be(false)
     end
 
     it 'overrides environment variable options with command line options' do

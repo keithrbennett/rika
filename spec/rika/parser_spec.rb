@@ -2,10 +2,21 @@
 
 require 'spec_helper'
 require 'rika/parser'
+require 'rika/parse_result'
 
 describe Rika::Parser do
-  context '#parse' do
-    let(:parser) { Rika::Parser.new('spec/fixtures/document.pdf') }
+  context 'when initialized with a content string and metadata' do
+    let(:content) { 'Magnifique' }
+    let(:metadata) { { 'author' => 'John Doe' } }
+    let(:result) { Rika::ParseResult.new(content: content, metadata: metadata) }
+
+    specify '#content_and_metadata_hash returns a hash with content and metadata' do
+      expect(result.content_and_metadata_hash).to eq({ content: content, metadata: metadata })
+    end
+  end
+
+  describe '#parse' do
+    let(:parser) { described_class.new('spec/fixtures/document.pdf') }
     let(:parse_result) { parser.parse }
     let(:metadata) { parse_result.metadata }
 
@@ -60,10 +71,10 @@ describe Rika::Parser do
       expect(parse_result.data_source).to eq('spec/fixtures/document.pdf')
     end
 
-    context 'metadata key sorting' do
+    describe 'metadata key sorting' do
       RSpec.shared_examples('metadata key sorting') do |caption, key_sort|
         specify "Metadata keys are #{caption} case insensitively when key_sort is #{key_sort}" do
-          parser = Rika::Parser.new('spec/fixtures/document.pdf', key_sort: key_sort)
+          parser = described_class.new('spec/fixtures/document.pdf', key_sort: key_sort)
           keys = parser.parse.metadata.keys
           expect(keys == keys.sort_by(&:downcase)).to eq(key_sort)
           expect(keys).not_to eq(keys.map(&:downcase)) # Above test only valid if both upper and lower case occur.

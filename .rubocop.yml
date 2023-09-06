@@ -1,3 +1,4 @@
+require: rubocop-rspec
 AllCops:
   NewCops: enable
   Include:
@@ -15,6 +16,16 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Enabled: false
 Metrics/MethodLength:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/ExpectOutput:
+  Enabled: false
+RSpec/InstanceVariable:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
   Enabled: false
 Style/AccessModifierDeclarations:
   Enabled: false
