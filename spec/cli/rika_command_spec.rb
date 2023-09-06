@@ -25,9 +25,7 @@ describe RikaCommand do
     end
 
     specify 'prints version and exits when -v or --version is specified' do
-      expect { described_class.new(%w[-v]).call }.to \
-        output(versions_regex).to_stdout.and \
-          raise_error(SystemExit)
+      expect { described_class.new(%w[-v]).call }.to output(versions_regex).to_stdout.and raise_error(SystemExit)
     end
 
     specify 'prints help and exits when -h or --help is specified' do
@@ -108,8 +106,12 @@ describe RikaCommand do
     it 'prints a warning if no targets are specified' do
       rika_command = RikaCommand.new([])
       allow(rika_command).to receive(:targets).and_return([])
+      allow(rika_command).to receive(:help_text).and_return('sample help text')
+      expect(rika_command).to receive(:help_text).once
       expect { rika_command.send(:report_and_exit_if_no_targets_specified) }.to raise_error(SystemExit)
-      expect($stderr.string).to match(/No targets specified/)
+      output = $stderr.string
+      expect(output).to match(/No targets specified/)
+      expect(output).to include('sample help text')
     end
   end
 end
