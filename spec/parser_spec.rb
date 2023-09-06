@@ -32,11 +32,11 @@ describe Rika::Parser do
 
     specify 'ParseResult contains the expected metadata' do
       expect(parse_result.metadata).to include(
-        "dc:creator" => "Robert Frost",
-        "dc:format" => "application/pdf; version=1.3",
-        "dc:title" => "Stopping by Woods on a Snowy Evening",
-        "rika:data-source" => "spec/fixtures/document.pdf",
-        "rika:language" => "en",
+        'dc:creator' => 'Robert Frost',
+        'dc:format' => 'application/pdf; version=1.3',
+        'dc:title' => 'Stopping by Woods on a Snowy Evening',
+        'rika:data-source' => 'spec/fixtures/document.pdf',
+        'rika:language' => 'en',
       )
     end
 

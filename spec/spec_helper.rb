@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "rika"
+require 'rika'
 require 'simplecov'
 
 SimpleCov.start
