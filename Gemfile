@@ -11,6 +11,6 @@ group :development do
   gem 'rspec', '~> 3.9'
   gem 'rubocop'
   gem 'rubocop-rspec'
-  gem 'simplecov'
+  gem 'simplecov', require: false
   gem 'webrick', '~> 1.6'
 end
