@@ -79,7 +79,7 @@ describe ArgsParser do
     end
   end
 
-  describe 'environment variable processing' do
+  context 'when processing environment variables' do
     it 'adds arguments from the environment to the args list' do
       args_parser = described_class.new
       allow(args_parser).to receive(:environment_options).and_return('-t-')
@@ -98,7 +98,7 @@ describe ArgsParser do
     end
   end
 
-  describe 'DEFAULT_OPTIONS' do
+  describe 'DEFAULT_OPTIONS hash' do
     specify 'has the correct default values' do
       expect(described_class::DEFAULT_OPTIONS).to eq(
         as_array: false,

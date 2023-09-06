@@ -20,11 +20,11 @@ describe Rika::Parser do
     let(:parse_result) { parser.parse }
     let(:metadata) { parse_result.metadata }
 
-    specify 'returns a ParseResult' do
+    specify 'returns an instance of ParseResult' do
       expect(parse_result).to be_a(Rika::ParseResult)
     end
 
-    specify 'ParseResult contains the expected fields' do
+    specify 'returns a ParseResult with the expected access methods' do
       expect(parse_result).to respond_to(
         :content,
         :metadata,
@@ -37,11 +37,11 @@ describe Rika::Parser do
       )
     end
 
-    specify 'ParseResult contains the expected content' do
+    specify 'returns a ParseResult with the expected content' do
       expect(parse_result.content).to include('Stopping by Woods on a Snowy Evening')
     end
 
-    specify 'ParseResult contains the expected metadata' do
+    specify 'returns a ParseResult with the expected metadata' do
       expect(parse_result.metadata).to include(
         'dc:creator' => 'Robert Frost',
         'dc:format' => 'application/pdf; version=1.3',
@@ -51,23 +51,23 @@ describe Rika::Parser do
       )
     end
 
-    specify 'ParseResult contains the expected metadata_java' do
+    specify 'returns a ParseResult with the expected metadata_java' do
       expect(parse_result.metadata_java).to be_a(Java::OrgApacheTikaMetadata::Metadata)
     end
 
-    specify 'ParseResult contains the expected content_type' do
+    specify 'returns a ParseResult with the expected content_type' do
       expect(parse_result.content_type).to eq('application/pdf')
     end
 
-    specify 'ParseResult contains the expected language' do
+    specify 'returns a ParseResult with the expected language' do
       expect(parse_result.language).to eq('en')
     end
 
-    specify 'ParseResult contains the expected input_type' do
+    specify 'returns a ParseResult with the expected input_type' do
       expect(parse_result.input_type).to eq(:file)
     end
 
-    specify 'ParseResult contains the expected data_source' do
+    specify 'returns a ParseResult with the expected data_source' do
       expect(parse_result.data_source).to eq('spec/fixtures/document.pdf')
     end
 
@@ -85,7 +85,7 @@ describe Rika::Parser do
       include_examples 'metadata key sorting', 'not sorted', false
     end
 
-    specify 'ParseResult contains the expected max_content_length' do
+    specify 'returns a ParseResult with the expected max_content_length' do
       expect(parse_result.max_content_length).to eq(-1)
     end
   end
