@@ -4,12 +4,11 @@ require 'spec_helper'
 require 'rika/parse_result'
 
 describe Rika::ParseResult do
-
   context 'when initialized' do
     specify 'contains the necessary fields' do
       expect(Rika::ParseResult.new).to respond_to(
         :content,
-        :text, #alias for content
+        :text, # alias for content
         :metadata,
         :metadata_java,
         :content_type,

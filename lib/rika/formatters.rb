@@ -24,7 +24,7 @@ module Rika
       'J' => PRETTY_JSON_FORMATTER,
       't' => TO_S_FORMATTER,
       'y' => YAML_FORMATTER
-    }
+    }.freeze
 
     VALID_OPTION_CHARS = FORMATTER_LOOKUP_TABLE.keys
 

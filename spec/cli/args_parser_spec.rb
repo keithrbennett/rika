@@ -5,7 +5,6 @@ require 'spec_helper'
 require 'rika/cli/args_parser'
 
 describe ArgsParser do
-
   let(:versions_regex) { /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/ }
 
   specify 'returns a hash of options, a target array, and help text' do

@@ -70,12 +70,12 @@ module Rika
     # * Then closes the stream.
     # @return [Object] the value returned by the passed code block
     private def with_input_stream
-      input_stream = if @input_type == :file
-        FileInputStream.new(java.io.File.new(@data_source))
-      else
-        URL.new(@data_source).open_stream
-      end
-
+      input_stream =
+        if @input_type == :file
+          FileInputStream.new(java.io.File.new(@data_source))
+        else
+          URL.new(@data_source).open_stream
+        end
       yield input_stream
     ensure
       input_stream.close if input_stream.respond_to?(:close)

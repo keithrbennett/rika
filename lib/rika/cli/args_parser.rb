@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
+# Processes the array of arguments (ARGV by default) and returns the options, targets, and help string.
 class ArgsParser
-
   attr_reader :args, :options, :option_parser
   private     :args, :options, :option_parser
 
   DEFAULT_OPTIONS =
     {
       as_array: false,
-      format:   'at', # AwesomePrint for metadata, to_s for text content
+      format: 'at', # AwesomePrint for metadata, to_s for text content
       metadata: true,
-      text:     true,
-      source:   true,
+      text: true,
+      source: true,
       key_sort: true
     }.freeze
 
@@ -76,7 +76,8 @@ class ArgsParser
         options[:source] = (v.nil? ? true : v)
       end
 
-      opts.on('-a', '--[no-]as-array [FLAG]', TrueClass, 'Output all parsed results as an array (default: false)') do |v|
+      opts.on('-a', '--[no-]as-array [FLAG]', TrueClass,
+              'Output all parsed results as an array (default: false)') do |v|
         options[:as_array] = (v.nil? ? true : v)
       end
 
@@ -114,10 +115,8 @@ class ArgsParser
   # where they can be overridden by command line arguments.
   private def prepend_environment_args
     env_opt_string = environment_options
-    if env_opt_string
-      args_to_prepend = Shellwords.shellsplit(env_opt_string)
-      args.unshift(args_to_prepend).flatten!
-    end
+    args_to_prepend = Shellwords.shellsplit(env_opt_string)
+    args.unshift(args_to_prepend).flatten!
   end
 
   # @return [String] the value of the RIKA_OPTIONS environment variable if present, else ''.

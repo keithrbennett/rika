@@ -15,7 +15,6 @@ require 'rika/cli/args_parser'
 # but the -t and -m flags can be used to enable or suppress either.
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
-
   attr_reader :args, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
@@ -51,16 +50,14 @@ class RikaCommand
   # Exits with error message if format is invalid.
   # @return [void]
   private def set_output_formats
-    begin
-      format = options[:format]
-      @metadata_formatter = Rika::Formatters.get(format[0])
-      @text_formatter     = Rika::Formatters.get(format[1])
-      nil
-    rescue KeyError
-      $stderr.puts "Invalid format: #{format}\n\n"
-      $stderr.puts help_text
-      exit 1
-    end
+    format = options[:format]
+    @metadata_formatter = Rika::Formatters.get(format[0])
+    @text_formatter     = Rika::Formatters.get(format[1])
+    nil
+  rescue KeyError
+    $stderr.puts "Invalid format: #{format}\n\n"
+    $stderr.puts help_text
+    exit 1
   end
 
   # Converts a ParseResult to a hash containing the selected pieces of data.

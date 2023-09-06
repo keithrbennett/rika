@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Rika
-
   # Encapsulates all results of parsing a document.
   ParseResult = Struct.new(
     :content,

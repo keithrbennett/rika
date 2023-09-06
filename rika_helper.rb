@@ -20,11 +20,11 @@ end
 
 # Add abbreviated aliases for the ParseResult class methods.
 class ParseResult
-  alias_method :c, :content
-  alias_method :m, :metadata
-  alias_method :l, :language
-  alias_method :i, :input_type
-  alias_method :d, :data_source
-  alias_method :t, :content_type
-  alias_method :j, :metadata_java
+  alias c content
+  alias m metadata
+  alias l language
+  alias i input_type
+  alias d data_source
+  alias t content_type
+  alias j metadata_java
 end

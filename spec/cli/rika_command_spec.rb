@@ -3,8 +3,9 @@
 require 'spec_helper'
 require 'rika/cli/rika_command'
 
-describe RikaCommand do
+RF = Rika::Formatters
 
+describe RikaCommand do
   let(:versions_regex) { /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/ }
 
   before do
@@ -77,7 +78,8 @@ describe RikaCommand do
   end
 
   describe '#set_output_formats' do
-    RSpec.shared_examples 'verify_correct_output_formats_selected' do |format_chars, expected_m_formatter, expected_t_formatter|
+    RSpec.shared_examples 'verify_correct_output_formats_selected' \
+      do |format_chars, expected_m_formatter, expected_t_formatter|
       specify "correctly sets output formats when options are #{format_chars}" do
         rika_command = RikaCommand.new(["-f#{format_chars}"])
         rika_command.send(:prepare)
@@ -86,7 +88,6 @@ describe RikaCommand do
       end
     end
 
-    RF = Rika::Formatters
     include_examples('verify_correct_output_formats_selected', 'aj', RF::AWESOME_PRINT_FORMATTER, RF::JSON_FORMATTER)
     include_examples('verify_correct_output_formats_selected', 'Jy', RF::PRETTY_JSON_FORMATTER,   RF::YAML_FORMATTER)
     include_examples('verify_correct_output_formats_selected', 'ti', RF::TO_S_FORMATTER,          RF::INSPECT_FORMATTER)
@@ -115,4 +116,3 @@ describe RikaCommand do
     end
   end
 end
-

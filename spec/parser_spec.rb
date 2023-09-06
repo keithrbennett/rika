@@ -36,7 +36,7 @@ describe Rika::Parser do
         'dc:format' => 'application/pdf; version=1.3',
         'dc:title' => 'Stopping by Woods on a Snowy Evening',
         'rika:data-source' => 'spec/fixtures/document.pdf',
-        'rika:language' => 'en',
+        'rika:language' => 'en'
       )
     end
 

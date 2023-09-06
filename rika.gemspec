@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'English'
+
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rika/version'
@@ -9,21 +11,18 @@ Gem::Specification.new do |gem|
   gem.version       = Rika::VERSION
   gem.authors       = ['Richard Nyström', 'Keith Bennett']
   gem.email         = ['ricny046@gmail.com', 'keithrbennett@gmail.com']
-  gem.description   = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats. }
-  gem.summary       = %q{ A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats. }
+  gem.description   = 'A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats.'
+  gem.summary       = 'A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats.'
   gem.homepage      = 'https://github.com/keithrbennett/rika'
-  gem.files         = `git ls-files`.split($/)
-  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
+  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
   gem.require_paths = ['lib']
   gem.add_dependency 'awesome_print'
-  gem.add_development_dependency 'pry'
-  gem.add_development_dependency 'rspec', '~> 3.9'
-  gem.add_development_dependency 'rake', '~> 13.0'
-  gem.add_development_dependency 'simplecov'
-  gem.add_development_dependency 'webrick', '~> 1.6'
   gem.platform = 'java'
   gem.license = 'Apache-2.0'
+
+  # NOTE: I am excluding the Ruby version constraint because this gem runs only in JRuby, and I don't know the
+  # minimum version requirement, and don't want to exclude use of any versions that might work.
 
   gem.post_install_message = <<~MESSAGE
 
@@ -34,4 +33,3 @@ Gem::Specification.new do |gem|
 
   MESSAGE
 end
-
