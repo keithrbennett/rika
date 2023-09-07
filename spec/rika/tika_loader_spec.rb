@@ -11,11 +11,8 @@ describe Rika::TikaLoader do
 
     it 'calls print_message_and_exit if the Tika jar file cannot be loaded' do
       allow(ENV).to receive(:[]).with('TIKA_JAR_FILESPEC').and_return('nonexistent_file')
-      expect(described_class).to receive(:print_message_and_exit) \
-        .with(/Unable to load Tika jar file from nonexistent_file./)
-      described_class.require_tika
-      expect(described_class).to have_received(:print_message_and_exit) \
-        .with(/Unable to load Tika jar file from nonexistent_file./)
+      expect { described_class.require_tika }.to raise_error(Rika::TikaLoadError) \
+        .with_message(/Unable to load Tika jar file from nonexistent_file./)
     end
   end
 
@@ -24,11 +21,10 @@ describe Rika::TikaLoader do
       expect(described_class.send(:specified_tika_filespec)).to match(/tika-app-.*\.jar/)
     end
 
-    it 'calls print_message_and_exit if the Tika jar filespec cannot be found in TIKA_JAR_FILESPEC' do
+    it 'raises a TikaLoadError if the Tika jar filespec is not specified at all in TIKA_JAR_FILESPEC' do
       allow(ENV).to receive(:[]).with('TIKA_JAR_FILESPEC').and_return(nil)
-      expect(described_class).to receive(:print_message_and_exit) \
-        .with(/Environment variable TIKA_JAR_FILESPEC is not set./)
-      described_class.send(:specified_tika_filespec)
+      expect { described_class.send(:specified_tika_filespec) }.to raise_error(Rika::TikaLoadError) \
+        .with_message(/Environment variable TIKA_JAR_FILESPEC is not set./)
     end
   end
 

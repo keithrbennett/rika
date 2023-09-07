@@ -3,4 +3,5 @@
 
 require 'rika/cli/rika_command'
 
+Rika.init
 RikaCommand.new.call

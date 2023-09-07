@@ -27,6 +27,17 @@ Rika can be used either as a gem in your own Ruby project, or on the command lin
 
 ## Usage in Your Ruby Code
 
+[!IMPORTANT]  
+**It is necessary to call `Rika.init` before using Rika.**  This is because the loading of the Tika library
+has been put in an init method, rather than at load time, so that 'jar file not found or specified' errors 
+do not prevent your application from loading. If you forget to call `Rika.init`, you may see seemingly unrelated
+error messages.
+
+As a convenience, the `Rika.init` method is called automatically when you call the Rika module methods. However,
+if you access other Rika classes and methods, `init` may not have been called yet, so you should call it yourself.
+
+----
+
 The Rika `parse` method returns a `Rika::ParseResult` object that contains the parsed text and
 various pieces of metadata.  The `ParseResult` class' main methods are:
 

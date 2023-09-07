@@ -5,7 +5,6 @@ SimpleCov.start { add_filter '/spec/' }
 
 require 'rika'
 
-
 def fixture_path(*paths)
   File.expand_path(File.join(File.dirname(__FILE__), 'fixtures', *paths))
 end
@@ -19,3 +18,5 @@ RSpec.configure do |config|
   config.order = 'random'
   config.example_status_persistence_file_path = 'spec/rspec-failed-tests-control-file.txt'
 end
+
+Rika.init
