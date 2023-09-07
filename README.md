@@ -27,8 +27,8 @@ Rika can be used either as a gem in your own Ruby project, or on the command lin
 
 ## Usage in Your Ruby Code
 
-[!IMPORTANT]  
-**It is necessary to call `Rika.init` before using Rika.**  This is because the loading of the Tika library
+> [!IMPORTANT]  
+> **It is necessary to call `Rika.init` before using Rika.**  This is because the loading of the Tika library
 has been put in an init method, rather than at load time, so that 'jar file not found or specified' errors 
 do not prevent your application from loading. If you forget to call `Rika.init`, you may see seemingly unrelated
 error messages.
