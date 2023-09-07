@@ -3,5 +3,11 @@
 
 require 'rika/cli/rika_command'
 
-Rika.init
+begin
+  Rika.init
+rescue Rika::TikaLoadError => e
+  $stderr.puts e.message
+  exit 1
+end
+
 RikaCommand.new.call

@@ -3,8 +3,6 @@
 # Requires the Tika jar file, either from the default location (packaged with this gem)
 # or from an override specified in the TIKA_JAR_FILESPEC environment variable.
 
-require_relative 'tika_load_error'
-
 module Rika
   # This class handles the loading of the Apache Tika Java jar file.
   # It is not intended to be instantiated. Instead, call the only public class method, `require_tika`.
@@ -19,11 +17,11 @@ module Rika
         require abs_tika_jar_filespec
         abs_tika_jar_filespec
       rescue LoadError
-        message = "Unable to load Tika jar file from #{tika_jar_filespec}."
+        message = "Unable to load Tika jar file from '#{tika_jar_filespec}'."
         if tika_jar_filespec != abs_tika_jar_filespec
-          message += "\nAbsolute filespec is #{abs_tika_jar_filespec}."
+          message += "\nAbsolute filespec is '#{abs_tika_jar_filespec}'."
         end
-        raise TikaLoadError.new(message)
+        raise TikaLoadError, message
       end
     end
 
@@ -35,7 +33,7 @@ module Rika
     private_class_method def self.specified_tika_filespec
       tika_jar_filespec = ENV['TIKA_JAR_FILESPEC']
       not_specified = tika_jar_filespec.nil? || tika_jar_filespec.strip.empty?
-      raise TikaLoadError.new('Environment variable TIKA_JAR_FILESPEC is not set.') if not_specified
+      raise(TikaLoadError, 'Environment variable TIKA_JAR_FILESPEC is not set.') if not_specified
 
       tika_jar_filespec
     end
@@ -61,4 +59,7 @@ module Rika
       exit 1
     end
   end
+
+  # This error class reports the inability to load the Tika jar file.
+  class TikaLoadError < RuntimeError; end
 end

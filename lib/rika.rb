@@ -7,7 +7,6 @@ require 'rika/version'
 require_relative 'rika/parser'
 require_relative 'rika/tika_loader'
 
-
 # The top level module for the Rika gem.
 module Rika
   PROJECT_URL = 'https://github.com/keithrbennett/rika'

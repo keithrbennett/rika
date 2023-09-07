@@ -12,7 +12,7 @@ describe Rika::TikaLoader do
     it 'calls print_message_and_exit if the Tika jar file cannot be loaded' do
       allow(ENV).to receive(:[]).with('TIKA_JAR_FILESPEC').and_return('nonexistent_file')
       expect { described_class.require_tika }.to raise_error(Rika::TikaLoadError) \
-        .with_message(/Unable to load Tika jar file from nonexistent_file./)
+        .with_message(/Unable to load Tika jar file from 'nonexistent_file'./)
     end
   end
 

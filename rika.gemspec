@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'awesome_print'
   gem.platform = 'java'
   gem.license = 'Apache-2.0'
+  gem.metadata['rubygems_mfa_required'] = 'true'
 
   # NOTE: I am excluding the Ruby version constraint because this gem runs only in JRuby, and I don't know the
   # minimum version requirement, and don't want to exclude use of any versions that might work.
