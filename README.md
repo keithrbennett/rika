@@ -60,7 +60,7 @@ The Rika module also has the following methods:
 
 ```ruby
 Rika.language("magnifique") # => "fr"
-Rika.tika_version           # => "2.8.0"
+Rika.tika_version           # => "2.9.0"
 ```
 
 ## Command Line Executable Usage
@@ -74,7 +74,7 @@ rika x.pdf https://github.com/keithrbennett/rika
 Here is the help text:
 
 ```
-Rika v2.0.0 (Tika v2.8.0) - https://github.com/keithrbennett/rika
+Rika v2.0.0 (Tika v2.9.0) - https://github.com/keithrbennett/rika
 
 Usage: rika [options] <file or url> [...file or url...]
 Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, and [y]aml.
@@ -206,11 +206,11 @@ rexe -in -oJ -mb 'downcase \
   http://tika.apache.org/download.html (look for the "tika-app" jar file).
   Put it in a place that makes sense for your system, such as `/usr/local/lib`.
 * Configure the `TIKA_JAR_FILESPEC` environment variable to point to the Tika jar file.
-  For example, if you are using tika-app-2.8.0.jar, and put the jar file in `/opt/jars',
+  For example, if you are using tika-app-2.9.0.jar, and put the jar file in `/opt/jars',
   then the setting of the environment variable should look like this:
 
   ```bash
-  export TIKA_JAR_FILESPEC=/opt/jars/tika-app-2.8.0.jar
+  export TIKA_JAR_FILESPEC=/opt/jars/tika-app-2.9.0.jar
   ```
 
   You can put this in your `.bashrc` or `.zshrc` file to make it permanent.
