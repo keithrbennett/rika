@@ -2,7 +2,14 @@
 
 #### v2.0.0
 
-* Add command line interface, with support for JSON, Pretty JSON, YAML, AwesomePrint, to_s, and inspect output formats, and array vs. streaming mode.
+* Add features:
+  * command line interface
+  * support for JSON, Pretty JSON, YAML, AwesomePrint, to_s, and inspect output formats
+  * optional array mode (previously only nonarray streaming mode).
+  * more persistent options can be specified in an environment variable, `RIKA_OPTIONS`.
+  * metadata keys can optionally be sorted alphabetically (not all languages though).
+  * properties added by Rika to the metadata: data-source, language
+  * Filespec or URL data source identifier can optionally be output with metadata and text.
 * Add support for Tika 2.8.0, breaks compatibility with Tika 1.x.
 * Remove tika-app-1.24.1.jar from code base and gem (but it is still in git history).
 * Tika jar file is now downloaded by the user and found via environment variable `TIKA_JAR_FILESPEC`.
@@ -14,6 +21,9 @@
 * Remove `Parser#language_is_reasonably_certain?`, no longer supported by Tika.
 * Remove obsolete `LanguageIdentifier` import. Otherwise updated language detection.
 * Various refactorings and improvements.
+* Add SimpleCov test coverage and Rubocop linting tools to project.
+* Set up RSpec configuration to enable --only-failures and --next-failure options.
+
 
 
 #### v1.11.1

@@ -224,7 +224,7 @@ rexe -in -oJ -mb 'downcase \
   export TIKA_JAR_FILESPEC=/opt/jars/tika-app-2.9.0.jar
   ```
 
-  You can put this in your `.bashrc` or `.zshrc` file to make it permanent.
+  You can put this in your `.bashrc` or `.zshrc` file to make it persistent.
 
 * Install the gem:
 
@@ -255,7 +255,7 @@ without any version manager at all, but those configurations have not been teste
   See the "Running the Tika Server as a Jar file" section of https://cwiki.apache.org/confluence/display/TIKA/TikaServer
   for more information.
 
-* @chrismattman and others have provided a [Python library and CLI](https://github.com/chrismattmann/tika-python)
+* @chrismattman and others have provided a ["tika_python" Python library and CLI](https://github.com/chrismattmann/tika-python)
   that interfaces with the Tika server.
 
 ## Contributing
