@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'rika/cli/rika_command'
+
+begin
+  Rika.init
+rescue Rika::TikaLoadError => e
+  $stderr.puts e.message
+  exit 1
+end
+
+RikaCommand.new.call

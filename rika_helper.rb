@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Defines some shortcuts for ad-hoc work with Rika.
 #
 # Can be used with the `irb`/`jirb` or `pry` (https://github.com/pry/pry) interactive shells:
@@ -11,28 +13,18 @@
 
 require 'rika'
 
-def c(resource)
-  Rika.parse_content(resource)
+# Add shortuct to Rika.parse.
+def pa(resource)
+  Rika.parse(resource)
 end
 
-def m(resource)
-  Rika.parse_metadata(resource)
+# Add abbreviated aliases for the ParseResult class methods.
+class ParseResult
+  alias c content
+  alias m metadata
+  alias l language
+  alias i input_type
+  alias d data_source
+  alias t content_type
+  alias j metadata_java
 end
-
-def cm(resource)
-  Rika.parse_content_and_metadata(resource)
-end
-
-def cmh(resource)
-  Rika.parse_content_and_metadata_as_hash(resource)
-end
-
-def mj(resource); m(resource).to_json                      ; end
-def mJ(resource); JSON.pretty_generate(m(resource))        ; end
-def my(resource); m(resource).to_yaml                      ; end
-def my(resource); require 'awesome_print'; m(resource).ai  ;end
-
-def cmj(resource); c(resource).to_json;               end
-def cmJ(resource); JSON.pretty_generate(c(resource)); end
-def cmy(resource); c(resource).to_yaml              ; end
-def cma(resource); require 'awesome_print'; c,m = cm(resource); { content: c, metadata: m }; end

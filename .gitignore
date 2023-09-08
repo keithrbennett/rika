@@ -1,7 +1,10 @@
 *.gem
 *.rbc
+.DS_Store
 .bundle
 .config
+coverage/
+.idea/
 .yardoc
 Gemfile.lock
 InstalledFiles
@@ -10,13 +13,11 @@ coverage
 doc/
 lib/bundler/man
 pkg
+projectFilesBackup/
 rdoc
 spec/reports
+spec/rspec-failed-tests-control-file.txt
 target/
 test/tmp
 test/version_tmp
 tmp
-
-.DS_Store
-projectFilesBackup/
-.idea/
