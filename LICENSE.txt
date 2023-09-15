@@ -1,4 +1,4 @@
-Copyright (c) 2013 Richard Nyström
+Copyright (c) 2023 Keith Bennett
 
 MIT License
 

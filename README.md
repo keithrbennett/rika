@@ -85,7 +85,7 @@ rika x.pdf https://github.com/keithrbennett/rika
 Here is the help text:
 
 ```
-Rika v2.0.0 (Tika v2.9.0) - https://github.com/keithrbennett/rika
+Rika v2.0.1 (Tika v2.9.0) - https://github.com/keithrbennett/rika
 
 Usage: rika [options] <file or url> [...file or url...]
 Output formats are: [a]wesome_print, [t]o_s, [i]nspect, [j]son), [J] for pretty json, and [y]aml.
@@ -98,7 +98,7 @@ Values for the text, metadata, and as_array boolean options may be specified as 
     -m, --[no-]metadata [FLAG]       Output metadata (default: true)
     -t, --[no-]text [FLAG]           Output text (default: true)
     -k, --[no-]key-sort [FLAG]       Sort metadata keys case insensitively (default: true)
-    -s, --[no-]source [FLAG]         Document source file or URL
+    -s, --[no-]source [FLAG]         Output document source file or URL
     -a, --[no-]as-array [FLAG]       Output all parsed results as an array (default: false)
     -v, --version                    Output version
     -h, --help                       Output help
