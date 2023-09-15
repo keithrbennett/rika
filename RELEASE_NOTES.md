@@ -1,5 +1,11 @@
 ## Release Notes
 
+#### v2.0.1
+
+* Fix license specification in gemspec, update copyright name and year.
+* Clarify help text.
+
+
 #### v2.0.0
 
 * Add features:
