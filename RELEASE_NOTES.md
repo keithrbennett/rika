@@ -1,5 +1,10 @@
 ## Release Notes
 
+#### v2.0.2
+
+* Now prints source name on line with header and footer lines.
+* Improve help text.
+
 #### v2.0.1
 
 * Fix license specification in gemspec, update copyright name and year.
