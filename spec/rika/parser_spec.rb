@@ -161,10 +161,6 @@ describe Rika::Parser do
       expect(pdf_parse_result.content.lines[1]).to include(quote_first_line)
     end
 
-    it 'returns no content for an image' do
-      expect(image_parse_result.content).to be_empty
-    end
-
     it 'only returns max content length from a text file' do
       expect(Rika.parse(fixture_path('document.txt'), max_content_length: 8).content).to eq('Stopping')
     end

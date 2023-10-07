@@ -117,4 +117,22 @@ describe RikaCommand do
       expect(output).to include('sample help text')
     end
   end
+
+  describe '#source_output_string' do
+    let(:rika_command) { described_class.new([]) }
+    let(:sample_filespec) { 'path/to/file.ext' }
+    let(:sample_output_string) { rika_command.send(:source_output_string, sample_filespec) }
+    let(:sample_output_lines) { sample_output_string.lines.map(&:chomp) }
+    let(:header_trailer_line) { '-' * 79 }
+
+    specify 'it has a header and trailer line' do
+      expect(sample_output_lines[0]).to eq(header_trailer_line)
+      expect(sample_output_lines[2]).to eq(header_trailer_line)
+    end
+
+    specify 'information line is well formed' do
+      line = sample_output_lines[1]
+      expect(line).to match("Source: #{sample_filespec}")
+    end
+  end
 end

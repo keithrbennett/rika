@@ -71,6 +71,20 @@ class RikaCommand
     h
   end
 
+  # Outputs the source file or URL in the form of:
+  # -------------------------------------------------------------------------------
+  # Source: path/to/file.ext
+  # -------------------------------------------------------------------------------
+  # @param [String] source document source identifier
+  # @return multiline string as displayed above
+  private def source_output_string(source)
+    <<~STRING
+      -------------------------------------------------------------------------------
+      Source: #{source}
+      -------------------------------------------------------------------------------
+    STRING
+  end
+
   # Builds the string representation of the result of parsing a single document
   # @param [String] target the target document
   # @param [ParseResult] result the parse result
@@ -80,7 +94,7 @@ class RikaCommand
       metadata_formatter.(result_hash(result))
     else
       sio = StringIO.new
-      sio << "Source: #{target}\n"                        if options[:source]
+      sio << source_output_string(target)                 if options[:source]
       sio << metadata_formatter.(result.metadata) << "\n" if options[:metadata]
       sio << text_formatter.(result.content) << "\n"      if options[:text]
       sio.string
