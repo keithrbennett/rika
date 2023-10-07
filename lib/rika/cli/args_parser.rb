@@ -72,7 +72,7 @@ class ArgsParser
         options[:key_sort] = (v.nil? ? true : v)
       end
 
-      opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Output document source file or URL') do |v|
+      opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Output document source file or URL (default: false)') do |v|
         options[:source] = (v.nil? ? true : v)
       end
 
