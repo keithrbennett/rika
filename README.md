@@ -245,6 +245,14 @@ rexe -in -oJ -mb 'downcase \
 This gem has been tested with JRuby managed by rvm.  It should work with other Ruby version managers and
 without any version manager at all, but those configurations have not been tested.
 
+## Using the Tika Java Jar File Directly
+
+Rika provides only the most common Tika use cases.  You may want to dig deeper than Rika does into the massive amount
+of functionality provided by the Tika library. You can do so by bypassing Rika altogether and using the Tika jar file
+directly in your own JRuby code. In addition. Tika provides its own command line application that can be called as, 
+for example, `java -jar $TIKA_JAR_FILESPEC --help`. This Tika command line application has finer grained control
+over some Tika options, but is missing some conveniences provided by the Rika command line application.
+
 ## Other Tika Resources
 
 * The Apache Tika wiki is at https://cwiki.apache.org/confluence/display/tika.
@@ -265,3 +273,8 @@ without any version manager at all, but those configurations have not been teste
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Acknowledgments
+
+Many thanks to the brilliant and dedicated developers who have worked to build Apache Tika since its inception many years ago.
+
