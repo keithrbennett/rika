@@ -82,6 +82,11 @@ specify one or more filespecs or URL's as arguments:
 ```bash
 rika x.pdf https://github.com/keithrbennett/rika
 ```
+
+[!NOTE]
+If running `rika` produces an error indicating that the JRuby interpreter cannot be found,
+try preceding it with `jruby`, e.g. `jruby rika x.pdf`.
+
 Here is the help text:
 
 ```
