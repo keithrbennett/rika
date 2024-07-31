@@ -32,6 +32,13 @@ class RikaCommand
       puts result_array_output
     else
       targets.each do |target|
+        # If we don't do this, Tika will raise an org.apache.tika.exception.ZeroByteFileException
+        # TODO: Do same for URL?
+        if File.file?(target) && File.zero?(target)
+          $stderr.puts("\n\nFile empty!: #{target}\n\n")
+          next
+        end
+
         result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
         puts single_document_output(target, result)
       end
