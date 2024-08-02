@@ -1,5 +1,10 @@
 ## Release Notes
 
+### v2.0.3
+
+* Fix parsing of empty files so they do not halt parsing of all files.
+* Update gem dependencies.
+
 #### v2.0.2
 
 * Now prints source name on line with header and footer lines.
