@@ -135,4 +135,21 @@ describe RikaCommand do
       expect(line).to match("Source: #{sample_filespec}")
     end
   end
+
+  describe 'empty file behavior' do
+    let(:empty_file_path) { fixture_path('empty.txt') }
+    let(:something_file_path) { fixture_path('something.txt') } # containts "something"
+
+    specify 'parsing an empty file outputs a message to stderr' do
+      expect {
+        described_class.new([empty_file_path]).call
+      }.to output("\n\nFile empty!: #{empty_file_path}\n\n").to_stderr
+    end
+
+    specify 'parsing an empty file does not interrupt parsing of subsequent files' do
+      expect {
+        described_class.new([empty_file_path, something_file_path]).call
+      }.to output(/something/).to_stdout
+    end
+  end
 end
