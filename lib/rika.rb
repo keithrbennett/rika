@@ -40,8 +40,9 @@ module Rika
   # @param [Integer] max_content_length maximum content length to return, defaults to all
   # @param [Detector] detector Tika detector, defaults to DefaultDetector
   # @return [ParseResult]
-  def self.parse(data_source, key_sort: true, max_content_length: -1, detector: DefaultDetector.new)
+  def self.parse(data_source, key_sort: true, max_content_length: -1, detector: nil)
     init
+    detector ||= DefaultDetector.new
     parser = Parser.new(data_source, key_sort: key_sort, max_content_length: max_content_length, detector: detector)
     parser.parse
   end
