@@ -52,6 +52,7 @@ For example:
 ```ruby
 require 'rika'
 
+Rika.init
 parse_result = Rika.parse('x.pdf') # returns a Rika::ParseResult object
 parse_result.content               # string containing all content text
 parse_result.text                  # 'text' is an alias for 'content'
