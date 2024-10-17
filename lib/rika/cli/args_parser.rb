@@ -126,6 +126,7 @@ class ArgsParser
 
   # @return [String] string containing versions of Rika and Tika, with labels
   private def versions_string
-    "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}"
+    java_version = Java::java.lang.System.getProperty("java.version")
+    "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}, Java: #{java_version}"
   end
 end
