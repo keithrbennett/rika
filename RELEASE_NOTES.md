@@ -1,5 +1,10 @@
 ## Release Notes
 
+### v2.0.4
+
+* Fix uninitialized constant StringIO error.
+
+
 ### v2.0.3
 
 * Fix parsing of empty files so they do not halt parsing of all files.
