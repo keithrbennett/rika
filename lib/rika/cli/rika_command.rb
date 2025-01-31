@@ -5,6 +5,7 @@ require 'optparse'
 require 'rika'
 require 'rika/formatters'
 require 'rika/cli/args_parser'
+require 'stringio'
 
 # This command line application enables the parsing of documents on the command line.
 # Syntax is:
