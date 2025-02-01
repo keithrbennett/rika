@@ -2,7 +2,7 @@
 
 ### v2.0.4
 
-* Fix uninitialized constant StringIO error.
+* Fix uninitialized constant StringIO error (issue #16).
 
 
 ### v2.0.3
