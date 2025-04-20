@@ -1,5 +1,9 @@
 ## Release Notes
 
+### v2.1.0
+
+* Add ability to specify quoted wildcard filespecs on command line so Ruby will expand them.
+
 ### v2.0.4
 
 * Fix uninitialized constant StringIO error (issue #16).
