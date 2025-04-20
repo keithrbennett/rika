@@ -94,10 +94,14 @@ class ArgsParser
   end
 
   # @return [Array] the targets specified on the command line, possibly expanded by the shell,
-  #   and with any directories removed.
+  #   and with any directories removed. If a target contains a wildcard pattern (*, ?, []),
+  #   it will be expanded using Dir.glob within Ruby, which has no practical limit on the number of files.
   private def create_target_array
-    targets = args.dup.reject { |arg| File.directory?(arg) }.freeze # reject dirs to handle **/* globbing
-    targets.map(&:freeze)
+    args.each_with_object([]) do |arg, result|
+      # Expand any potential globs and reject directories
+      files = Dir.glob(arg).reject { |file| File.directory?(file) }
+      result.concat(files)
+    end.map(&:freeze).freeze
   end
 
   # Fills in the second format option character if absent, and removes any excess characters

@@ -144,6 +144,29 @@ If you find yourself using the same options over and over again, you can put the
 variable. For example, if the default behavior of sorting keys does not work for your language, you can disable it
 for all invocations of the `rika` command by specifying `-k-` in the RIKA_OPTIONS environment variable.
 
+### Using Wildcards for File Specification
+
+Rika now supports in-app expansion of wildcard patterns for file specification. This means you can quote wildcard patterns 
+to prevent the shell from expanding them, and Rika will handle the expansion internally:
+
+```bash
+# Let Rika handle the expansion (no practical limit on number of files)
+rika '**/*.pdf'
+
+# Shell expands wildcards (limited by shell's maximum argument length)
+rika **/*.pdf
+```
+
+This is particularly useful when dealing with large numbers of files, as shell expansion may hit command line length limits.
+In-app expansion has no practical limit on the number of files that can be processed.
+
+Supported wildcard patterns:
+- `*` - Match any number of characters
+- `?` - Match a single character
+- `[abc]` - Match one character from the set
+- `{a,b,c}` - Match any of the patterns a, b, or c
+- `**` - Recursive directory matching (match all files in all subdirectories)
+
 ### Machine Readable Data Support
 
 If both metadata and text are output, and the same output format is used for both, and that format is JSON

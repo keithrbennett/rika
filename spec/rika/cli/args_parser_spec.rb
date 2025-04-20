@@ -6,6 +6,7 @@ require 'rika/cli/args_parser'
 
 describe ArgsParser do
   let(:versions_regex) { /Versions:.*Rika: (\d+\.\d+\.\d+(-\w+)?).*Tika: (\d+\.\d+\.\d+(-\w+)?)/ }
+  let(:fixtures_dir) { File.expand_path(File.join(File.dirname(__FILE__), '../../fixtures')) }
 
   specify 'returns a hash of options, a target array, and help text' do
     options, targets, help_text = described_class.call([])
@@ -112,6 +113,44 @@ describe ArgsParser do
 
     specify 'is frozen' do
       expect(described_class::DEFAULT_OPTIONS).to be_frozen
+    end
+  end
+
+  describe '#create_target_array' do
+    let(:args_parser) { described_class.new }
+    
+    it 'removes directories from the target array' do
+      allow(args_parser).to receive(:args).and_return([fixtures_dir])
+      expect(args_parser.send(:create_target_array)).to be_empty
+    end
+    
+    it 'keeps regular files in the target array' do
+      tiny_filespec = fixture_path('tiny.txt')
+      allow(args_parser).to receive(:args).and_return([tiny_filespec])
+      expect(args_parser.send(:create_target_array)).to eq([tiny_filespec])
+    end
+    
+    context 'with wildcard patterns' do
+      it 'expands wildcard patterns using Dir.glob' do
+        pattern = fixture_path('*.txt')
+        allow(args_parser).to receive(:args).and_return([pattern])
+        
+        result = args_parser.send(:create_target_array)
+        # Verify we got at least one .txt file and no directories
+        expect(result).not_to be_empty
+        expect(result.all? { |f| f.end_with?('.txt') }).to be true
+      end
+      
+      it 'removes directories from the expanded results' do
+        # Use a pattern that will match both files and the fixtures dir
+        pattern = File.join(fixtures_dir, '*')
+        allow(args_parser).to receive(:args).and_return([pattern])
+        
+        result = args_parser.send(:create_target_array)
+        # Verify we got some files but no directories
+        expect(result).not_to be_empty
+        expect(result.any? { |f| File.directory?(f) }).to be false
+      end
     end
   end
 end
