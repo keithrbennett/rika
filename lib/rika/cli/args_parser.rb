@@ -12,7 +12,8 @@ class ArgsParser
       metadata: true,
       text: true,
       source: true,
-      key_sort: true
+      key_sort: true,
+      verbose: false
     }.freeze
 
   # Parses the command line arguments.
@@ -27,7 +28,7 @@ class ArgsParser
 
   # Parses the command line arguments.
   # @param [Array] args the command line arguments (overridable for testing, etc.)
-  # @return [Array<Hash,String>] [options, targets, help_string],
+  # @return [Array<Hash,Array,String>] [options, targets, help_string],
   #   or exits if help or version requested or no targets specified.
   def call(args = ARGV)
     @args = args
@@ -37,6 +38,7 @@ class ArgsParser
     option_parser.parse!(args)
     postprocess_format_options
     targets = create_target_array
+    
     [options, targets, option_parser.help]
   end
 
@@ -81,7 +83,11 @@ class ArgsParser
         options[:as_array] = (v.nil? ? true : v)
       end
 
-      opts.on('-v', '--version', 'Output version') do
+      opts.on('-v', '--[no-]verbose [FLAG]', TrueClass, 'Enable verbose output (default: false)') do |v|
+        options[:verbose] = (v.nil? ? true : v)
+      end
+
+      opts.on('-V', '--version', 'Output software versions') do
         puts versions_string
         exit
       end
@@ -93,15 +99,21 @@ class ArgsParser
     end
   end
 
-  # @return [Array] the targets specified on the command line, possibly expanded by the shell,
-  #   and with any directories removed. If a target contains a wildcard pattern (*, ?, []),
-  #   it will be expanded using Dir.glob within Ruby, which has no practical limit on the number of files.
+  # @return [Array<Array>] Array of targets (files found)
   private def create_target_array
-    args.each_with_object([]) do |arg, result|
+    targets = args.each_with_object([]) do |arg, result|
       # Use Dir.glob for all arguments and filter out directories
       files = Dir.glob(arg).reject { |file| File.directory?(file) }
-      result.concat(files)
-    end.map(&:freeze).freeze
+      
+      if files.empty?
+        # No files matched this argument
+        $stderr.puts("No files matched pattern: #{arg}") if options[:verbose]
+      else
+        result.concat(files)
+      end
+    end
+    
+    targets.map(&:freeze).freeze
   end
 
   # Fills in the second format option character if absent, and removes any excess characters

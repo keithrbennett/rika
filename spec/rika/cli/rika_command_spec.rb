@@ -25,8 +25,8 @@ describe RikaCommand do
       expect { described_class.new([fixture_path('tiny.txt')]).call }.not_to raise_error
     end
 
-    specify 'prints version and exits when -v or --version is specified' do
-      expect { described_class.new(%w[-v]).call }.to output(versions_regex).to_stdout.and raise_error(SystemExit)
+    specify 'prints version and exits when -V or --version is specified' do
+      expect { described_class.new(%w[-V]).call }.to output(versions_regex).to_stdout.and raise_error(SystemExit)
     end
 
     specify 'prints help and exits when -h or --help is specified' do
