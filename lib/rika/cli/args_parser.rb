@@ -98,7 +98,7 @@ class ArgsParser
   #   it will be expanded using Dir.glob within Ruby, which has no practical limit on the number of files.
   private def create_target_array
     args.each_with_object([]) do |arg, result|
-      # Expand any potential globs and reject directories
+      # Use Dir.glob for all arguments and filter out directories
       files = Dir.glob(arg).reject { |file| File.directory?(file) }
       result.concat(files)
     end.map(&:freeze).freeze

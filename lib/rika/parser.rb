@@ -54,15 +54,20 @@ module Rika
     end
 
     # @return [Symbol] input type (currently only :file and :http are supported)
-    # @raise [IOError] if input is not a file or HTTP resource
+    # @raise [ArgumentError] if the URI format is invalid
+    # @raise [IOError] if input is not an available file or HTTP resource
     private def data_source_input_type
-      if File.file?(@data_source)
-        :file
-      elsif URI(@data_source).is_a?(URI::HTTP)
-        :http
-      else
-        raise IOError, "Input (#{@data_source}) is not an available file or HTTP resource."
+      return :file if File.file?(@data_source)
+      
+      begin
+        uri = URI(@data_source)
+        return :http if uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      rescue URI::InvalidURIError => e
+        # Use ArgumentError for validation issues
+        raise ArgumentError, "Invalid URI format: #{@data_source} (#{e.message})"
       end
+      
+      raise IOError, "Input (#{@data_source}) is not an available file or HTTP resource."
     end
 
     # * Creates and opens an input stream from the configured resource.

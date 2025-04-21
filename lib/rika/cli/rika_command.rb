@@ -116,9 +116,22 @@ class RikaCommand
   # @return [String] the string representation of the result of parsing the documents
   private def result_array_output
     output_hashes = targets.map do |target|
-      result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
-      result_hash(result)
-    end
+      begin
+        if File.file?(target) && File.zero?(target)
+          $stderr.puts("\n\nFile empty!: #{target}\n\n")
+          next
+        end
+        
+        result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+        result_hash(result)
+      rescue IOError => e
+        $stderr.puts("\n\nError processing '#{target}': #{e.message}\n\n")
+        next
+      rescue ArgumentError => e
+        $stderr.puts("\n\nInvalid input '#{target}': #{e.message}\n\n")
+        next
+      end
+    end.compact
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     metadata_formatter.call(output_hashes)
