@@ -24,7 +24,6 @@ class RikaCommand
     # and removed, and when directories are removed, so this array should not be frozen.
     @args = args.dup
     @bad_resources = Hash.new { |hash, key| hash[key] = [] }
-
   end
 
   # Main method and entry point for this class' work.
@@ -32,6 +31,23 @@ class RikaCommand
   def call
     prepare
     report_and_exit_if_no_targets_specified
+    process_targets
+    report_bad_resources
+    bad_resources.values.flatten.empty? ? 0 : 1
+  end
+
+  private
+
+  # Prepares to run the parse. This method is separate from #call so that it can be called from tests.
+  # @return [void]
+  def prepare
+    @options, @targets, @help_text = ArgsParser.call(args)
+    set_output_formats
+  end
+
+  # Process all targets based on options
+  # @return [void]
+  def process_targets
     if options[:as_array]
       puts result_array_output
     else
@@ -40,30 +56,23 @@ class RikaCommand
         puts single_document_output(target, result) unless result == :error
       end
     end
-
-    # Report any resources that failed
-    total_bad_resources = @bad_resources.values.flatten.size
-    unless total_bad_resources.zero?
-      require 'yaml'
-      $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
-      $stderr.puts(@bad_resources.to_yaml)
-    end
-
-    total_bad_resources.zero? ? 0 : 1
   end
 
-
-  # Prepares to run the parse. This method is separate from #call so that it can be called from tests.
+  # Report any resources that failed to process
   # @return [void]
-  private def prepare
-    @options, @targets, @help_text = ArgsParser.call(args)
-    set_output_formats
+  def report_bad_resources
+    total_bad_resources = bad_resources.values.flatten.size
+    return if total_bad_resources.zero?
+
+    require 'yaml'
+    $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
+    $stderr.puts(bad_resources.to_yaml)
   end
 
   # Sets the output format(s) based on the command line options.
   # Exits with error message if format is invalid.
   # @return [void]
-  private def set_output_formats
+  def set_output_formats
     format = options[:format]
     @metadata_formatter = Rika::Formatters.get(format[0])
     @text_formatter     = Rika::Formatters.get(format[1])
@@ -77,12 +86,12 @@ class RikaCommand
   # Converts a ParseResult to a hash containing the selected pieces of data.
   # @param [ParseResult] result the parse result
   # @return [Hash] the hash containing the selected pieces of data
-  private def result_hash(result)
-    h = {}
-    h['source']   = result.metadata['rika:data-source'] if options[:source]
-    h['metadata'] = result.metadata                     if options[:metadata]
-    h['text']     = result.content                      if options[:text]
-    h
+  def result_hash(result)
+    {}.tap do |h|
+      h['source']   = result.metadata['rika:data-source'] if options[:source]
+      h['metadata'] = result.metadata                     if options[:metadata]
+      h['text']     = result.content                      if options[:text]
+    end
   end
 
   # Outputs the source file or URL in the form of:
@@ -91,7 +100,7 @@ class RikaCommand
   # -------------------------------------------------------------------------------
   # @param [String] source document source identifier
   # @return multiline string as displayed above
-  private def source_output_string(source)
+  def source_output_string(source)
     <<~STRING
       -------------------------------------------------------------------------------
       Source: #{source}
@@ -103,51 +112,67 @@ class RikaCommand
   # @param [String] target the target document
   # @param [ParseResult] result the parse result
   # @return [String] the string representation of the result of parsing a single document
-  private def single_document_output(target, result)
-    if options[:metadata] && options[:text] && %w[jj JJ yy].include?(options[:format])
+  def single_document_output(target, result)
+    if should_use_single_formatter?(options[:format])
       metadata_formatter.(result_hash(result))
     else
-      sio = StringIO.new
+      build_output_string(target, result)
+    end
+  end
+
+  # Determines if we should use a single formatter for both metadata and text
+  # @param [String] format the format string
+  # @return [Boolean] true if we should use a single formatter
+  def should_use_single_formatter?(format)
+    options[:metadata] && options[:text] && %w[jj JJ yy].include?(format)
+  end
+
+  # Builds an output string with multiple sections
+  # @param [String] target the target document
+  # @param [ParseResult] result the parse result
+  # @return [String] formatted output string
+  def build_output_string(target, result)
+    StringIO.new.tap do |sio|
       sio << source_output_string(target)                 if options[:source]
       sio << metadata_formatter.(result.metadata) << "\n" if options[:metadata]
       sio << text_formatter.(result.content) << "\n"      if options[:text]
-      sio.string
-    end
+    end.string
   end
 
   # Parses a target and returns the result. On error, accumulates the error in the @bad_resources hash.
   # @param [String] target string identifying the target document
   # @return [ParseResult] the parse result
   def parse_target(target)
-    exception = nil
-    result = :error # default to error, overridden if successful
-    begin
-      result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
-    rescue java.net.UnknownHostException => e
-      exception = e
-      bad_resources[:unknown_host] << target
-    rescue IOError, java.io.IOException => e
-      exception = e
-      bad_resources[:io_error] << target
-    rescue ArgumentError => e
-      exception = e
-      bad_resources[:invalid_input] << target
-    end
-
-    $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}") if exception && options[:verbose]
-$stderr.puts(exception)
-    result
+    Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+  rescue java.net.UnknownHostException => e
+    handle_parse_error(e, target, :unknown_host)
+  rescue IOError, java.io.IOException => e
+    handle_parse_error(e, target, :io_error)
+  rescue ArgumentError => e
+    handle_parse_error(e, target, :invalid_input)
   end
 
+  # Handle parse errors consistently
+  # @param [Exception] exception the exception that occurred
+  # @param [String] target the target being processed
+  # @param [Symbol] error_type the type of error that occurred
+  # @return [Symbol] :error to indicate an error occurred
+  def handle_parse_error(exception, target, error_type)
+    bad_resources[error_type] << target
+    $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}") if options[:verbose]
+    :error
+  end
 
   # Parses the documents and outputs the result of the parse to stdout as an array of hashes.
   # Outputting as an array necessitates that the metadata and text formatters be the same
   # (otherwise the output would be invalid, especially with JSON or YAML).
   # Therefore, the metadata formatter is arbitrarily selected to be used by both.
   # @return [String] the string representation of the result of parsing the documents
-  private def result_array_output
-    results = targets.map { |target| result_hash(parse_target(target)) }
-    output_hashes = results.reject { |hash| hash[:error] }
+  def result_array_output
+    results = targets \
+      .map { |target| parse_target(target) } \
+      .reject { |target| target == :error }
+    output_hashes = results.map { |result| result_hash(result) }
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     metadata_formatter.call(output_hashes)
@@ -155,7 +180,7 @@ $stderr.puts(exception)
 
   # Tika offers a max_content_length option, but it is not exposed in Rika.
   # Instead it is used only to enable or disable the entire text output.
-  private def max_content_length
+  def max_content_length
     options[:text] ? -1 : 0
   end
 
@@ -165,7 +190,7 @@ $stderr.puts(exception)
   # dynamically generated by a script, and the script may not want to abort if no documents are
   # generated.
   # @return [void] or exits
-  private def report_and_exit_if_no_targets_specified
+  def report_and_exit_if_no_targets_specified
     if targets.empty?
       $stderr.puts(%q{No valid targets specified. Run with '-h' option for help.})
       exit 0
@@ -173,3 +198,4 @@ $stderr.puts(exception)
     nil
   end
 end
+
