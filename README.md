@@ -4,7 +4,7 @@
 the [Apache Tika](http://tika.apache.org/) Java library, which extracts text and metadata from files and resources
 of [many different formats](https://tika.apache.org/1.24.1/formats.html).
 
-Rika can be used as a library in your Ruby code, or on the command line.
+Rika can be used as a library in your Ruby code or on the command line using the provided executable.
 
 For class and method level documentation, please use [YARD](https://rubydoc.info/gems/yard).
 You can `gem install yard`, then run `yard doc` from the project root, 
@@ -23,7 +23,6 @@ for more advanced needs.
 See the [Other Tika Resources](#other-tika-resources) section of this document for alternatives to
 Rika that may suit more demanding needs.
 
-Rika can be used either as a gem in your own Ruby project, or on the command line using the provided executable.
 
 ## Usage in Your Ruby Code
 
