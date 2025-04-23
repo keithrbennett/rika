@@ -16,16 +16,19 @@ require 'stringio'
 # but the -t and -m flags can be used to enable or suppress either.
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
-  attr_reader :args, :help_text, :metadata_formatter, :options, :targets, :text_formatter
+  attr_reader :args, :bad_resources, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
     # Dup the array in case it has been frozen. The array will be modified later when options are parsed
     # and removed, and when directories are removed, so this array should not be frozen.
     @args = args.dup
+    @bad_resources = Hash.new { |hash, key| hash[key] = [] }
+
   end
 
   # Main method and entry point for this class' work.
+  # @return [Integer] exit code (0 for success, non-zero for errors)
   def call
     prepare
     report_and_exit_if_no_targets_specified
@@ -33,18 +36,28 @@ class RikaCommand
       puts result_array_output
     else
       targets.each do |target|
-        # If we don't do this, Tika will raise an org.apache.tika.exception.ZeroByteFileException
-        # TODO: Do same for URL?
-        if File.file?(target) && File.zero?(target)
-          $stderr.puts("\n\nFile empty!: #{target}\n\n")
-          next
+        begin
+          result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+          puts single_document_output(target, result)
+        rescue IOError
+          @bad_resources[:io_error] << target
+        rescue ArgumentError
+          @bad_resources[:invalid_input] << target
+        rescue java.net.UnknownHostException
+          @bad_resources[:unknown_host] << target
         end
-
-        result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
-        puts single_document_output(target, result)
       end
     end
-    nil
+
+    # Report any resources that failed
+    total_bad_resources = @bad_resources.values.flatten.size
+    unless total_bad_resources.zero?
+      require 'yaml'
+      $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
+      $stderr.puts(@bad_resources.to_yaml)
+    end
+
+    total_bad_resources.zero? ? 0 : 1
   end
 
   # Prepares to run the parse. This method is separate from #call so that it can be called from tests.
@@ -63,7 +76,7 @@ class RikaCommand
     @text_formatter     = Rika::Formatters.get(format[1])
     nil
   rescue KeyError
-    $stderr.puts "Invalid format: #{format}\n\n"
+    $stderr.puts "Invalid format: #{format}"
     $stderr.puts help_text
     exit 1
   end
@@ -117,18 +130,15 @@ class RikaCommand
   private def result_array_output
     output_hashes = targets.map do |target|
       begin
-        if File.file?(target) && File.zero?(target)
-          $stderr.puts("\n\nFile empty!: #{target}\n\n")
-          next
-        end
-        
         result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
         result_hash(result)
       rescue IOError => e
-        $stderr.puts("\n\nError processing '#{target}': #{e.message}\n\n")
+        $stderr.puts("Error processing '#{target}': #{e.message}")
+        @bad_resources[:io_error] << target
         next
       rescue ArgumentError => e
-        $stderr.puts("\n\nInvalid input '#{target}': #{e.message}\n\n")
+        $stderr.puts("Invalid input '#{target}': #{e.message}")
+        @bad_resources[:invalid_input] << target
         next
       end
     end.compact

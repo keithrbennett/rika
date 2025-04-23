@@ -37,8 +37,13 @@ class ArgsParser
     @option_parser = create_option_parser
     option_parser.parse!(args)
     postprocess_format_options
-    targets = create_target_array
-    
+    targets, errors = process_args_for_resources
+    if options[:verbose]
+      require 'awesome_print'
+      puts "Target results:"
+      ap({ targets: targets, errors: errors })
+    end
+
     [options, targets, option_parser.help]
   end
 
@@ -99,23 +104,6 @@ class ArgsParser
     end
   end
 
-  # @return [Array<Array>] Array of targets (files found)
-  private def create_target_array
-    targets = args.each_with_object([]) do |arg, result|
-      # Use Dir.glob for all arguments and filter out directories
-      files = Dir.glob(arg).reject { |file| File.directory?(file) }
-      
-      if files.empty?
-        # No files matched this argument
-        $stderr.puts("No files matched pattern: #{arg}") if options[:verbose]
-      else
-        result.concat(files)
-      end
-    end
-    
-    targets.map(&:freeze).freeze
-  end
-
   # Fills in the second format option character if absent, and removes any excess characters
   # @return [String] format options 2-character value, e.g. 'at'
   private def postprocess_format_options
@@ -144,5 +132,38 @@ class ArgsParser
   private def versions_string
     java_version = Java::java.lang.System.getProperty("java.version")
     "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}, Java: #{java_version}"
+  end
+
+  def process_args_for_resources
+    resources = []
+    errors = Hash.new { |hash, key| hash[key] = [] }
+
+    args.each do |arg|
+      url_candidate = arg.include?('://')
+      if url_candidate
+        begin
+          uri = URI(arg)
+          if ['http', 'https'].include?(uri.scheme.downcase)
+            resources << arg
+          else
+            errors[:bad_url_scheme] << arg
+          end
+        rescue URI::InvalidURIError
+          errors[:invalid_url] << arg
+        end
+      else
+        matching_filespecs = Dir.glob(arg)
+        matching_filespecs.each do |file|
+          if File.symlink?(file)
+            errors[:is_smylink] << file
+          elsif File.directory?(file)
+            # ignore
+          else
+            resources << file
+          end
+        end
+      end
+    end
+    [resources, errors]
   end
 end
