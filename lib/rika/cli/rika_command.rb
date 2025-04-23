@@ -55,7 +55,7 @@ class RikaCommand
       require 'yaml'
       $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
       $stderr.puts(@bad_resources.to_yaml)
-    end
+      end
 
     total_bad_resources.zero? ? 0 : 1
   end
@@ -162,10 +162,7 @@ class RikaCommand
   private def report_and_exit_if_no_targets_specified
     if targets.empty?
       $stderr.puts <<~MESSAGE
-
-        No targets specified.
-
-        #{help_text}
+        No valid targets specified. Run with '-h' option for help.
       MESSAGE
       exit 0
     end
