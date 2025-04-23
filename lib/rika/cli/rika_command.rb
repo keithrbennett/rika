@@ -35,17 +35,9 @@ class RikaCommand
     if options[:as_array]
       puts result_array_output
     else
-      targets.each do |target|
-        begin
-          result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
-          puts single_document_output(target, result)
-        rescue IOError
-          @bad_resources[:io_error] << target
-        rescue ArgumentError
-          @bad_resources[:invalid_input] << target
-        rescue java.net.UnknownHostException
-          @bad_resources[:unknown_host] << target
-        end
+      targets.each do |target| 
+        result = parse_target(target)
+        puts single_document_output(target, result) unless result == :error
       end
     end
 
@@ -55,10 +47,11 @@ class RikaCommand
       require 'yaml'
       $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
       $stderr.puts(@bad_resources.to_yaml)
-      end
+    end
 
     total_bad_resources.zero? ? 0 : 1
   end
+
 
   # Prepares to run the parse. This method is separate from #call so that it can be called from tests.
   # @return [void]
@@ -122,26 +115,39 @@ class RikaCommand
     end
   end
 
+  # Parses a target and returns the result. On error, accumulates the error in the @bad_resources hash.
+  # @param [String] target string identifying the target document
+  # @return [ParseResult] the parse result
+  def parse_target(target)
+    exception = nil
+    result = :error # default to error, overridden if successful
+    begin
+      result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
+    rescue java.net.UnknownHostException => e
+      exception = e
+      bad_resources[:unknown_host] << target
+    rescue IOError, java.io.IOException => e
+      exception = e
+      bad_resources[:io_error] << target
+    rescue ArgumentError => e
+      exception = e
+      bad_resources[:invalid_input] << target
+    end
+
+    $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}") if exception && options[:verbose]
+$stderr.puts(exception)
+    result
+  end
+
+
   # Parses the documents and outputs the result of the parse to stdout as an array of hashes.
   # Outputting as an array necessitates that the metadata and text formatters be the same
   # (otherwise the output would be invalid, especially with JSON or YAML).
   # Therefore, the metadata formatter is arbitrarily selected to be used by both.
   # @return [String] the string representation of the result of parsing the documents
   private def result_array_output
-    output_hashes = targets.map do |target|
-      begin
-        result = Rika.parse(target, max_content_length: max_content_length, key_sort: options[:key_sort])
-        result_hash(result)
-      rescue IOError => e
-        $stderr.puts("Error processing '#{target}': #{e.message}")
-        @bad_resources[:io_error] << target
-        next
-      rescue ArgumentError => e
-        $stderr.puts("Invalid input '#{target}': #{e.message}")
-        @bad_resources[:invalid_input] << target
-        next
-      end
-    end.compact
+    results = targets.map { |target| result_hash(parse_target(target)) }
+    output_hashes = results.reject { |hash| hash[:error] }
 
     # Either the metadata or text formatter will do, since they will necessarily be the same formatter.
     metadata_formatter.call(output_hashes)
@@ -161,9 +167,7 @@ class RikaCommand
   # @return [void] or exits
   private def report_and_exit_if_no_targets_specified
     if targets.empty?
-      $stderr.puts <<~MESSAGE
-        No valid targets specified. Run with '-h' option for help.
-      MESSAGE
+      $stderr.puts(%q{No valid targets specified. Run with '-h' option for help.})
       exit 0
     end
     nil
