@@ -21,3 +21,4 @@ target/
 test/tmp
 test/version_tmp
 tmp
+pdf/

@@ -116,18 +116,18 @@ describe ArgsParser do
     end
   end
 
-  describe '#create_target_array' do
+  describe '#process_args_for_resources' do
     let(:args_parser) { described_class.new }
     
     it 'removes directories from the target array' do
       allow(args_parser).to receive(:args).and_return([fixtures_dir])
-      expect(args_parser.send(:create_target_array)).to be_empty
+      expect(args_parser.send(:process_args_for_resources)).to be_empty
     end
     
     it 'keeps regular files in the target array' do
       tiny_filespec = fixture_path('tiny.txt')
       allow(args_parser).to receive(:args).and_return([tiny_filespec])
-      expect(args_parser.send(:create_target_array)).to eq([tiny_filespec])
+      expect(args_parser.send(:process_args_for_resources)).to eq([tiny_filespec])
     end
     
     context 'with wildcard patterns' do
@@ -135,7 +135,7 @@ describe ArgsParser do
         pattern = fixture_path('*.txt')
         allow(args_parser).to receive(:args).and_return([pattern])
         
-        result = args_parser.send(:create_target_array)
+        result = args_parser.send(:process_args_for_resources)
         # Verify we got at least one .txt file and no directories
         expect(result).not_to be_empty
         expect(result.all? { |f| f.end_with?('.txt') }).to be true
@@ -146,7 +146,7 @@ describe ArgsParser do
         pattern = File.join(fixtures_dir, '*')
         allow(args_parser).to receive(:args).and_return([pattern])
         
-        result = args_parser.send(:create_target_array)
+        result = args_parser.send(:process_args_for_resources)
         # Verify we got some files but no directories
         expect(result).not_to be_empty
         expect(result.any? { |f| File.directory?(f) }).to be false
