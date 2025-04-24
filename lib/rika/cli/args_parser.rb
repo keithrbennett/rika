@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'optparse'
+require 'shellwords'
+require 'uri'
+
 # Processes the array of arguments (ARGV by default) and returns the options, targets, and help string.
 class ArgsParser
   attr_reader :args, :options, :option_parser
@@ -17,7 +21,7 @@ class ArgsParser
     }.freeze
 
   # Parses the command line arguments.
-  # Shorthand for ArgsParser.new.call. This call is recommended to pro tect the caller in case
+  # Shorthand for ArgsParser.new.call. This call is recommended to protect the caller in case
   # this functionality is repackaged as a Module or otherwise modified.
   # @param [Array] args the command line arguments (overridable for testing, etc.)
   # @return [Array<Hash,String>] [options, targets, help_string],
@@ -47,8 +51,12 @@ class ArgsParser
     [options, targets, option_parser.help]
   end
 
+  # -------------------------------------------------------
+  private
+  # -------------------------------------------------------
+
   # @return [OptionParser]
-  private def create_option_parser
+  def create_option_parser
     OptionParser.new do |opts|
       opts.banner =  <<~BANNER
         Rika v#{Rika::VERSION} (Tika v#{Rika.tika_version}) - #{Rika::PROJECT_URL}
@@ -79,7 +87,7 @@ class ArgsParser
         options[:key_sort] = (v.nil? ? true : v)
       end
 
-      opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Output document source file or URL (default: false)') do |v|
+      opts.on('-s', '--[no-]source [FLAG]', TrueClass, 'Output document source file or URL (default: true)') do |v|
         options[:source] = (v.nil? ? true : v)
       end
 
@@ -106,7 +114,7 @@ class ArgsParser
 
   # Fills in the second format option character if absent, and removes any excess characters
   # @return [String] format options 2-character value, e.g. 'at'
-  private def postprocess_format_options
+  def postprocess_format_options
     # If only one format letter is specified, use it for both metadata and text.
     options[:format] *= 2 if options[:format].length == 1
 
@@ -117,23 +125,26 @@ class ArgsParser
   # If the user wants to specify options in an environment variable ("RIKA_OPTIONS"),
   # then this method will insert those options at the beginning of the `args` array,
   # where they can be overridden by command line arguments.
-  private def prepend_environment_args
+  def prepend_environment_args
     env_opt_string = environment_options
     args_to_prepend = Shellwords.shellsplit(env_opt_string)
     args.unshift(args_to_prepend).flatten!
   end
 
   # @return [String] the value of the RIKA_OPTIONS environment variable if present, else ''.
-  private def environment_options
+  def environment_options
     ENV['RIKA_OPTIONS'] || ''
   end
 
   # @return [String] string containing versions of Rika and Tika, with labels
-  private def versions_string
+  def versions_string
     java_version = Java::java.lang.System.getProperty("java.version")
     "Versions: Rika: #{Rika::VERSION}, Tika: #{Rika.tika_version}, Java: #{java_version}"
   end
 
+  # Process the command line arguments to find URLs and file specifications
+  # @return [Array<Array,Hash>] [resources, errors] where resources is an array of valid URLs and filespecs
+  #   and errors is a hash of error categories to arrays of problematic resources
   def process_args_for_resources
     resources = []
     errors = Hash.new { |hash, key| hash[key] = [] }
@@ -147,8 +158,6 @@ class ArgsParser
     end
     [resources, errors]
   end
-
-  private
 
   # Determines if a string looks like a URL based on the presence of "://"
   # @param [String] arg string to check
@@ -164,7 +173,7 @@ class ArgsParser
   # @return [void]
   def process_url_candidate(arg, resources, errors)
     begin
-      uri = URI(arg)
+      uri = URI.parse(arg)
       if ['http', 'https'].include?(uri.scheme.downcase)
         resources << arg
       else
