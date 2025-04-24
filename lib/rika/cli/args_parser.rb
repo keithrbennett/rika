@@ -139,31 +139,57 @@ class ArgsParser
     errors = Hash.new { |hash, key| hash[key] = [] }
 
     args.each do |arg|
-      url_candidate = arg.include?('://')
-      if url_candidate
-        begin
-          uri = URI(arg)
-          if ['http', 'https'].include?(uri.scheme.downcase)
-            resources << arg
-          else
-            errors[:bad_url_scheme] << arg
-          end
-        rescue URI::InvalidURIError
-          errors[:invalid_url] << arg
-        end
+      if looks_like_url?(arg)
+        process_url_candidate(arg, resources, errors)
       else
-        matching_filespecs = Dir.glob(arg)
-        matching_filespecs.each do |file|
-          if File.symlink?(file)
-            errors[:is_smylink] << file
-          elsif File.directory?(file)
-            # ignore
-          else
-            resources << file
-          end
-        end
+        process_filespec_candidate(arg, resources, errors)
       end
     end
     [resources, errors]
+  end
+
+  private
+
+  # Determines if a string looks like a URL based on the presence of "://"
+  # @param [String] arg string to check
+  # @return [Boolean] true if the string appears to be a URL
+  def looks_like_url?(arg)
+    arg.include?('://')
+  end
+
+  # Process a candidate URL
+  # @param [String] arg the URL to process
+  # @param [Array] resources array to add valid URLs to
+  # @param [Hash] errors hash to collect errors
+  # @return [void]
+  def process_url_candidate(arg, resources, errors)
+    begin
+      uri = URI(arg)
+      if ['http', 'https'].include?(uri.scheme.downcase)
+        resources << arg
+      else
+        errors[:bad_url_scheme] << arg
+      end
+    rescue URI::InvalidURIError
+      errors[:invalid_url] << arg
+    end
+  end
+
+  # Process a candidate file specification
+  # @param [String] arg the filespec to process
+  # @param [Array] resources array to add valid filespecs to
+  # @param [Hash] errors hash to collect errors
+  # @return [void]
+  def process_filespec_candidate(arg, resources, errors)
+    matching_filespecs = Dir.glob(arg)
+    matching_filespecs.each do |file|
+      if File.symlink?(file)
+        errors[:is_symlink] << file
+      elsif File.directory?(file)
+        # ignore
+      else
+        resources << file
+      end
+    end
   end
 end
