@@ -184,7 +184,7 @@ class ArgsParser
     matching_filespecs = Dir.glob(arg)
     matching_filespecs.each do |file|
       if File.symlink?(file)
-        errors[:is_symlink] << file
+        errors[:is_symlink_wont_process] << file
       elsif File.directory?(file)
         # ignore
       else
