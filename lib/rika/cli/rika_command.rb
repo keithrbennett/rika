@@ -41,7 +41,13 @@ class RikaCommand
   # Prepares to run the parse. This method is separate from #call so that it can be called from tests.
   # @return [void]
   def prepare
-    @options, @targets, @help_text = ArgsParser.call(args)
+    @options, @targets, @help_text, issues = ArgsParser.call(args)
+    
+    # Add any issues from ArgsParser to our bad_targets
+    issues.each do |issue_type, issue_targets|
+      issue_targets.each { |target| bad_targets[issue_type] << target }
+    end
+    
     set_output_formats
   end
 

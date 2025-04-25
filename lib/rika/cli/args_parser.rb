@@ -24,7 +24,7 @@ class ArgsParser
   # Shorthand for ArgsParser.new.call. This call is recommended to protect the caller in case
   # this functionality is repackaged as a Module or otherwise modified.
   # @param [Array] args the command line arguments (overridable for testing, etc.)
-  # @return [Array<Hash,String>] [options, targets, help_string],
+  # @return [Array<Hash,Array,String,Hash>] [options, targets, help_string, issues],
   #   or exits if help or version requested or no targets specified.
   def self.call(args = ARGV)
     new.call(args)
@@ -32,7 +32,7 @@ class ArgsParser
 
   # Parses the command line arguments.
   # @param [Array] args the command line arguments (overridable for testing, etc.)
-  # @return [Array<Hash,Array,String>] [options, targets, help_string],
+  # @return [Array<Hash,Array,String,Hash>] [options, targets, help_string, issues],
   #   or exits if help or version requested or no targets specified.
   def call(args = ARGV)
     @args = args
@@ -48,7 +48,7 @@ class ArgsParser
       ap({ targets: targets, issues: issues })
     end
 
-    [options, targets, option_parser.help]
+    [options, targets, option_parser.help, issues]
   end
 
   # -------------------------------------------------------

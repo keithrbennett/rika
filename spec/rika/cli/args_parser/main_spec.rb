@@ -145,14 +145,26 @@ describe ArgsParser do
       end
       
       it 'removes directories from the expanded results' do
+        # Ensure the fixtures directory exists
+        FileUtils.mkdir_p(fixtures_dir) unless File.directory?(fixtures_dir)
+        
+        # Create a test file in the fixtures directory to ensure we have at least one file
+        test_file_path = File.join(fixtures_dir, 'test_file_for_wildcard.txt')
+        File.write(test_file_path, 'test content') unless File.exist?(test_file_path)
+        
         # Use a pattern that will match both files and the fixtures dir
         pattern = File.join(fixtures_dir, '*')
         allow(args_parser).to receive(:args).and_return([pattern])
         
-        targets, _ = args_parser.send(:process_args_for_targets)
-        # Verify we got some files but no directories
-        expect(targets).not_to be_empty
-        expect(targets.any? { |f| File.directory?(f) }).to be false
+        begin
+          targets, _ = args_parser.send(:process_args_for_targets)
+          # Verify we got some files but no directories
+          expect(targets).not_to be_empty
+          expect(targets.any? { |f| File.directory?(f) }).to be false
+        ensure
+          # Clean up test file
+          File.unlink(test_file_path) if File.exist?(test_file_path)
+        end
       end
     end
     

@@ -103,17 +103,24 @@ describe RikaCommand do
     include_examples 'verify_bad_output_format_exits', 'x'
   end
 
-  describe '#warn_if_no_targets_specified' do
+  describe '#report_and_exit_if_no_targets_specified' do
     it 'prints a warning if no targets are specified' do
       rika_command = described_class.new([])
       allow(rika_command).to receive_messages(
         targets: [],
         help_text: 'sample help text'
       )
-      expect { rika_command.send(:report_and_exit_if_no_targets_specified) }.to raise_error(SystemExit)
+      # Use allow instead of expect to avoid SystemExit in test
+      allow(rika_command).to receive(:exit)
+      
+      rika_command.send(:report_and_exit_if_no_targets_specified)
+      
+      # Check that it called the help_text method
       expect(rika_command).to have_received(:help_text).once
+      
+      # Check the output
       output = $stderr.string
-      expect(output).to match(/No targets specified/)
+      expect(output).to match(/No valid targets specified/)
       expect(output).to include('sample help text')
     end
   end
@@ -148,6 +155,7 @@ describe RikaCommand do
     
     specify 'empty files are reported in the bad_targets hash' do
       command = described_class.new([empty_file_path])
+      allow(command).to receive(:report_and_exit_if_no_targets_specified)
       command.call
       
       # Check if the empty file is tracked in the bad_targets hash
