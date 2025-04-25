@@ -16,14 +16,14 @@ require 'stringio'
 # but the -t and -m flags can be used to enable or suppress either.
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
-  attr_reader :args, :bad_resources, :help_text, :metadata_formatter, :options, :targets, :text_formatter
+  attr_reader :args, :bad_targets, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
     # Dup the array in case it has been frozen. The array will be modified later when options are parsed
     # and removed, and when directories are removed, so this array should not be frozen.
     @args = args.dup
-    @bad_resources = Hash.new { |hash, key| hash[key] = [] }
+    @bad_targets = Hash.new { |hash, key| hash[key] = [] }
   end
 
   # Main method and entry point for this class' work.
@@ -32,8 +32,8 @@ class RikaCommand
     prepare
     report_and_exit_if_no_targets_specified
     process_targets
-    report_bad_resources
-    bad_resources.values.flatten.empty? ? 0 : 1
+    report_bad_targets
+    bad_targets.values.flatten.empty? ? 0 : 1
   end
 
   private
@@ -58,15 +58,15 @@ class RikaCommand
     end
   end
 
-  # Report any resources that failed to process
+  # Report any targets that failed to process
   # @return [void]
-  def report_bad_resources
-    total_bad_resources = bad_resources.values.flatten.size
-    return if total_bad_resources.zero?
+  def report_bad_targets
+    total_bad_targets = bad_targets.values.flatten.size
+    return if total_bad_targets.zero?
 
     require 'yaml'
-    $stderr.puts("\n#{total_bad_resources} resources could not be processed:")
-    $stderr.puts(bad_resources.to_yaml)
+    $stderr.puts("\n#{total_bad_targets} targets could not be processed:")
+    $stderr.puts(bad_targets.to_yaml)
   end
 
   # Sets the output format(s) based on the command line options.
@@ -139,7 +139,7 @@ class RikaCommand
     end.string
   end
 
-  # Parses a target and returns the result. On error, accumulates the error in the @bad_resources hash.
+  # Parses a target and returns the result. On error, accumulates the error in the @bad_targets hash.
   # @param [String] target string identifying the target document
   # @return [ParseResult] the parse result
   def parse_target(target)
@@ -158,7 +158,7 @@ class RikaCommand
   # @param [Symbol] error_type the type of error that occurred
   # @return [Symbol] :error to indicate an error occurred
   def handle_parse_error(exception, target, error_type)
-    bad_resources[error_type] << target
+    bad_targets[error_type] << target
     $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}") if options[:verbose]
     :error
   end

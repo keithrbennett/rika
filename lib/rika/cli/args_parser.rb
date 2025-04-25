@@ -41,11 +41,11 @@ class ArgsParser
     @option_parser = create_option_parser
     option_parser.parse!(args)
     postprocess_format_options
-    targets, errors = process_args_for_resources
+    targets, issues = process_args_for_targets
     if options[:verbose]
       require 'awesome_print'
       puts "Target results:"
-      ap({ targets: targets, errors: errors })
+      ap({ targets: targets, issues: issues })
     end
 
     [options, targets, option_parser.help]
@@ -120,6 +120,15 @@ class ArgsParser
 
     # Ignore and remove extra characters after the first two format characters.
     options[:format] = options[:format][0..1]
+    
+    # Validate format characters
+    valid_formats = %w[a i j J t y]
+    format_chars = options[:format].chars
+    
+    if options[:format].strip.empty? || format_chars.any? { |c| !valid_formats.include?(c) }
+      puts "Error: Invalid format characters in '#{options[:format]}'. Valid characters are: #{valid_formats.join(', ')}"
+      exit 1
+    end
   end
 
   # If the user wants to specify options in an environment variable ("RIKA_OPTIONS"),
@@ -133,7 +142,9 @@ class ArgsParser
 
   # @return [String] the value of the RIKA_OPTIONS environment variable if present, else ''.
   def environment_options
-    ENV['RIKA_OPTIONS'] || ''
+    env_value = ENV['RIKA_OPTIONS'] || ''
+    # Necessary to handle escaped spaces and other special characters consistently:
+    env_value.dup.force_encoding('UTF-8')
   end
 
   # @return [String] string containing versions of Rika and Tika, with labels
@@ -143,20 +154,30 @@ class ArgsParser
   end
 
   # Process the command line arguments to find URLs and file specifications
-  # @return [Array<Array,Hash>] [resources, errors] where resources is an array of valid URLs and filespecs
-  #   and errors is a hash of error categories to arrays of problematic resources
-  def process_args_for_resources
-    resources = []
-    errors = Hash.new { |hash, key| hash[key] = [] }
+  # @return [Array<Array,Hash>] [targets, issues] where targets is an array of valid URLs and filespecs
+  #   and issues is a hash of categories to arrays of problematic targets
+  def process_args_for_targets
+    targets = []
+    issues = Hash.new { |hash, key| hash[key] = [] }
 
     args.each do |arg|
-      if looks_like_url?(arg)
-        process_url_candidate(arg, resources, errors)
+      if arg.include?('://') 
+        if File.exist?(arg)
+          # Files containing "://" are highly unusual in normal filesystems.
+          # This is a defensive check to prevent misinterpreting valid files as URLs
+          # just because they contain URL-like patterns, which could happen in test
+          # environments or with specially crafted filenames.
+          issues[:file_with_url_characters] << arg
+        else
+          # Otherwise treat it as a URL candidate
+          process_url_candidate(arg, targets, issues)
+        end
       else
-        process_filespec_candidate(arg, resources, errors)
+        process_filespec_candidate(arg, targets, issues)
       end
     end
-    [resources, errors]
+    
+    [targets, issues]
   end
 
   # Determines if a string looks like a URL based on the presence of "://"
@@ -168,36 +189,44 @@ class ArgsParser
 
   # Process a candidate URL
   # @param [String] arg the URL to process
-  # @param [Array] resources array to add valid URLs to
-  # @param [Hash] errors hash to collect errors
+  # @param [Array] targets array to add valid URLs to
+  # @param [Hash] issues hash to collect issues
   # @return [void]
-  def process_url_candidate(arg, resources, errors)
+  def process_url_candidate(arg, targets, issues)
     begin
       uri = URI.parse(arg)
       if ['http', 'https'].include?(uri.scheme.downcase)
-        resources << arg
+        targets << arg
       else
-        errors[:bad_url_scheme] << arg
+        issues[:bad_url_scheme] << arg
       end
     rescue URI::InvalidURIError
-      errors[:invalid_url] << arg
+      issues[:invalid_url] << arg
     end
   end
 
   # Process a candidate file specification
   # @param [String] arg the filespec to process
-  # @param [Array] resources array to add valid filespecs to
-  # @param [Hash] errors hash to collect errors
+  # @param [Array] targets array to add valid filespecs to
+  # @param [Hash] issues hash to collect issues
   # @return [void]
-  def process_filespec_candidate(arg, resources, errors)
+  def process_filespec_candidate(arg, targets, issues)
     matching_filespecs = Dir.glob(arg)
+    
+    if matching_filespecs.empty?
+      issues[:non_existent_file] << arg
+      return
+    end
+    
     matching_filespecs.each do |file|
       if File.symlink?(file)
-        errors[:is_symlink_wont_process] << file
+        issues[:is_symlink_wont_process] << file
       elsif File.directory?(file)
         # ignore
+      elsif File.empty?(file)
+        issues[:empty_file] << file
       else
-        resources << file
+        targets << file
       end
     end
   end

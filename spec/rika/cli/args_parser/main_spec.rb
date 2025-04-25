@@ -107,7 +107,8 @@ describe ArgsParser do
         metadata: true,
         format: 'at',
         key_sort: true,
-        source: true
+        source: true,
+        verbose: false
       )
     end
 
@@ -116,18 +117,20 @@ describe ArgsParser do
     end
   end
 
-  describe '#process_args_for_resources' do
+  describe '#process_args_for_targets' do
     let(:args_parser) { described_class.new }
     
     it 'removes directories from the target array' do
       allow(args_parser).to receive(:args).and_return([fixtures_dir])
-      expect(args_parser.send(:process_args_for_resources)).to be_empty
+      targets, _ = args_parser.send(:process_args_for_targets)
+      expect(targets).to be_empty
     end
     
     it 'keeps regular files in the target array' do
       tiny_filespec = fixture_path('tiny.txt')
       allow(args_parser).to receive(:args).and_return([tiny_filespec])
-      expect(args_parser.send(:process_args_for_resources)).to eq([tiny_filespec])
+      targets, _ = args_parser.send(:process_args_for_targets)
+      expect(targets).to eq([tiny_filespec])
     end
     
     context 'with wildcard patterns' do
@@ -135,10 +138,10 @@ describe ArgsParser do
         pattern = fixture_path('*.txt')
         allow(args_parser).to receive(:args).and_return([pattern])
         
-        result = args_parser.send(:process_args_for_resources)
+        targets, _ = args_parser.send(:process_args_for_targets)
         # Verify we got at least one .txt file and no directories
-        expect(result).not_to be_empty
-        expect(result.all? { |f| f.end_with?('.txt') }).to be true
+        expect(targets).not_to be_empty
+        expect(targets.all? { |f| f.end_with?('.txt') }).to be true
       end
       
       it 'removes directories from the expanded results' do
@@ -146,10 +149,21 @@ describe ArgsParser do
         pattern = File.join(fixtures_dir, '*')
         allow(args_parser).to receive(:args).and_return([pattern])
         
-        result = args_parser.send(:process_args_for_resources)
+        targets, _ = args_parser.send(:process_args_for_targets)
         # Verify we got some files but no directories
-        expect(result).not_to be_empty
-        expect(result.any? { |f| File.directory?(f) }).to be false
+        expect(targets).not_to be_empty
+        expect(targets.any? { |f| File.directory?(f) }).to be false
+      end
+    end
+    
+    context 'with empty files' do
+      it 'flags empty files in the issues hash' do
+        empty_file_path = fixture_path('empty.txt')
+        allow(args_parser).to receive(:args).and_return([empty_file_path])
+        
+        targets, issues = args_parser.send(:process_args_for_targets)
+        expect(targets).to be_empty
+        expect(issues[:empty_file]).to include(empty_file_path)
       end
     end
   end

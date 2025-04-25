@@ -140,16 +140,18 @@ describe RikaCommand do
     let(:empty_file_path) { fixture_path('empty.txt') }
     let(:something_file_path) { fixture_path('something.txt') } # containts "something"
 
-    specify 'parsing an empty file outputs a message to stderr' do
-      expect {
-        described_class.new([empty_file_path]).call
-      }.to output("\n\nFile empty!: #{empty_file_path}\n\n").to_stderr
-    end
-
     specify 'parsing an empty file does not interrupt parsing of subsequent files' do
       expect {
         described_class.new([empty_file_path, something_file_path]).call
       }.to output(/something/).to_stdout
+    end
+    
+    specify 'empty files are reported in the bad_targets hash' do
+      command = described_class.new([empty_file_path])
+      command.call
+      
+      # Check if the empty file is tracked in the bad_targets hash
+      expect(command.bad_targets[:empty_file]).to include(empty_file_path)
     end
   end
 end
