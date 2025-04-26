@@ -107,21 +107,17 @@ describe RikaCommand do
     it 'prints a warning if no targets are specified' do
       rika_command = described_class.new([])
       allow(rika_command).to receive_messages(
-        targets: [],
-        help_text: 'sample help text'
+        targets: []
       )
       # Use allow instead of expect to avoid SystemExit in test
       allow(rika_command).to receive(:exit)
-      
+
       rika_command.send(:report_and_exit_if_no_targets_specified)
-      
-      # Check that it called the help_text method
-      expect(rika_command).to have_received(:help_text).once
       
       # Check the output
       output = $stderr.string
       expect(output).to match(/No valid targets specified/)
-      expect(output).to include('sample help text')
+      expect(output).to match(/Run with '-h' option for help/)
     end
   end
 
@@ -160,6 +156,67 @@ describe RikaCommand do
       
       # Check if the empty file is tracked in the bad_targets hash
       expect(command.bad_targets[:empty_file]).to include(empty_file_path)
+    end
+  end
+  
+  describe 'integration with ArgsParser issues' do
+    # Create a default options hash with format so that set_output_formats will work
+    let(:default_options) { { format: 'at' } }
+    
+    it 'transfers issues from ArgsParser to bad_targets' do
+      # Create a mock ArgsParser that returns a specific issues hash
+      mock_issues = {
+        non_existent_file: ['missing.txt'],
+        empty_file: ['empty.txt']
+      }
+      
+      allow(ArgsParser).to receive(:call).and_return([default_options, [], 'help text', mock_issues])
+      
+      command = described_class.new([])
+      # Skip exit check for no targets in tests
+      allow(command).to receive(:report_and_exit_if_no_targets_specified)
+      command.send(:prepare)
+      
+      # Verify issues were transferred to bad_targets
+      expect(command.bad_targets[:non_existent_file]).to include('missing.txt')
+      expect(command.bad_targets[:empty_file]).to include('empty.txt')
+    end
+    
+    it 'handles multiple issues in each category' do
+      mock_issues = {
+        non_existent_file: ['missing1.txt', 'missing2.txt'],
+        invalid_url: ['http://:invalid1', 'http://:invalid2']
+      }
+      
+      allow(ArgsParser).to receive(:call).and_return([default_options, [], 'help text', mock_issues])
+      
+      command = described_class.new([])
+      # Skip exit check for no targets in tests
+      allow(command).to receive(:report_and_exit_if_no_targets_specified)
+      command.send(:prepare)
+      
+      # Verify all issues were transferred correctly
+      expect(command.bad_targets[:non_existent_file]).to eq(['missing1.txt', 'missing2.txt'])
+      expect(command.bad_targets[:invalid_url]).to eq(['http://:invalid1', 'http://:invalid2'])
+    end
+    
+    it 'aggregates issues from different sources' do
+      # Create a mock ArgsParser that returns some issues
+      mock_issues = { non_existent_file: ['missing.txt'] }
+      
+      allow(ArgsParser).to receive(:call).and_return([default_options, [], 'help text', mock_issues])
+      
+      command = described_class.new([])
+      # Skip exit check for no targets in tests
+      allow(command).to receive(:report_and_exit_if_no_targets_specified)
+      command.send(:prepare)
+      
+      # Manually add an error from another source
+      command.send(:handle_parse_error, StandardError.new('test error'), 'file.txt', :io_error)
+      
+      # Verify both types of issues are in bad_targets
+      expect(command.bad_targets[:non_existent_file]).to include('missing.txt')
+      expect(command.bad_targets[:io_error]).to include('file.txt')
     end
   end
 end

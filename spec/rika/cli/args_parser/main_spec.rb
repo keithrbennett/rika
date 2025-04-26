@@ -9,10 +9,8 @@ describe ArgsParser do
   let(:fixtures_dir) { File.expand_path(File.join(File.dirname(__FILE__), '../../fixtures')) }
 
   specify 'returns a hash of options, a target array, and help text' do
-    options, targets, help_text = described_class.call([])
-    expect(options).to be_a(Hash)
-    expect(targets).to be_an(Array)
-    expect(help_text).to be_a(String)
+    options, targets, help_text, issues = described_class.call([])
+    expect([options, targets, help_text, issues].map(&:class)).to eq([Hash, Array, String, Hash])
   end
 
   context 'when parsing options' do
@@ -163,7 +161,7 @@ describe ArgsParser do
           expect(targets.any? { |f| File.directory?(f) }).to be false
         ensure
           # Clean up test file
-          File.unlink(test_file_path) if File.exist?(test_file_path)
+          FileUtils.rm_f(test_file_path)
         end
       end
     end
@@ -176,6 +174,32 @@ describe ArgsParser do
         targets, issues = args_parser.send(:process_args_for_targets)
         expect(targets).to be_empty
         expect(issues[:empty_file]).to include(empty_file_path)
+      end
+    end
+
+    context 'with invalid targets' do
+      it 'identifies non-existent files in issues hash' do
+        non_existent_file = 'non_existent_file.txt'
+        allow(args_parser).to receive(:args).and_return([non_existent_file])
+        
+        _, issues = args_parser.send(:process_args_for_targets)
+        expect(issues[:non_existent_file]).to include(non_existent_file)
+      end
+      
+      it 'identifies invalid URLs in issues hash' do
+        invalid_url = 'http://:invalid-url'
+        allow(args_parser).to receive(:args).and_return([invalid_url])
+        
+        _, issues = args_parser.send(:process_args_for_targets)
+        expect(issues[:invalid_url]).to include(invalid_url)
+      end
+      
+      it 'identifies URLs with bad schemes in issues hash' do
+        bad_scheme_url = 'ftp://example.com/file.txt'
+        allow(args_parser).to receive(:args).and_return([bad_scheme_url])
+        
+        _, issues = args_parser.send(:process_args_for_targets)
+        expect(issues[:bad_url_scheme]).to include(bad_scheme_url)
       end
     end
   end
