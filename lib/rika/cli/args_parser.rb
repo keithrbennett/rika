@@ -3,6 +3,8 @@
 require 'optparse'
 require 'shellwords'
 require 'uri'
+require 'awesome_print'
+require_relative 'rika_command'
 
 # Processes the array of arguments (ARGV by default) and returns the options, targets, and help string.
 class ArgsParser
@@ -42,12 +44,6 @@ class ArgsParser
     option_parser.parse!(args)
     postprocess_format_options
     targets, issues = process_args_for_targets
-    if options[:verbose]
-      require 'awesome_print'
-      puts "Target results:"
-      ap({ targets: targets, issues: issues })
-    end
-
     [options, targets, option_parser.help, issues]
   end
 
@@ -106,7 +102,7 @@ class ArgsParser
       end
 
       opts.on('-h', '--help', 'Output help') do
-        puts opts
+        RikaCommand.output_help_text(opts)
         exit
       end
     end
@@ -126,7 +122,7 @@ class ArgsParser
     format_chars = options[:format].chars
     
     if options[:format].strip.empty? || format_chars.any? { |c| !valid_formats.include?(c) }
-      puts "Error: Invalid format characters in '#{options[:format]}'. Valid characters are: #{valid_formats.join(', ')}"
+      $stderr.puts "Error: Invalid format characters in '#{options[:format]}'. Valid characters are: #{valid_formats.join(', ')}"
       exit 1
     end
   end

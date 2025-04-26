@@ -70,20 +70,33 @@ module Rika
       raise IOError, "Input (#{@data_source}) is not an available file or HTTP resource."
     end
 
-    # * Creates and opens an input stream from the configured resource.
+    # Creates a TikaInputStream from the configured resource, which provides better
+    # performance and resource management than direct streams.
     # * Yields that stream to the passed code block.
     # * Then closes the stream.
+    # TikaInputStream provides advanced features like:
+    # * Buffering and resource management
+    # * Mark/reset functionality
+    # * File tracking for temporary files
+    # * Memory efficiency for large files
     # @return [Object] the value returned by the passed code block
     private def with_input_stream
-      input_stream =
-        if @input_type == :file
-          FileInputStream.new(java.io.File.new(@data_source))
-        else
-          URL.new(@data_source).open_stream
-        end
+
+      input_stream = if @input_type == :file
+        file = java.io.File.new(@data_source)
+        # Use the TikaInputStream.get(File) method which is optimized for file access
+        TikaInputStream.get(file)
+      else
+        url = URL.new(@data_source)
+        # Use the TikaInputStream.get(URL) method which handles HTTP streams properly
+        TikaInputStream.get(url)
+      end
+      
+      # Call the block with the stream
       yield input_stream
     ensure
-      input_stream.close if input_stream.respond_to?(:close)
+      # Ensure stream is closed even if exceptions occur
+      input_stream.close if input_stream && input_stream.respond_to?(:close)
     end
   end
 end

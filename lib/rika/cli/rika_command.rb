@@ -18,6 +18,15 @@ require 'stringio'
 class RikaCommand
   attr_reader :args, :bad_targets, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
+  # Outputs help text to stdout
+  # @param [String] help_text The help text to display
+  # @param [String] error_message Optional error message to display on stderr before the help text
+  # @return [void]
+  def self.output_help_text(help_text, error_message = nil)
+    $stderr.puts(error_message) if error_message
+    puts help_text
+  end
+  
   # @param [Array<String>] args command line arguments; default to ARGV but may be overridden for testing
   def initialize(args = ARGV)
     # Dup the array in case it has been frozen. The array will be modified later when options are parsed
@@ -70,9 +79,9 @@ class RikaCommand
     total_bad_targets = bad_targets.values.flatten.size
     return if total_bad_targets.zero?
 
-    require 'yaml'
+    require 'awesome_print'
     $stderr.puts("\n#{total_bad_targets} targets could not be processed:")
-    $stderr.puts(bad_targets.to_yaml)
+    $stderr.puts(bad_targets.ai)
   end
 
   # Sets the output format(s) based on the command line options.
@@ -84,8 +93,7 @@ class RikaCommand
     @text_formatter     = Rika::Formatters.get(format[1])
     nil
   rescue KeyError
-    $stderr.puts "Invalid format: #{format}"
-    $stderr.puts help_text
+    self.class.output_help_text("Invalid format: #{format}")
     exit 1
   end
 
@@ -165,7 +173,7 @@ class RikaCommand
   # @return [Symbol] :error to indicate an error occurred
   def handle_parse_error(exception, target, error_type)
     bad_targets[error_type] << target
-    $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}") if options[:verbose]
+    $stderr.puts("#{exception.class} processing '#{target}': #{exception.message}")
     :error
   end
 
