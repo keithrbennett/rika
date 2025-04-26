@@ -19,7 +19,6 @@ describe 'ArgsParser Boolean Options' do
     { key: :key_sort, flag: 'k', default: true  },
     { key: :source,   flag: 's', default: true  },
     { key: :as_array, flag: 'a', default: false },
-    { key: :verbose,  flag: 'v', default: false, long_name: 'verbose' }
   ].freeze
 
   # Define formats for all the different ways to specify boolean values
@@ -115,25 +114,23 @@ describe 'ArgsParser Boolean Options' do
     end
 
     it "reads options from environment variable" do
-      ENV['RIKA_OPTIONS'] = "-m- -t -k -s- -a -v"
+      ENV['RIKA_OPTIONS'] = "-m- -t -k -s- -a"
       options, = ArgsParser.call([])
       expect(options[:metadata]).to  eq(false)
       expect(options[:text]).to      eq(true)
       expect(options[:key_sort]).to  eq(true)
       expect(options[:source]).to    eq(false)
       expect(options[:as_array]).to  eq(true)
-      expect(options[:verbose]).to   eq(true)
     end
 
     it "allows command line to override environment variable" do
-      ENV['RIKA_OPTIONS'] = "-m- -t- -k- -s- -a -v"
+      ENV['RIKA_OPTIONS'] = "-m- -t- -k- -s- -a"
       options, = ArgsParser.call(["-m", "-t", "-k"])
       expect(options[:metadata]).to  eq(true)
       expect(options[:text]).to      eq(true)
       expect(options[:key_sort]).to  eq(true)
       expect(options[:source]).to    eq(false)
       expect(options[:as_array]).to  eq(true)
-      expect(options[:verbose]).to   eq(true)
     end
   end
 end 

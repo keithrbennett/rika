@@ -103,8 +103,7 @@ Values for the text, metadata, and as_array boolean options may be specified as 
     -k, --[no-]key-sort [FLAG]       Sort metadata keys case insensitively (default: true)
     -s, --[no-]source [FLAG]         Output document source file or URL (default: true)
     -a, --[no-]as-array [FLAG]       Output all parsed results as an array (default: false)
-    -v, --[no-]verbose [FLAG]        Enable verbose output (default: false)
-    -V, --version                    Output software versions
+    -v, --version                    Output software versions
     -h, --help                       Output help
 ```    
 

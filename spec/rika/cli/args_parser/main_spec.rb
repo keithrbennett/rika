@@ -105,8 +105,7 @@ describe ArgsParser do
         metadata: true,
         format: 'at',
         key_sort: true,
-        source: true,
-        verbose: false
+        source: true
       )
     end
 

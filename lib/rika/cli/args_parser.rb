@@ -19,7 +19,6 @@ class ArgsParser
       text: true,
       source: true,
       key_sort: true,
-      verbose: false
     }.freeze
 
   # Parses the command line arguments.
@@ -92,11 +91,7 @@ class ArgsParser
         options[:as_array] = (v.nil? ? true : v)
       end
 
-      opts.on('-v', '--[no-]verbose [FLAG]', TrueClass, 'Enable verbose output (default: false)') do |v|
-        options[:verbose] = (v.nil? ? true : v)
-      end
-
-      opts.on('-V', '--version', 'Output software versions') do
+      opts.on('-v', '--version', 'Output software versions') do
         puts versions_string
         exit
       end

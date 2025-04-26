@@ -21,25 +21,23 @@ describe 'ArgsParser Environment Variable Handling' do
 
   describe 'environment variable processing' do
     it 'reads simple options from environment' do
-      ENV['RIKA_OPTIONS'] = '-m- -t- -k -s -a -v'
+      ENV['RIKA_OPTIONS'] = '-m- -t- -k -s -a'
       options, = ArgsParser.call([])
       expect(options[:metadata]).to eq(false)
       expect(options[:text]).to eq(false)
       expect(options[:key_sort]).to eq(true)
       expect(options[:source]).to eq(true)
       expect(options[:as_array]).to eq(true)
-      expect(options[:verbose]).to eq(true)
     end
 
     it 'allows command line to override environment' do
-      ENV['RIKA_OPTIONS'] = '-m- -t- -k- -s- -a -v'
+      ENV['RIKA_OPTIONS'] = '-m- -t- -k- -s- -a'
       options, = ArgsParser.call(['-m', '-t', '-k'])
       expect(options[:metadata]).to eq(true)
       expect(options[:text]).to eq(true)
       expect(options[:key_sort]).to eq(true)
       expect(options[:source]).to eq(false)
       expect(options[:as_array]).to eq(true)
-      expect(options[:verbose]).to eq(true)
     end
 
     it 'handles quoted values in environment variables' do

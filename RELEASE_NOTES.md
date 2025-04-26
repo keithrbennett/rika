@@ -1,8 +1,37 @@
 ## Release Notes
 
-### v2.1.0
+### V2.2.0
 
-* Add ability to specify quoted wildcard filespecs on command line so Ruby will expand them.
+#### New Features
+
+#### Enhancements
+* Switched to TikaInputStream for improved memory management and performance
+* Removed unused verbose mode (-v/--verbose flag)
+* Improved error handling in stream processing
+* Added better error handling and reporting for failed processing attempts
+* Improved reporting of different error types (empty files, symlinks, invalid URLs, etc.)
+
+#### Enhancements
+* Added more robust URL validation and processing
+* Improved handling of various file types, including empty files and symlinks
+* Output source file/URL option now defaults to true
+* Enhanced format validation with clear error messages for invalid formats
+* Added ability to handle files with URL-like patterns correctly
+
+#### Developer Improvements
+* Added comprehensive integration tests for:
+  * Document processing scenarios
+  * CLI end-to-end functionality
+  * Web URL processing with error handling
+* Improved code organization with better method extraction and clearer separation of concerns
+* Added support for UTF-8 encoding in environment options
+
+#### Bug Fixes
+* Fixed potential issues with URL parsing and validation
+* Improved error handling for HTTP responses (404, 500 errors)
+* Fixed CLI argument parsing for unusual file names
+
+### v2.1.0
 
 ### v2.0.4
 
