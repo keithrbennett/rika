@@ -15,7 +15,8 @@ Gem::Specification.new do |gem|
   gem.summary       = 'A JRuby wrapper for Apache Tika to extract text and metadata from files of various formats.'
   gem.homepage      = 'https://github.com/keithrbennett/rika'
   gem.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
-  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
+  gem.bindir        = 'exe'
+  gem.executables   = gem.files.grep(%r{^#{gem.bindir}/}).map { |f| File.basename(f) }
   gem.require_paths = ['lib']
   gem.add_dependency 'awesome_print', '~> 1.9', '>= 1.9.2'
   gem.platform = 'java'
