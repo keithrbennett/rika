@@ -16,6 +16,7 @@
 * Fixed potential issues with URL parsing and validation
 * Improved error handling for HTTP responses (404, 500 errors)
 * Fixed CLI argument parsing for unusual file names
+* Move gem executable from bin/ to exe/, make 'exe' the bindir
 
 ### v2.1.0
 
