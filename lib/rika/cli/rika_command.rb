@@ -6,6 +6,7 @@ require 'rika'
 require 'rika/formatters'
 require 'rika/cli/args_parser'
 require 'stringio'
+require 'yaml'
 
 # This command line application enables the parsing of documents on the command line.
 # Syntax is:
@@ -16,6 +17,15 @@ require 'stringio'
 # but the -t and -m flags can be used to enable or suppress either.
 # Supports output formats of JSON, Pretty JSON, YAML, Awesome Print, to_s, and inspect (see Formatters class).
 class RikaCommand
+  FORMAT_DESCRIPTIONS = Hash.new('Unknown').merge(
+    'a' => 'AwesomePrint',
+    'i' => 'inspect',
+    'j' => 'JSON',
+    'J' => 'Pretty JSON',
+    't' => 'to_s',
+    'y' => 'YAML'
+  ).freeze
+
   attr_reader :args, :bad_targets, :help_text, :metadata_formatter, :options, :targets, :text_formatter
 
   # Outputs help text to stdout
@@ -40,6 +50,12 @@ class RikaCommand
   def call
     prepare
     report_and_exit_if_no_targets_specified
+    
+    if options[:dry_run]
+      display_dry_run_info
+      return 0
+    end
+    
     process_targets
     report_bad_targets
     bad_targets.values.flatten.empty? ? 0 : 1
@@ -82,6 +98,28 @@ class RikaCommand
     require 'awesome_print'
     $stderr.puts("\n#{total_bad_targets} targets could not be processed:")
     $stderr.puts(bad_targets.ai)
+
+    # Show any issues found during preparation
+    unless bad_targets.empty?
+      puts "Issues found:"
+      
+      # Possible issue types include:
+      # - non_existent_file: Files that don't exist
+      # - empty_file: Files that exist but are empty
+      # - is_symlink_wont_process: Symlinks that won't be processed
+      # - file_with_url_characters: Files with "://" in their names
+      # - bad_url_scheme: URLs with schemes other than http/https
+      # - invalid_url: URLs that fail URI parsing
+      # - unknown_host: URLs with hosts that can't be resolved
+      # - io_error: IO errors during processing
+      # - invalid_input: Invalid input arguments
+      bad_targets.each do |issue_type, files|
+        puts "  #{issue_type}:"
+        files.each do |file|
+          puts "    #{file}"
+        end
+      end
+    end
   end
 
   # Sets the output format(s) based on the command line options.
@@ -210,6 +248,44 @@ class RikaCommand
       exit 0
     end
     nil
+  end
+
+  # Displays information about what would happen in a dry run
+  # without actually executing the command
+  # @return [void]
+  def display_dry_run_info
+    require 'yaml'
+    
+    # Format the targets list
+    target_list = targets.map { |target| "  #{target}" }.join("\n")
+    
+    # Create the main output using a heredoc
+    puts <<~DRY_RUN_OUTPUT
+      DRY RUN: Showing what would happen without executing
+
+      Options:
+        Format: #{options[:format]} (#{format_description})
+        Output metadata: #{options[:metadata]}
+        Output text: #{options[:text]}
+        Sort metadata keys: #{options[:key_sort]}
+        Output source: #{options[:source]}
+        Output as array: #{options[:as_array]}
+
+      Targets to process (#{targets.size}):
+      #{target_list}
+    DRY_RUN_OUTPUT
+    
+    if bad_targets.any?
+      puts "\nIssues found:\n#{bad_targets.to_yaml}"
+    end
+  end
+  
+  # Returns a description of the format options
+  # @return [String] description of the format
+  def format_description
+    metadata_desc = FORMAT_DESCRIPTIONS[options[:format][0]]
+    text_desc = FORMAT_DESCRIPTIONS[options[:format][1]]
+    "#{metadata_desc} for metadata, #{text_desc} for text"
   end
 end
 

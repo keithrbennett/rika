@@ -8,6 +8,7 @@
 * Output source file/URL option now defaults to true
 * Enhanced format validation with clear error messages for invalid formats
 * Added ability to handle files with URL-like patterns correctly
+* Added dry-run mode (-n/--dry-run) to preview command execution without processing files
 * Improved unit tests and added comprehensive integration tests for:
   * Document processing scenarios
   * CLI end-to-end functionality

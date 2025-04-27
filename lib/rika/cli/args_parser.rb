@@ -19,6 +19,7 @@ class ArgsParser
       text: true,
       source: true,
       key_sort: true,
+      dry_run: false,
     }.freeze
 
   # Parses the command line arguments.
@@ -63,6 +64,11 @@ class ArgsParser
           Enable:  +, true,  yes, [empty]
           Disable: -, false, no, [long form option with no- prefix, e.g. --no-metadata]
 
+        ⚠️ IMPORTANT: Always quote wildcard patterns when files might contain special characters!
+          - Double quotes: "*.pdf" (allows variable expansion)
+          - Single quotes: '*.pdf' (prevents all shell interpretation)
+          Use -n/--dry-run to preview command execution and check for issues.
+
       BANNER
 
       format_message = 'Output format (default: at)'
@@ -89,6 +95,10 @@ class ArgsParser
       opts.on('-a', '--[no-]as-array [FLAG]', TrueClass,
               'Output all parsed results as an array (default: false)') do |v|
         options[:as_array] = (v.nil? ? true : v)
+      end
+
+      opts.on('-n', '--[no-]dry-run [FLAG]', TrueClass, 'Show what would be done without executing (default: false)') do |v|
+        options[:dry_run] = (v.nil? ? true : v)
       end
 
       opts.on('-v', '--version', 'Output software versions') do

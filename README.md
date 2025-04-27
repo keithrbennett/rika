@@ -26,8 +26,7 @@ Rika that may suit more demanding needs.
 
 ## Usage in Your Ruby Code
 
-> [!IMPORTANT]  
-> **It is necessary to call `Rika.init` before using Rika.**  This is because the loading of the Tika library
+> **⚠️ IMPORTANT:** It is necessary to call `Rika.init` before using Rika.  This is because the loading of the Tika library
 has been put in an init method, rather than at load time, so that 'jar file not found or specified' errors 
 do not prevent your application from loading. If you forget to call `Rika.init`, you may see seemingly unrelated
 error messages.
@@ -97,12 +96,18 @@ Values for the text, metadata, and as_array boolean options may be specified as 
   Enable:  +, true,  yes, [empty]
   Disable: -, false, no, [long form option with no- prefix, e.g. --no-metadata]
 
+IMPORTANT: Always quote wildcard patterns when files might contain special characters:
+           - Double quotes: "*.pdf" (allows variable expansion)
+           - Single quotes: '*.pdf' (prevents all shell interpretation)
+           Use -n/--dry-run to preview command execution and check for issues.
+
     -f, --format FORMAT              Output format (default: at)
     -m, --[no-]metadata [FLAG]       Output metadata (default: true)
     -t, --[no-]text [FLAG]           Output text (default: true)
     -k, --[no-]key-sort [FLAG]       Sort metadata keys case insensitively (default: true)
     -s, --[no-]source [FLAG]         Output document source file or URL (default: true)
     -a, --[no-]as-array [FLAG]       Output all parsed results as an array (default: false)
+    -n, --[no-]dry-run [FLAG]        Show what would be done without executing (default: false)
     -v, --version                    Output software versions
     -h, --help                       Output help
 ```    
@@ -156,6 +161,22 @@ rika '**/*.pdf'
 rika **/*.pdf
 ```
 
+> **⚠️ IMPORTANT:** Always quote wildcard patterns (using either single or double quotes) when they might match files containing special characters!
+> 
+> When unquoted, the shell may misinterpret filenames containing spaces, $, *, ?, [], (), {}, &, |, <, >, ;,
+> backticks, quotes, and other shell metacharacters, causing unpredictable behavior:
+>
+> ```bash
+> # PROBLEMATIC - Shell breaks/misinterprets files with special characters
+> rika pdf/*
+> 
+> # CORRECT - Both single and double quotes work to preserve filenames
+> rika "pdf/*"      # Double quotes allow variable expansion within the pattern
+> rika 'pdf/*.pdf'  # Single quotes prevent all shell interpretation
+> ```
+>
+> Use the `-n` (dry-run) option to preview how your command will be processed and to check for issues.
+
 This is particularly useful when dealing with large numbers of files, as shell expansion may hit command line length limits.
 In-app expansion has no practical limit on the number of files that can be processed.
 
@@ -165,6 +186,33 @@ Supported wildcard patterns:
 - `[abc]` - Match one character from the set
 - `{a,b,c}` - Match any of the patterns a, b, or c
 - `**` - Recursive directory matching (match all files in all subdirectories)
+
+### Dry Run Mode
+
+You can use the `-n` or `--dry-run` option to see what would happen when running a command without actually executing it:
+
+```bash
+rika -n -f jy README.md
+```
+
+Like other boolean options, dry-run mode can be disabled with various syntax options:
+```bash
+rika -n- README.md            # Hyphen suffix
+rika -n false README.md       # "false" value
+rika -n no README.md          # "no" value
+rika --no-dry-run README.md   # --no- prefix
+```
+
+This will display:
+- All the options that would be used, with human-readable descriptions
+- A list of files that would be processed
+- Any issues that were detected (like non-existent files)
+
+This is useful for:
+- Debugging complex commands
+- Checking what files would be processed when using wildcards
+- Verifying options before running on large sets of files
+- Understanding how different options would affect processing
 
 ### Machine Readable Data Support
 
