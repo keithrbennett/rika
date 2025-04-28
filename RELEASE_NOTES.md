@@ -2,22 +2,15 @@
 
 ### v2.2.0
 
-* Improved error handling and reporting of different error types (empty files, symlinks, invalid URLs, etc.)
-* Switched to TikaInputStream for improved memory management and performance
-* Added more robust URL validation and processing
-* Output source file/URL option now defaults to true
-* Enhanced format validation with clear error messages for invalid formats
-* Added ability to handle files with URL-like patterns correctly
-* Added dry-run mode (-n/--dry-run) to preview command execution without processing files
-* Improved unit tests and added comprehensive integration tests for:
-  * Document processing scenarios
-  * CLI end-to-end functionality
-  * Web URL processing with error handling
+* Switched to TikaInputStream for better memory management and performance
+* Added dry-run mode (-n/--dry-run) to preview command execution
+* Improved error handling and reporting (empty files, symlinks, invalid URLs)
+* Enhanced URL validation and processing
+* Added comprehensive integration tests
+* Moved gem executable from bin/ to exe/, made 'exe' the bindir
+* Changed executable shebang from ruby to jruby
+* Added prominent warning about quoting wildcards
 * Added support for UTF-8 encoding in environment options
-* Fixed potential issues with URL parsing and validation
-* Improved error handling for HTTP responses (404, 500 errors)
-* Fixed CLI argument parsing for unusual file names
-* Move gem executable from bin/ to exe/, make 'exe' the bindir
 
 ### v2.1.0
 
