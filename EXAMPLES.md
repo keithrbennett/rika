@@ -12,12 +12,11 @@ rika image.png     # Works with image files too
 
 ### Extract Metadata and Text from Multiple Files
 ```bash
-rika "*.pdf"  # Quote wildcards to prevent shell expansion
-rika "**/*.pdf"  # Recursively search this directory and all its subdirectories
-rika "*.pdf" "*.doc" "*.docx"  # Multiple file types
+rika "*.pdf"  # Quote wildcards to prevent potentially problematic shell expansion
+rika "**/*.pdf"  # Recursive; search this directory and all its subdirectories
 rika "reports/*.pdf" "drafts/*.doc"  # Different directories
 rika "**/*.pdf" "**/*.doc"  # Recursive search for multiple types
-rika "*.{pdf,png}"  # Process both documents and images
+rika "**/*.{pdf,doc}"  # Shorthand form for above
 ```
 
 ### Extract Metadata and Text from a URL
@@ -43,7 +42,7 @@ rika -s- document.pdf
 # Combine with format options
 rika -t- -f a document.pdf  # Metadata only, in Awesome Print format, includes filespec banner
 rika -m- -f a document.pdf  # Text only, in Awesome Print format, includes filespec banner
-rika -s- -t- -f a document.pdf  # Metadata only, no filespec banner
+rika -s- -t- -f j document.pdf  # Metadata only, JSON format, no filespec banner, for machine readability
 ```
 
 ## Business Use Cases
@@ -62,17 +61,14 @@ rika "*.{pdf,png,jpg}" > output.txt
 
 ### Extract Metadata for Document Management
 ```bash
-# Get metadata in JSON format
+# Get metadata in JSON format, with filespec banner for human readability
 rika -t- -f j document.pdf
 
-# Get metadata in YAML format
-rika -t- -f y document.pdf
+# Get metadata in JSON format, no banner, good for piping data
+rika -t- -f j -s- document.pdf
 
-# Get both metadata and text in different formats
-rika -f jJ document.pdf  # JSON for metadata, Pretty JSON for text
-
-# Extract metadata from images
-rika -t- -f j image.png  # Get image metadata in JSON format
+# Get both metadata and text, and ouput them in different formats
+rika -f ja document.pdf  # JSON for metadata, Awesome Print for text
 ```
 
 ### Process Documents from a Web Server
