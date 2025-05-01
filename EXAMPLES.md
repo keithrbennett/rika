@@ -11,6 +11,7 @@ This document provides practical examples of how to use Rika for extracting meta
       - [Integration with Other Tools](#integration-with-other-tools)
       - [Environment Variables](#environment-variables)
 - [Best Practices](#best-practices)
+- [Usage in Your Ruby Code](#usage-in-your-ruby-code)
 
 ## Getting Started
 
@@ -183,3 +184,35 @@ rika -t document.pdf  # Override to include text
 6. **Use content flags** (`-m-`, `-t-`, and `-s-`) to include only what you need
 7. **Save output to files** for later reference or processing
 8. **Process files in batches** when working with multiple documents
+9. **Be careful with overlapping filespecs** - a file matching multiple patterns will be processed multiple times:
+   ```bash
+   # Bad: processes PDFs in docs/ twice
+   rika "**/*.pdf" "docs/*.pdf"
+   
+   # Good: use single filespec
+   rika "**/*.pdf"
+   
+   # Good: use non-overlapping patterns
+   rika "docs/*.pdf" "archive/*.pdf"
+   ```
+
+## Usage in Your Ruby Code
+
+```ruby
+require 'rika'
+
+# Process a single file
+doc = Rika.parse_file('document.pdf')
+puts doc.metadata
+puts doc.text
+
+# Process multiple files
+Dir.glob('**/*.pdf').each do |file|
+  doc = Rika.parse_file(file)
+  puts doc.metadata
+end
+
+# Process a URL
+doc = Rika.parse_url('https://example.com/document.pdf')
+puts doc.metadata
+```
